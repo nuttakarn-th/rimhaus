@@ -3,7 +3,7 @@ import { getTransactions, getFinanceSummary } from "@/actions/transactions.actio
 import { DeleteTransactionButton } from "@/components/finances/DeleteTransactionButton"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Pencil } from "lucide-react"
 
 function getCurrentMonth() {
   const now = new Date()
@@ -133,7 +133,12 @@ export default async function FinancesPage({
                     {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount)}
                   </td>
                   <td className="px-4 py-3">
-                    <DeleteTransactionButton id={tx.id} />
+                    <div className="flex items-center gap-1">
+                      <Link href={`/finances/${tx.id}/edit`} className="p-1 text-gray-400 hover:text-[hsl(24,85%,50%)] transition-colors rounded">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Link>
+                      <DeleteTransactionButton id={tx.id} />
+                    </div>
                   </td>
                 </tr>
               ))}

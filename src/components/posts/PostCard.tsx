@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 import type { SocialPost, Platform } from "@/lib/types"
 import { Eye, Heart, MessageCircle, Share2, Bookmark } from "lucide-react"
@@ -30,7 +31,7 @@ export function PostCard({ post, platforms }: PostCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <Link href={`/posts/${post.id}`} className="block p-4 hover:bg-[hsl(35,25%,98%)]">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] line-clamp-2 mb-1">{post.post_title}</h3>
         {post.post_date && (
           <p className="text-xs text-[hsl(25,10%,50%)] mb-3">{formatDate(post.post_date)}</p>
@@ -74,7 +75,7 @@ export function PostCard({ post, platforms }: PostCardProps) {
         ) : (
           <p className="text-xs text-gray-300 pt-3 border-t border-[hsl(35,20%,92%)]">ยังไม่มีสถิติ</p>
         )}
-      </div>
+      </Link>
     </div>
   )
 }

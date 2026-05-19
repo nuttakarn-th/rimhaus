@@ -31,6 +31,40 @@ export async function createTransaction(data: TransactionFormValues): Promise<Ac
   return { success: true, data: tx }
 }
 
+export async function getTransaction(id: string): Promise<Transaction | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("transactions")
+    .select("*, review_jobs(brand_name, product_name)")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single()
+
+  return (data as Transaction) ?? null
+}
+
+export async function updateTransaction(id: string, data: Partial<TransactionFormValues>): Promise<ActionResult<Transaction>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+
+  const { data: tx, error } = await supabase
+    .from("transactions")
+    .update(data)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select()
+    .single()
+
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/finances")
+  revalidatePath("/dashboard")
+  return { success: true, data: tx }
+}
+
 export async function deleteTransaction(id: string): Promise<ActionResult<void>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

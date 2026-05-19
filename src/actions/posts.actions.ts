@@ -74,6 +74,21 @@ export async function deletePost(id: string): Promise<ActionResult<void>> {
   return { success: true, data: undefined }
 }
 
+export async function getPost(id: string): Promise<SocialPost | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("social_posts")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single()
+
+  return (data as SocialPost) ?? null
+}
+
 export async function getPosts(filters?: { platform?: string; status?: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

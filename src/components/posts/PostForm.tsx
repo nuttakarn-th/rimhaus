@@ -2,42 +2,64 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createPost, type PostFormValues } from "@/actions/posts.actions"
+import { createPost, updatePost, type PostFormValues } from "@/actions/posts.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { ReviewJob, ContentItem, Platform } from "@/lib/types"
+import type { ReviewJob, ContentItem, Platform, SocialPost } from "@/lib/types"
 import { toast } from "sonner"
 
 interface PostFormProps {
+  post?: SocialPost
   jobs: ReviewJob[]
   contentItems: ContentItem[]
   platforms: Platform[]
 }
 
-export function PostForm({ jobs, contentItems, platforms }: PostFormProps) {
+export function PostForm({ post, jobs, contentItems, platforms }: PostFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState<PostFormValues>({
-    platform: "",
-    post_title: "",
-    post_url: "",
-    caption: "",
-    hashtags: "",
-    post_date: new Date().toISOString().split("T")[0],
-    status: "posted",
-    views: null,
-    likes: null,
-    comments: null,
-    shares: null,
-    saves: null,
-    reach: null,
-    notes: "",
-    review_job_id: null,
-    content_item_id: null,
-  })
+  const [form, setForm] = useState<PostFormValues>(
+    post
+      ? {
+          platform: post.platform,
+          post_title: post.post_title,
+          post_url: post.post_url ?? "",
+          caption: post.caption ?? "",
+          hashtags: post.hashtags ?? "",
+          post_date: post.post_date ? String(post.post_date).split("T")[0] : null,
+          status: post.status,
+          views: post.views ?? null,
+          likes: post.likes ?? null,
+          comments: post.comments ?? null,
+          shares: post.shares ?? null,
+          saves: post.saves ?? null,
+          reach: post.reach ?? null,
+          notes: post.notes ?? "",
+          review_job_id: post.review_job_id ?? null,
+          content_item_id: post.content_item_id ?? null,
+        }
+      : {
+          platform: "",
+          post_title: "",
+          post_url: "",
+          caption: "",
+          hashtags: "",
+          post_date: new Date().toISOString().split("T")[0],
+          status: "posted",
+          views: null,
+          likes: null,
+          comments: null,
+          shares: null,
+          saves: null,
+          reach: null,
+          notes: "",
+          review_job_id: null,
+          content_item_id: null,
+        }
+  )
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -45,11 +67,11 @@ export function PostForm({ jobs, contentItems, platforms }: PostFormProps) {
     if (!form.post_title) { toast.error("กรุณากรอกชื่อโพส"); return }
     setLoading(true)
 
-    const result = await createPost(form)
+    const result = post ? await updatePost(post.id, form) : await createPost(form)
     if (!result.success) { toast.error(result.error); setLoading(false); return }
 
-    toast.success("บันทึกโพสสำเร็จ")
-    router.push("/posts")
+    toast.success(post ? "แก้ไขโพสสำเร็จ" : "บันทึกโพสสำเร็จ")
+    router.push(post ? `/posts/${post.id}` : "/posts")
     router.refresh()
   }
 
@@ -166,7 +188,7 @@ export function PostForm({ jobs, contentItems, platforms }: PostFormProps) {
       </div>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : "บันทึกโพส"}</Button>
+        <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : post ? "บันทึกการแก้ไข" : "บันทึกโพส"}</Button>
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
       </div>
     </form>

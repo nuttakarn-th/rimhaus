@@ -6,7 +6,7 @@ import { deletePost } from "@/actions/posts.actions"
 import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
-export function DeletePostButton({ id }: { id: string }) {
+export function DeletePostButton({ id, redirectTo }: { id: string; redirectTo?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -16,7 +16,8 @@ export function DeletePostButton({ id }: { id: string }) {
     const result = await deletePost(id)
     if (result.success) {
       toast.success("ลบโพสสำเร็จ")
-      router.refresh()
+      if (redirectTo) router.push(redirectTo)
+      else router.refresh()
     } else {
       toast.error(result.error)
       setLoading(false)
