@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PRODUCT_CATEGORIES, REVIEW_TYPE_LABELS, JOB_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants"
-import type { ReviewJob, Platform } from "@/lib/types"
+import { PRODUCT_CATEGORIES, REVIEW_TYPE_LABELS, JOB_STATUS_LABELS, PAYMENT_STATUS_LABELS, DEAL_TYPE_LABELS } from "@/lib/constants"
+import type { ReviewJob, Platform, DealType } from "@/lib/types"
 import { toast } from "sonner"
 
 interface JobFormProps {
@@ -25,12 +25,19 @@ const defaultValues: JobFormValues = {
   review_type: "short_video",
   platforms: [],
   deadline: null,
+  deal_type: "paid",
   payment_amount: 0,
   payment_status: "pending",
   status: "accepted",
   product_received: false,
   product_value: null,
   notes: "",
+}
+
+const DEAL_TYPE_DESCRIPTIONS: Record<DealType, string> = {
+  paid: "ลูกค้า/เอเจนซี่จ่ายค่าจ้าง",
+  barter_inbound: "ลูกค้า/เอเจนซี่เสนอ Barter ให้ของแทนเงิน",
+  barter_outbound: "เราขอ Barter เอง ได้แค่ของ",
 }
 
 export function JobForm({ job, platforms }: JobFormProps) {
@@ -45,6 +52,7 @@ export function JobForm({ job, platforms }: JobFormProps) {
           review_type: job.review_type,
           platforms: job.platforms,
           deadline: job.deadline,
+          deal_type: job.deal_type ?? "paid",
           payment_amount: job.payment_amount,
           payment_status: job.payment_status,
           status: job.status,
@@ -54,6 +62,17 @@ export function JobForm({ job, platforms }: JobFormProps) {
         }
       : defaultValues
   )
+
+  const isBarter = form.deal_type === "barter_inbound" || form.deal_type === "barter_outbound"
+
+  function handleDealTypeChange(v: DealType) {
+    setForm(p => ({
+      ...p,
+      deal_type: v,
+      payment_amount: v !== "paid" ? 0 : p.payment_amount,
+      payment_status: v !== "paid" ? "received" : p.payment_status,
+    }))
+  }
 
   function togglePlatform(id: string) {
     setForm(prev => ({
@@ -91,6 +110,32 @@ export function JobForm({ job, platforms }: JobFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      {/* Deal Type — ต้องเลือกก่อนเสมอ */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
+        <h3 className="font-semibold text-[hsl(25,20%,15%)]">ประเภทงาน *</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {(Object.entries(DEAL_TYPE_LABELS) as [DealType, string][]).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => handleDealTypeChange(k)}
+              className={`p-3 rounded-lg border-2 text-left transition-all ${
+                form.deal_type === k
+                  ? k === "paid"
+                    ? "border-emerald-500 bg-emerald-50"
+                    : k === "barter_inbound"
+                    ? "border-violet-500 bg-violet-50"
+                    : "border-sky-500 bg-sky-50"
+                  : "border-[hsl(35,20%,88%)] hover:border-[hsl(35,20%,70%)]"
+              }`}
+            >
+              <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">{label}</p>
+              <p className="text-xs text-[hsl(25,10%,50%)] mt-1 leading-snug">{DEAL_TYPE_DESCRIPTIONS[k]}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Brand & Product */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
         <h3 className="font-semibold text-[hsl(25,20%,15%)]">ข้อมูลแบรนด์และสินค้า</h3>
@@ -132,10 +177,7 @@ export function JobForm({ job, platforms }: JobFormProps) {
         <div className="flex flex-wrap gap-3">
           {platforms.filter(p => p.is_active).map(p => (
             <label key={p.id} className="flex items-center gap-2 cursor-pointer">
-              <Checkbox
-                checked={form.platforms.includes(p.id)}
-                onCheckedChange={() => togglePlatform(p.id)}
-              />
+              <Checkbox checked={form.platforms.includes(p.id)} onCheckedChange={() => togglePlatform(p.id)} />
               <span className="text-sm font-medium" style={{ color: form.platforms.includes(p.id) ? p.color : undefined }}>
                 {p.label}
               </span>
@@ -144,24 +186,31 @@ export function JobForm({ job, platforms }: JobFormProps) {
         </div>
       </div>
 
-      {/* Payment & Timeline */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
-        <h3 className="font-semibold text-[hsl(25,20%,15%)]">การเงินและกำหนดเวลา</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>ค่าจ้าง (บาท) *</Label>
-            <Input type="number" min="0" value={form.payment_amount} onChange={e => setForm(p => ({ ...p, payment_amount: Number(e.target.value) }))} />
-          </div>
-          <div className="space-y-2">
-            <Label>สถานะการรับเงิน</Label>
-            <Select value={form.payment_status} onValueChange={v => setForm(p => ({ ...p, payment_status: v as JobFormValues["payment_status"] }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-              </SelectContent>
-            </Select>
+      {/* Payment section — paid only */}
+      {!isBarter && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
+          <h3 className="font-semibold text-[hsl(25,20%,15%)]">ค่าจ้างและการรับเงิน</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>ค่าจ้าง (บาท) *</Label>
+              <Input type="number" min="0" value={form.payment_amount} onChange={e => setForm(p => ({ ...p, payment_amount: Number(e.target.value) }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>สถานะการรับเงิน</Label>
+              <Select value={form.payment_status} onValueChange={v => setForm(p => ({ ...p, payment_status: v as JobFormValues["payment_status"] }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Timeline & Status */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
+        <h3 className="font-semibold text-[hsl(25,20%,15%)]">กำหนดเวลาและสถานะ</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>กำหนดส่งงาน</Label>
@@ -179,16 +228,23 @@ export function JobForm({ job, platforms }: JobFormProps) {
         </div>
       </div>
 
-      {/* Product */}
+      {/* Product / Barter value */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
-        <h3 className="font-semibold text-[hsl(25,20%,15%)]">สินค้า</h3>
+        <h3 className="font-semibold text-[hsl(25,20%,15%)]">
+          {isBarter ? "ของที่ได้รับ (Barter)" : "สินค้าและหมายเหตุ"}
+        </h3>
         <div className="flex items-center gap-3">
           <Checkbox checked={form.product_received} onCheckedChange={v => setForm(p => ({ ...p, product_received: Boolean(v) }))} id="product_received" />
           <Label htmlFor="product_received">ได้รับสินค้าแล้ว</Label>
         </div>
         <div className="space-y-2">
-          <Label>มูลค่าสินค้า (บาท)</Label>
-          <Input type="number" min="0" value={form.product_value ?? ""} onChange={e => setForm(p => ({ ...p, product_value: e.target.value ? Number(e.target.value) : null }))} placeholder="กรณีได้รับสินค้าแทนค่าจ้าง" />
+          <Label>{isBarter ? "มูลค่าสินค้า (บาท) *" : "มูลค่าสินค้า (บาท)"}</Label>
+          <Input
+            type="number" min="0"
+            value={form.product_value ?? ""}
+            onChange={e => setForm(p => ({ ...p, product_value: e.target.value ? Number(e.target.value) : null }))}
+            placeholder={isBarter ? "ระบุมูลค่าของที่ได้รับ" : "กรณีได้รับสินค้าเพิ่ม"}
+          />
         </div>
         <div className="space-y-2">
           <Label>หมายเหตุ</Label>

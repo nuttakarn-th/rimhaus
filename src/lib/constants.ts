@@ -1,4 +1,4 @@
-import type { JobStatus, PaymentStatus, ReviewType, ContentStatus, PostStatus } from "./types"
+import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus } from "./types"
 
 export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
   accepted: "รับงาน",
@@ -26,6 +26,18 @@ export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
   pending: "bg-red-100 text-red-700",
   invoiced: "bg-yellow-100 text-yellow-700",
   received: "bg-green-100 text-green-700",
+}
+
+export const DEAL_TYPE_LABELS: Record<DealType, string> = {
+  paid: "รับจ้าง (มีค่าตอบแทน)",
+  barter_inbound: "Barter — ลูกค้าเสนอ",
+  barter_outbound: "Barter — ขอเอง",
+}
+
+export const DEAL_TYPE_COLORS: Record<DealType, string> = {
+  paid: "bg-emerald-100 text-emerald-800",
+  barter_inbound: "bg-violet-100 text-violet-800",
+  barter_outbound: "bg-sky-100 text-sky-800",
 }
 
 export const REVIEW_TYPE_LABELS: Record<ReviewType, string> = {

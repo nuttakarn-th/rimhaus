@@ -5,7 +5,7 @@ import { JobStatusBadge, PaymentStatusBadge } from "@/components/jobs/JobStatusB
 import { StatusStepper } from "@/components/jobs/StatusStepper"
 import { DeleteJobButton } from "@/components/jobs/DeleteJobButton"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { REVIEW_TYPE_LABELS } from "@/lib/constants"
+import { REVIEW_TYPE_LABELS, DEAL_TYPE_LABELS, DEAL_TYPE_COLORS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Pencil } from "lucide-react"
 
@@ -19,13 +19,19 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const job = await getJob(id)
   if (!job) notFound()
 
+  const isBarter = job.deal_type === "barter_inbound" || job.deal_type === "barter_outbound"
+  const dealType = job.deal_type ?? "paid"
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">{job.brand_name}</h1>
             <JobStatusBadge status={job.status} />
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${DEAL_TYPE_COLORS[dealType]}`}>
+              {DEAL_TYPE_LABELS[dealType]}
+            </span>
           </div>
           <p className="text-[hsl(25,10%,50%)] mt-1">{job.product_name}</p>
         </div>
@@ -66,22 +72,30 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <dt className="text-[hsl(25,10%,50%)]">กำหนดส่งงาน</dt>
             <dd className="font-medium mt-0.5">{job.deadline ? formatDate(job.deadline) : "-"}</dd>
           </div>
-          <div>
-            <dt className="text-[hsl(25,10%,50%)]">ค่าจ้าง</dt>
-            <dd className="font-semibold text-[hsl(24,85%,50%)] mt-0.5 text-base">{formatCurrency(job.payment_amount)}</dd>
-          </div>
-          <div>
-            <dt className="text-[hsl(25,10%,50%)]">สถานะการรับเงิน</dt>
-            <dd className="mt-0.5"><PaymentStatusBadge status={job.payment_status} /></dd>
-          </div>
+
+          {!isBarter && (
+            <>
+              <div>
+                <dt className="text-[hsl(25,10%,50%)]">ค่าจ้าง</dt>
+                <dd className="font-semibold text-[hsl(24,85%,50%)] mt-0.5 text-base">{formatCurrency(job.payment_amount)}</dd>
+              </div>
+              <div>
+                <dt className="text-[hsl(25,10%,50%)]">สถานะการรับเงิน</dt>
+                <dd className="mt-0.5"><PaymentStatusBadge status={job.payment_status} /></dd>
+              </div>
+            </>
+          )}
+
           <div>
             <dt className="text-[hsl(25,10%,50%)]">ได้รับสินค้า</dt>
             <dd className="font-medium mt-0.5">{job.product_received ? "✅ ได้รับแล้ว" : "❌ ยังไม่ได้รับ"}</dd>
           </div>
-          {job.product_value && (
+          {job.product_value != null && (
             <div>
-              <dt className="text-[hsl(25,10%,50%)]">มูลค่าสินค้า</dt>
-              <dd className="font-medium mt-0.5">{formatCurrency(job.product_value)}</dd>
+              <dt className="text-[hsl(25,10%,50%)]">{isBarter ? "มูลค่า Barter" : "มูลค่าสินค้า"}</dt>
+              <dd className={`font-semibold mt-0.5 text-base ${isBarter ? "text-violet-600" : "text-[hsl(25,20%,25%)]"}`}>
+                {formatCurrency(job.product_value)}
+              </dd>
             </div>
           )}
           <div>

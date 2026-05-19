@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { ActionResult, ReviewJob, JobStatus, PaymentStatus } from "@/lib/types"
+import type { ActionResult, ReviewJob, JobStatus, PaymentStatus, DealType } from "@/lib/types"
 
 export interface JobFormValues {
   brand_name: string
@@ -11,6 +11,7 @@ export interface JobFormValues {
   review_type: "short_video" | "photo" | "long_video"
   platforms: string[]
   deadline?: string | null
+  deal_type: DealType
   payment_amount: number
   payment_status: PaymentStatus
   status: JobStatus

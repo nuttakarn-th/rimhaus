@@ -1,6 +1,7 @@
 export type ReviewType = "short_video" | "photo" | "long_video"
 export type JobStatus = "accepted" | "in_progress" | "content_done" | "posted" | "closed"
 export type PaymentStatus = "pending" | "invoiced" | "received"
+export type DealType = "paid" | "barter_inbound" | "barter_outbound"
 export type ContentStatus = "idea" | "scripting" | "shooting" | "editing" | "ready" | "posted" | "cancelled"
 export type TransactionType = "income" | "expense"
 export type PostStatus = "draft" | "scheduled" | "posted" | "archived"
@@ -24,6 +25,7 @@ export interface ReviewJob {
   platforms: string[]
   deadline: string | null
   post_date: string | null
+  deal_type: DealType
   payment_amount: number
   payment_status: PaymentStatus
   status: JobStatus
