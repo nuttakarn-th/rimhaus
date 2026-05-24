@@ -13,12 +13,15 @@ import { CONTENT_TYPES, CONTENT_STATUS_LABELS } from "@/lib/constants"
 import type { ContentItem, ReviewJob, Platform } from "@/lib/types"
 import { toast } from "sonner"
 import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
+import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
 
 interface ContentFormProps {
   item?: ContentItem
   jobs: ReviewJob[]
   platforms: Platform[]
 }
+
+const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 
 export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
   const router = useRouter()
@@ -34,6 +37,8 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
           shoot_date: item.shoot_date,
           idea_notes: item.idea_notes ?? "",
           script: item.script ?? "",
+          caption: item.caption ?? "",
+          images: item.images ?? [],
           hashtags: item.hashtags ?? "",
           status: item.status,
           is_sponsored: item.is_sponsored,
@@ -48,12 +53,17 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
           shoot_date: null,
           idea_notes: "",
           script: "",
+          caption: "",
+          images: [],
           hashtags: "",
           status: "idea",
           is_sponsored: false,
           review_job_id: null,
         }
   )
+
+  const isVideoType = VIDEO_TYPES.includes(form.content_type)
+  const isPhotoType = form.content_type === "photo"
 
   function togglePlatform(id: string) {
     setForm(prev => ({
@@ -79,6 +89,7 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      {/* Info section */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
         <h3 className="font-semibold">ข้อมูลคอนเทนต์</h3>
         <div className="space-y-2">
@@ -149,24 +160,78 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
+      {/* Idea notes (all types) */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
         <h3 className="font-semibold">ไอเดียและสคริปต์</h3>
         <div className="space-y-2">
           <Label>ไอเดีย / โน้ต</Label>
           <Textarea value={form.idea_notes ?? ""} onChange={e => setForm(p => ({ ...p, idea_notes: e.target.value }))} rows={3} placeholder="จดไอเดีย จุดที่อยากพูด..." />
         </div>
-        <div className="space-y-2">
-          <Label>Brief / Script</Label>
-          <p className="text-xs text-[hsl(25,10%,55%)]">เขียน Story + Script VDO + Caption พร้อมแชร์ให้ลูกค้าเป็น PDF</p>
+      </div>
+
+      {/* VIDEO: Story + Scene editor */}
+      {isVideoType && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
+          <div>
+            <h3 className="font-semibold">Story + Scene</h3>
+            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียน Story / Concept และ Script ตาม Scene</p>
+          </div>
           <ContentBriefEditor
             value={form.script ?? ""}
             onChange={v => setForm(p => ({ ...p, script: v }))}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Hashtags</Label>
-          <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
+      )}
+
+      {/* PHOTO: Image grid upload */}
+      {isPhotoType && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
+          <div>
+            <h3 className="font-semibold">ภาพ Draft</h3>
+            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">อัปโหลดภาพ draft เพื่อแสดงให้ลูกค้าเห็น — บีบอัดอัตโนมัติ ≤100KB/ภาพ</p>
+          </div>
+          <PhotoAlbumUpload
+            images={form.images ?? []}
+            onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+          />
         </div>
+      )}
+
+      {/* BLOG: single script editor */}
+      {!isVideoType && !isPhotoType && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
+          <div>
+            <h3 className="font-semibold">เนื้อหา / Script</h3>
+            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียนเนื้อหาพร้อมแชร์ให้ลูกค้าเป็น PDF</p>
+          </div>
+          <ContentBriefEditor
+            value={form.script ?? ""}
+            onChange={v => setForm(p => ({ ...p, script: v }))}
+          />
+        </div>
+      )}
+
+      {/* Caption (Video + Photo) */}
+      {(isVideoType || isPhotoType) && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
+          <div>
+            <h3 className="font-semibold">Caption</h3>
+            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ข้อความสำหรับโพสในโซเชียล รวม Emoji ได้</p>
+          </div>
+          <Textarea
+            value={form.caption ?? ""}
+            onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
+            rows={5}
+            placeholder="เขียน Caption โพส... ✨ รวม Emoji และ Line Break ได้"
+            className="text-sm leading-relaxed"
+          />
+        </div>
+      )}
+
+      {/* Hashtags */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-2">
+        <Label>Hashtags</Label>
+        <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
       </div>
 
       <div className="flex gap-3">

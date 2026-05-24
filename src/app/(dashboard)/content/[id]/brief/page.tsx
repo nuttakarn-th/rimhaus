@@ -5,12 +5,16 @@ import { CONTENT_TYPES } from "@/lib/constants"
 import { formatDateThai } from "@/lib/utils"
 import { PrintBriefButton } from "@/components/content/PrintBriefButton"
 
+const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
+
 export default async function ContentBriefPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const item = await getContentItem(id)
   if (!item) notFound()
 
   const typeLabel = CONTENT_TYPES.find(t => t.value === item.content_type)?.label ?? item.content_type
+  const isVideo = VIDEO_TYPES.includes(item.content_type)
+  const isPhoto = item.content_type === "photo"
 
   return (
     <div className="min-h-screen bg-[hsl(35,30%,97%)]">
@@ -50,12 +54,47 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
               </div>
             )}
 
-            {item.script && (
+            {/* VIDEO: Story + Scene */}
+            {isVideo && item.script && (
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-2">Story + Scene</h2>
+                <div
+                  className="brief-print text-sm text-[hsl(25,20%,15%)]"
+                  dangerouslySetInnerHTML={{ __html: item.script }}
+                />
+              </div>
+            )}
+
+            {/* PHOTO: Image grid */}
+            {isPhoto && item.images && item.images.length > 0 && (
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-3">ภาพ Draft ({item.images.length} ภาพ)</h2>
+                <div className="grid grid-cols-3 gap-2 print:grid-cols-3">
+                  {item.images.map((src, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <div key={i} className="aspect-square rounded-lg overflow-hidden border border-[hsl(35,20%,88%)]">
+                      <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* BLOG: single script */}
+            {!isVideo && !isPhoto && item.script && (
               <div>
                 <div
                   className="brief-print text-sm text-[hsl(25,20%,15%)]"
                   dangerouslySetInnerHTML={{ __html: item.script }}
                 />
+              </div>
+            )}
+
+            {/* Caption (Video + Photo) */}
+            {(isVideo || isPhoto) && item.caption && (
+              <div className="pt-4 border-t border-[hsl(35,20%,88%)]">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-2">Caption</h2>
+                <p className="text-sm text-[hsl(25,20%,20%)] whitespace-pre-wrap leading-relaxed">{item.caption}</p>
               </div>
             )}
 

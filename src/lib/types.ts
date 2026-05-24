@@ -64,6 +64,8 @@ export interface ContentItem {
   shoot_date: string | null
   idea_notes: string | null
   script: string | null
+  caption: string | null
+  images: string[]
   hashtags: string | null
   status: ContentStatus
   is_sponsored: boolean

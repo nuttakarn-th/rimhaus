@@ -7,12 +7,17 @@ import { Button } from "@/components/ui/button"
 import { Pencil, FileDown } from "lucide-react"
 import { DeleteContentButton } from "@/components/content/DeleteContentButton"
 
+const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
+
 export default async function ContentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const item = await getContentItem(id)
   if (!item) notFound()
 
   const typeLabel = CONTENT_TYPES.find(t => t.value === item.content_type)?.label ?? item.content_type
+  const isVideo = VIDEO_TYPES.includes(item.content_type)
+  const isPhoto = item.content_type === "photo"
+  const hasBrief = isPhoto ? (item.images?.length ?? 0) > 0 || !!item.caption : !!item.script
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -28,7 +33,7 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
           <p className="text-[hsl(25,10%,50%)] mt-1">{typeLabel}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {item.script && (
+          {hasBrief && (
             <Link href={`/content/${id}/brief`}>
               <Button variant="outline" size="sm" className="text-[hsl(24,85%,50%)] border-[hsl(24,85%,50%)]">
                 <FileDown className="w-3.5 h-3.5 mr-1" />Brief / PDF
@@ -64,10 +69,11 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {item.script && (
+      {/* VIDEO: Story + Scene */}
+      {isVideo && item.script && (
         <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold">Brief / Script</h3>
+            <h3 className="font-semibold">Story + Scene</h3>
             <Link href={`/content/${id}/brief`} className="text-xs text-[hsl(24,85%,50%)] hover:underline flex items-center gap-1">
               <FileDown className="w-3 h-3" />Preview &amp; PDF
             </Link>
@@ -76,6 +82,50 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
             className="brief-print text-sm text-[hsl(25,20%,20%)]"
             dangerouslySetInnerHTML={{ __html: item.script }}
           />
+        </div>
+      )}
+
+      {/* PHOTO: Image grid */}
+      {isPhoto && item.images && item.images.length > 0 && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">ภาพ Draft ({item.images.length} ภาพ)</h3>
+            <Link href={`/content/${id}/brief`} className="text-xs text-[hsl(24,85%,50%)] hover:underline flex items-center gap-1">
+              <FileDown className="w-3 h-3" />Preview &amp; PDF
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {item.images.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <div key={i} className="aspect-square rounded-lg overflow-hidden border border-[hsl(35,20%,88%)]">
+                <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* BLOG: script */}
+      {!isVideo && !isPhoto && item.script && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">เนื้อหา / Script</h3>
+            <Link href={`/content/${id}/brief`} className="text-xs text-[hsl(24,85%,50%)] hover:underline flex items-center gap-1">
+              <FileDown className="w-3 h-3" />Preview &amp; PDF
+            </Link>
+          </div>
+          <div
+            className="brief-print text-sm text-[hsl(25,20%,20%)]"
+            dangerouslySetInnerHTML={{ __html: item.script }}
+          />
+        </div>
+      )}
+
+      {/* Caption (Video + Photo) */}
+      {(isVideo || isPhoto) && item.caption && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
+          <h3 className="font-semibold mb-3">Caption</h3>
+          <p className="text-sm text-[hsl(25,20%,25%)] whitespace-pre-wrap leading-relaxed">{item.caption}</p>
         </div>
       )}
     </div>

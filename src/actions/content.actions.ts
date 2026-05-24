@@ -13,6 +13,8 @@ export interface ContentFormValues {
   shoot_date?: string | null
   idea_notes?: string
   script?: string
+  caption?: string
+  images?: string[]
   hashtags?: string
   status: ContentStatus
   is_sponsored: boolean
