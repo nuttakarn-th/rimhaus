@@ -32,22 +32,32 @@ export function formatDateThai(date: string | Date): string {
   }).format(d)
 }
 
-const ONES = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"]
-const TENS = ["", "สิบ", "ยี่สิบ", "สามสิบ", "สี่สิบ", "ห้าสิบ", "หกสิบ", "เจ็ดสิบ", "แปดสิบ", "เก้าสิบ"]
-const PLACES = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"]
+const ONES_TH = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"]
+const PLACES_TH = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน"]
 
-function threeDigits(n: number): string {
+function convertBelowMillion(n: number): string {
   if (n === 0) return ""
-  const h = Math.floor(n / 100)
-  const t = Math.floor((n % 100) / 10)
-  const o = n % 10
-  let s = ""
-  if (h) s += ONES[h] + "ร้อย"
-  if (t === 1) s += "สิบ"
-  else if (t > 1) s += TENS[t]
-  if (o === 1 && t > 0) s += "เอ็ด"
-  else if (o > 0) s += ONES[o]
-  return s
+  const digits: number[] = []
+  let temp = n
+  for (let i = 0; i < 6; i++) {
+    digits.push(temp % 10)
+    temp = Math.floor(temp / 10)
+  }
+  let result = ""
+  for (let i = 5; i >= 0; i--) {
+    const d = digits[i]
+    if (d === 0) continue
+    if (i === 1) {
+      if (d === 1) result += "สิบ"
+      else if (d === 2) result += "ยี่สิบ"
+      else result += ONES_TH[d] + "สิบ"
+    } else if (i === 0) {
+      result += (digits[1] >= 1 && d === 1) ? "เอ็ด" : ONES_TH[d]
+    } else {
+      result += ONES_TH[d] + PLACES_TH[i]
+    }
+  }
+  return result
 }
 
 export function bahtText(amount: number): string {
@@ -59,25 +69,23 @@ export function bahtText(amount: number): string {
   if (intNum === 0 && dec === 0) return "ศูนย์บาทถ้วน"
 
   let result = ""
-  const millions = Math.floor(intNum / 1000000)
-  const remainder = intNum % 1000000
-  const thousands = Math.floor(remainder / 1000)
-  const hundreds = remainder % 1000
+  const millions = Math.floor(intNum / 1_000_000)
+  const remainder = intNum % 1_000_000
 
-  if (millions) result += threeDigits(millions) + "ล้าน"
-  if (thousands) result += threeDigits(thousands) + "พัน"
-  if (hundreds) result += threeDigits(hundreds)
-
+  if (millions) result += convertBelowMillion(millions) + "ล้าน"
+  result += convertBelowMillion(remainder)
   result += "บาท"
+
   if (dec === 0) {
     result += "ถ้วน"
   } else {
     const d1 = Math.floor(dec / 10)
     const d2 = dec % 10
     if (d1 === 1) result += "สิบ"
-    else if (d1 > 1) result += TENS[d1]
-    if (d2 === 1 && d1 > 0) result += "เอ็ด"
-    else if (d2 > 0) result += ONES[d2]
+    else if (d1 === 2) result += "ยี่สิบ"
+    else if (d1 > 2) result += ONES_TH[d1] + "สิบ"
+    if (d2 === 1 && d1 >= 1) result += "เอ็ด"
+    else if (d2 > 0) result += ONES_TH[d2]
     result += "สตางค์"
   }
   return result
