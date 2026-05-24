@@ -94,11 +94,11 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
               <FileDown className="w-3 h-3" />Preview &amp; PDF
             </Link>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          <div className="columns-3 sm:columns-4 gap-1.5">
             {item.images.map((src, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <div key={i} className="aspect-square rounded-lg overflow-hidden border border-[hsl(35,20%,88%)]">
-                <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-full object-cover" />
+              <div key={i} className="mb-1.5 break-inside-avoid rounded-lg overflow-hidden border border-[hsl(35,20%,88%)]">
+                <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-auto block" style={{ maxHeight: "160px", objectFit: "contain", background: "hsl(35,30%,97%)" }} />
               </div>
             ))}
           </div>

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getJob } from "@/actions/jobs.actions"
-import { JobStatusBadge, PaymentStatusBadge } from "@/components/jobs/JobStatusBadge"
+import { JobStatusBadge } from "@/components/jobs/JobStatusBadge"
 import { StatusStepper } from "@/components/jobs/StatusStepper"
+import { AdvanceStatusButton } from "@/components/jobs/AdvanceStatusButton"
+import { PaymentStatusUpdater } from "@/components/jobs/PaymentStatusUpdater"
 import { DeleteJobButton } from "@/components/jobs/DeleteJobButton"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { REVIEW_TYPE_LABELS, DEAL_TYPE_LABELS, DEAL_TYPE_COLORS } from "@/lib/constants"
@@ -24,7 +26,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">{job.brand_name}</h1>
@@ -35,21 +38,20 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
           <p className="text-[hsl(25,10%,50%)] mt-1">{job.product_name}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <Link href={`/jobs/${id}/edit`}>
             <Button variant="outline" size="sm">
-              <Pencil className="w-3.5 h-3.5 mr-1" />
-              แก้ไข
+              <Pencil className="w-3.5 h-3.5 mr-1" />แก้ไข
             </Button>
           </Link>
           <DeleteJobButton jobId={id} />
         </div>
       </div>
 
-      {/* Status stepper */}
+      {/* Status progress */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] mb-4">ความคืบหน้า</h3>
-        <StatusStepper jobId={id} currentStatus={job.status} />
+        <StatusStepper currentStatus={job.status} />
       </div>
 
       {/* Details */}
@@ -80,8 +82,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <dd className="font-semibold text-[hsl(24,85%,50%)] mt-0.5 text-base">{formatCurrency(job.payment_amount)}</dd>
               </div>
               <div>
-                <dt className="text-[hsl(25,10%,50%)]">สถานะการรับเงิน</dt>
-                <dd className="mt-0.5"><PaymentStatusBadge status={job.payment_status} /></dd>
+                <dt className="text-[hsl(25,10%,50%)]">สถานะการเงิน</dt>
+                <dd className="mt-1.5">
+                  <PaymentStatusUpdater jobId={id} current={job.payment_status} />
+                </dd>
               </div>
             </>
           )}
@@ -110,6 +114,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
         )}
       </div>
+
+      {/* Bottom status advance CTA */}
+      {job.status !== "closed" && (
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-5 py-4 flex items-center justify-between gap-4">
+          <div className="text-sm text-[hsl(25,10%,50%)]">
+            สถานะปัจจุบัน: <span className="font-semibold text-[hsl(25,20%,15%)]">
+              <JobStatusBadge status={job.status} />
+            </span>
+          </div>
+          <AdvanceStatusButton jobId={id} currentStatus={job.status} />
+        </div>
+      )}
     </div>
   )
 }

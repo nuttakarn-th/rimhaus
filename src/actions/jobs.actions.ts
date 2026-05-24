@@ -75,6 +75,12 @@ export async function deleteJob(id: string): Promise<ActionResult<void>> {
 }
 
 export async function updateJobStatus(id: string, status: JobStatus): Promise<ActionResult<ReviewJob>> {
+  if (status === "closed") {
+    const job = await getJob(id)
+    if (job && job.deal_type === "paid" && job.payment_status !== "received") {
+      return updateJob(id, { status, payment_status: "received" })
+    }
+  }
   return updateJob(id, { status })
 }
 
