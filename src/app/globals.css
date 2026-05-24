@@ -58,3 +58,10 @@ body {
   color: hsl(var(--foreground));
   font-family: var(--font-sans);
 }
+
+@media print {
+  body { background: white; }
+  .print\:hidden { display: none !important; }
+  aside, nav { display: none !important; }
+  main { margin-left: 0 !important; }
+}

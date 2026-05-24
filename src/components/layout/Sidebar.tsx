@@ -11,6 +11,8 @@ import {
   CalendarDays,
   Smartphone,
   CreditCard,
+  Building2,
+  FileText,
   LogOut,
 } from "lucide-react"
 
@@ -20,6 +22,8 @@ const navItems = [
   { href: "/finances", icon: Wallet, label: "การเงิน" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
   { href: "/posts", icon: Smartphone, label: "จัดการโพส" },
+  { href: "/customers", icon: Building2, label: "ลูกค้า" },
+  { href: "/documents", icon: FileText, label: "เอกสาร" },
   { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },
 ]
 

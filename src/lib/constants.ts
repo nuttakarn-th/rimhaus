@@ -1,4 +1,4 @@
-import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus, RateCardCategory } from "./types"
+import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus, RateCardCategory, DocType, DocStatus } from "./types"
 
 export const RATE_CARD_CATEGORY_LABELS: Record<RateCardCategory, string> = {
   per_platform: "ต่อแพลตฟอร์ม",
@@ -125,6 +125,26 @@ export const CONTENT_TYPES = [
   { value: "reel", label: "รีล" },
   { value: "blog", label: "บล็อก" },
 ]
+
+export const DOC_TYPE_LABELS: Record<DocType, string> = {
+  quotation: "ใบเสนอราคา",
+  invoice: "ใบแจ้งหนี้",
+  receipt: "ใบเสร็จรับเงิน",
+}
+
+export const DOC_STATUS_LABELS: Record<DocStatus, string> = {
+  draft: "ร่าง",
+  sent: "ส่งแล้ว",
+  paid: "ชำระแล้ว",
+  cancelled: "ยกเลิก",
+}
+
+export const DOC_STATUS_COLORS: Record<DocStatus, string> = {
+  draft: "bg-gray-100 text-gray-600",
+  sent: "bg-blue-100 text-blue-700",
+  paid: "bg-green-100 text-green-700",
+  cancelled: "bg-red-100 text-red-600",
+}
 
 export const JOB_STATUSES: JobStatus[] = [
   "accepted",

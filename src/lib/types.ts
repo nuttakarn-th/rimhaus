@@ -125,6 +125,58 @@ export interface RateCardSettings {
   updated_at: string
 }
 
+export type DocType = "quotation" | "invoice" | "receipt"
+export type DocStatus = "draft" | "sent" | "paid" | "cancelled"
+
+export interface Customer {
+  id: string
+  user_id: string
+  name: string
+  contact_name: string | null
+  email: string | null
+  phone: string | null
+  address: string | null
+  tax_id: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface DocumentItem {
+  id: string
+  document_id: string
+  description: string
+  quantity: number
+  unit_price: number
+  amount: number
+  sort_order: number
+}
+
+export interface Document {
+  id: string
+  user_id: string
+  customer_id: string | null
+  review_job_id: string | null
+  doc_type: DocType
+  doc_number: string
+  doc_date: string
+  due_date: string | null
+  status: DocStatus
+  customer_name: string | null
+  customer_address: string | null
+  customer_tax_id: string | null
+  customer_contact: string | null
+  subtotal: number
+  wht_rate: number
+  wht_amount: number
+  total: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+  document_items?: DocumentItem[]
+  customers?: { name: string } | null
+  review_jobs?: { brand_name: string; product_name: string } | null
+}
+
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
