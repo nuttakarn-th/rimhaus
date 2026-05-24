@@ -93,6 +93,17 @@ export function DocumentView({ document: doc }: { document: Document }) {
           {/* Header: issuer left, title+number right */}
           <div className="flex justify-between items-start mb-6">
             <div className="text-sm leading-relaxed">
+              {/* Logo / header image */}
+              {doc.issuer_header_image_url && (
+                <div className="mb-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={doc.issuer_header_image_url}
+                    alt="Logo"
+                    className="max-h-14 max-w-[260px] object-contain"
+                  />
+                </div>
+              )}
               <div className="font-bold text-base text-[hsl(25,20%,10%)]">{doc.issuer_name ?? "—"}</div>
               {doc.issuer_address && (
                 <div className="text-[hsl(25,10%,35%)] whitespace-pre-line mt-0.5 text-xs leading-snug">
@@ -302,12 +313,19 @@ export function DocumentView({ document: doc }: { document: Document }) {
           </div>
 
           {/* Footer for quotation */}
-          {isQuotation && doc.issuer_email && (
+          {isQuotation && (doc.issuer_contact_line || doc.issuer_email) && (
             <div className="mt-4 text-xs text-[hsl(25,10%,40%)]">
-              ยืนยันใบเสนอราคา : โอนเงินและส่งเมลยืนยันที่{" "}
-              <a href={`mailto:${doc.issuer_email}`} className="underline text-[hsl(24,85%,50%)]">
-                {doc.issuer_email}
-              </a>
+              {doc.issuer_contact_line ? (
+                <>ยืนยันใบเสนอราคา : โอนเงินและส่ง Line ยืนยันที่{" "}
+                  <span className="font-semibold text-[hsl(25,20%,15%)]">{doc.issuer_contact_line}</span>
+                </>
+              ) : (
+                <>ยืนยันใบเสนอราคา : โอนเงินและส่งเมลยืนยันที่{" "}
+                  <a href={`mailto:${doc.issuer_email}`} className="underline text-[hsl(24,85%,50%)]">
+                    {doc.issuer_email}
+                  </a>
+                </>
+              )}
             </div>
           )}
 

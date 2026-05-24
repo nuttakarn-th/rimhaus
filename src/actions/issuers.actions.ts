@@ -28,11 +28,13 @@ export async function upsertIssuer(input: Partial<IssuerProfile> & { name: strin
     address: input.address || null,
     phone: input.phone || null,
     email: input.email || null,
+    contact_line: input.contact_line || null,
     bank_name: input.bank_name || null,
     bank_branch: input.bank_branch || null,
     account_name: input.account_name || null,
     account_number: input.account_number || null,
     signature_url: input.signature_url || null,
+    header_image_url: input.header_image_url || null,
     is_default: input.is_default ?? false,
   }
 
@@ -53,6 +55,14 @@ export async function upsertIssuer(input: Partial<IssuerProfile> & { name: strin
 export async function updateIssuerSignature(id: string, signature_url: string): Promise<ActionResult<null>> {
   const supabase = await createClient()
   const { error } = await supabase.from("issuer_profiles").update({ signature_url }).eq("id", id)
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/settings/issuers")
+  return { success: true, data: null }
+}
+
+export async function updateIssuerHeaderImage(id: string, header_image_url: string): Promise<ActionResult<null>> {
+  const supabase = await createClient()
+  const { error } = await supabase.from("issuer_profiles").update({ header_image_url }).eq("id", id)
   if (error) return { success: false, error: error.message }
   revalidatePath("/settings/issuers")
   return { success: true, data: null }

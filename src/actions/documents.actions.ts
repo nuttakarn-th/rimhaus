@@ -84,6 +84,8 @@ type UpsertDocumentInput = {
   issuer_account_name?: string | null
   issuer_account_number?: string | null
   issuer_signature_url?: string | null
+  issuer_header_image_url?: string | null
+  issuer_contact_line?: string | null
   items: Array<{ description: string; quantity: number; unit_price: number; amount: number; sort_order: number }>
 }
 
@@ -124,6 +126,8 @@ export async function upsertDocument(input: UpsertDocumentInput): Promise<Action
     issuer_account_name: input.issuer_account_name || null,
     issuer_account_number: input.issuer_account_number || null,
     issuer_signature_url: input.issuer_signature_url || null,
+    issuer_header_image_url: input.issuer_header_image_url || null,
+    issuer_contact_line: input.issuer_contact_line || null,
   }
 
   let docId: string

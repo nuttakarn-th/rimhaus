@@ -133,11 +133,13 @@ export interface IssuerProfile {
   address: string | null
   phone: string | null
   email: string | null
+  contact_line: string | null
   bank_name: string | null
   bank_branch: string | null
   account_name: string | null
   account_number: string | null
   signature_url: string | null
+  header_image_url: string | null
   is_default: boolean
   created_at: string
 }
@@ -200,6 +202,8 @@ export interface Document {
   issuer_account_name: string | null
   issuer_account_number: string | null
   issuer_signature_url: string | null
+  issuer_header_image_url: string | null
+  issuer_contact_line: string | null
   linked_quotation_id: string | null
   created_at: string
   updated_at: string

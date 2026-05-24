@@ -64,6 +64,8 @@ export function DocumentForm({
   const [issuerAccountName, setIssuerAccountName] = useState(document?.issuer_account_name ?? defaultIssuer?.account_name ?? "")
   const [issuerAccountNumber, setIssuerAccountNumber] = useState(document?.issuer_account_number ?? defaultIssuer?.account_number ?? "")
   const [issuerSignatureUrl, setIssuerSignatureUrl] = useState(document?.issuer_signature_url ?? defaultIssuer?.signature_url ?? "")
+  const [issuerHeaderImageUrl, setIssuerHeaderImageUrl] = useState(document?.issuer_header_image_url ?? defaultIssuer?.header_image_url ?? "")
+  const [issuerContactLine, setIssuerContactLine] = useState(document?.issuer_contact_line ?? defaultIssuer?.contact_line ?? "")
 
   const [customerId, setCustomerId] = useState(document?.customer_id ?? "")
   const [customerName, setCustomerName] = useState(document?.customer_name ?? "")
@@ -106,6 +108,7 @@ export function DocumentForm({
     setIssuerEmail(p.email ?? ""); setIssuerBankName(p.bank_name ?? "")
     setIssuerBankBranch(p.bank_branch ?? ""); setIssuerAccountName(p.account_name ?? "")
     setIssuerAccountNumber(p.account_number ?? ""); setIssuerSignatureUrl(p.signature_url ?? "")
+    setIssuerHeaderImageUrl(p.header_image_url ?? ""); setIssuerContactLine(p.contact_line ?? "")
   }, [issuerId, issuers])
 
   // Fill customer from dropdown
@@ -169,6 +172,7 @@ export function DocumentForm({
       issuer_email: issuerEmail, issuer_bank_name: issuerBankName,
       issuer_bank_branch: issuerBankBranch, issuer_account_name: issuerAccountName,
       issuer_account_number: issuerAccountNumber, issuer_signature_url: issuerSignatureUrl,
+      issuer_header_image_url: issuerHeaderImageUrl, issuer_contact_line: issuerContactLine,
       items: items.map((item, i) => ({ ...item, sort_order: i })),
     })
     setSaving(false)
