@@ -14,6 +14,7 @@ const COLUMNS = [
   { key: "address", label: "ที่อยู่" },
   { key: "contact_name", label: "ชื่อผู้ติดต่อ" },
   { key: "phone", label: "โทรศัพท์" },
+  { key: "contact_line", label: "LINE ID" },
   { key: "email", label: "อีเมล" },
   { key: "notes", label: "หมายเหตุ" },
 ]
@@ -52,8 +53,9 @@ export function CustomerImport() {
           address: String(row[2] ?? "").trim() || null,
           contact_name: String(row[3] ?? "").trim() || null,
           phone: String(row[4] ?? "").trim() || null,
-          email: String(row[5] ?? "").trim() || null,
-          notes: String(row[6] ?? "").trim() || null,
+          contact_line: String(row[5] ?? "").trim() || null,
+          email: String(row[6] ?? "").trim() || null,
+          notes: String(row[7] ?? "").trim() || null,
         }))
 
       if (data.length === 0) {

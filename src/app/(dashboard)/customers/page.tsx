@@ -1,12 +1,13 @@
 import Link from "next/link"
-import { getCustomers } from "@/actions/customers.actions"
+import { getCustomersWithStats } from "@/actions/customers.actions"
 import { DeleteCustomerButton } from "@/components/customers/DeleteCustomerButton"
 import { CustomerImport } from "@/components/customers/CustomerImport"
 import { Button } from "@/components/ui/button"
-import { Plus, Pencil, Building2, Phone, Mail } from "lucide-react"
+import { Plus, Pencil, Building2, Phone, Mail, MessageCircle, FileText } from "lucide-react"
+import { formatDate } from "@/lib/utils"
 
 export default async function CustomersPage() {
-  const customers = await getCustomers()
+  const customers = await getCustomersWithStats()
 
   return (
     <div className="space-y-5">
@@ -37,28 +38,48 @@ export default async function CustomersPage() {
       ) : (
         <div className="space-y-2">
           {customers.map(c => (
-            <div key={c.id} className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3.5 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+            <div key={c.id} className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3.5 flex items-center gap-3 hover:border-[hsl(24,85%,60%)] transition-colors group">
+              <Link href={`/customers/${c.id}`} className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center shrink-0 hover:bg-orange-100 transition-colors">
                 <Building2 className="w-4 h-4 text-[hsl(24,85%,50%)]" />
-              </div>
+              </Link>
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-[hsl(25,20%,15%)] text-sm">{c.name}</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href={`/customers/${c.id}`} className="font-semibold text-[hsl(25,20%,15%)] text-sm hover:text-[hsl(24,85%,50%)] transition-colors">
+                    {c.name}
+                  </Link>
+                  {c.document_count > 0 && (
+                    <span className="text-xs bg-orange-50 text-[hsl(24,85%,50%)] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                      <FileText className="w-2.5 h-2.5" />{c.document_count} เอกสาร
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-x-3 gap-y-0.5 mt-0.5 flex-wrap">
                   {c.contact_name && (
                     <span className="text-xs text-[hsl(25,10%,50%)]">{c.contact_name}</span>
                   )}
                   {c.phone && (
-                    <span className="text-xs text-[hsl(25,10%,60%)] flex items-center gap-1">
+                    <a href={`tel:${c.phone}`} className="text-xs text-[hsl(25,10%,60%)] flex items-center gap-1 hover:text-[hsl(24,85%,50%)] transition-colors">
                       <Phone className="w-3 h-3 shrink-0" />{c.phone}
+                    </a>
+                  )}
+                  {c.contact_line && (
+                    <span className="text-xs text-green-600 flex items-center gap-1">
+                      <MessageCircle className="w-3 h-3 shrink-0" />{c.contact_line}
                     </span>
                   )}
                   {c.email && (
-                    <span className="text-xs text-[hsl(25,10%,60%)] flex items-center gap-1 min-w-0">
+                    <a href={`mailto:${c.email}`} className="text-xs text-[hsl(25,10%,60%)] flex items-center gap-1 min-w-0 hover:text-[hsl(24,85%,50%)] transition-colors">
                       <Mail className="w-3 h-3 shrink-0" />
                       <span className="truncate max-w-[160px]">{c.email}</span>
-                    </span>
+                    </a>
                   )}
                 </div>
+                {c.latest_invoice_date && (
+                  <div className="text-xs text-[hsl(25,10%,60%)] mt-0.5 flex items-center gap-1">
+                    <span className="text-[hsl(25,10%,70%)]">ใบแจ้งหนี้ล่าสุด:</span>
+                    <span className="font-medium">{formatDate(c.latest_invoice_date)}</span>
+                  </div>
+                )}
                 {c.tax_id && (
                   <div className="text-xs text-[hsl(25,10%,65%)] mt-0.5">เลขภาษี: {c.tax_id}</div>
                 )}

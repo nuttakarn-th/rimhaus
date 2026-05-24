@@ -15,7 +15,7 @@ import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
 import { PackagePicker } from "@/components/documents/PackagePicker"
 import { QuotationSearch } from "@/components/documents/QuotationSearch"
-import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob, RateCardPackage } from "@/lib/types"
+import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob, RateCardPackage, Platform } from "@/lib/types"
 
 type LineItem = { description: string; quantity: number; unit_price: number; amount: number }
 const emptyItem = (): LineItem => ({ description: "", quantity: 1, unit_price: 0, amount: 0 })
@@ -39,6 +39,7 @@ export function DocumentForm({
   issuers,
   quotations,
   packages,
+  platforms,
 }: {
   document?: Document
   customers: Customer[]
@@ -46,6 +47,7 @@ export function DocumentForm({
   issuers: IssuerProfile[]
   quotations: Document[]
   packages: RateCardPackage[]
+  platforms: Platform[]
 }) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
@@ -78,6 +80,7 @@ export function DocumentForm({
   const [customerContact, setCustomerContact] = useState(document?.customer_contact ?? "")
 
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
+  const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
   const [whtEnabled, setWhtEnabled] = useState((document?.wht_rate ?? 0) > 0)
   const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? DEFAULT_PAYMENT_TERMS[document?.doc_type ?? "quotation"])
   const [docRemarks, setDocRemarks] = useState(document?.doc_remarks ?? DEFAULT_REMARKS[document?.doc_type ?? "quotation"])
@@ -214,6 +217,7 @@ export function DocumentForm({
       issuer_bank_branch: issuerBankBranch, issuer_account_name: issuerAccountName,
       issuer_account_number: issuerAccountNumber, issuer_signature_url: issuerSignatureUrl,
       issuer_header_image_url: issuerHeaderImageUrl, issuer_contact_line: issuerContactLine,
+      platforms: docPlatforms,
       items: items.map((item, i) => ({ ...item, sort_order: i })),
     })
     setSaving(false)
@@ -269,6 +273,28 @@ export function DocumentForm({
             </SelectContent>
           </Select>
         </div>
+        {platforms.filter(p => p.is_active).length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">แพลตฟอร์ม (สำหรับระบุในเอกสาร)</Label>
+            <div className="flex flex-wrap gap-3 pt-1">
+              {platforms.filter(p => p.is_active).map(p => (
+                <label key={p.id} className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={docPlatforms.includes(p.id)}
+                    onCheckedChange={() =>
+                      setDocPlatforms(prev =>
+                        prev.includes(p.id) ? prev.filter(x => x !== p.id) : [...prev, p.id]
+                      )
+                    }
+                  />
+                  <span className="text-sm font-medium" style={{ color: docPlatforms.includes(p.id) ? p.color : undefined }}>
+                    {p.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
         {(docType === "invoice" || docType === "receipt") && quotations.length > 0 && (
           <div className="space-y-1">
             <Label className="text-xs">อ้างอิงใบเสนอราคา</Label>

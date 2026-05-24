@@ -16,6 +16,7 @@ import { toast } from "sonner"
 interface JobFormProps {
   job?: ReviewJob
   platforms: Platform[]
+  prefill?: Partial<JobFormValues>
 }
 
 const defaultValues: JobFormValues = {
@@ -40,7 +41,7 @@ const DEAL_TYPE_DESCRIPTIONS: Record<DealType, string> = {
   barter_outbound: "เราขอ Barter เอง ได้แค่ของ",
 }
 
-export function JobForm({ job, platforms }: JobFormProps) {
+export function JobForm({ job, platforms, prefill }: JobFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<JobFormValues>(
@@ -60,7 +61,7 @@ export function JobForm({ job, platforms }: JobFormProps) {
           product_value: job.product_value,
           notes: job.notes ?? "",
         }
-      : defaultValues
+      : { ...defaultValues, ...prefill }
   )
 
   const isBarter = form.deal_type === "barter_inbound" || form.deal_type === "barter_outbound"

@@ -18,6 +18,7 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
     contact_name: customer?.contact_name ?? "",
     email: customer?.email ?? "",
     phone: customer?.phone ?? "",
+    contact_line: customer?.contact_line ?? "",
     address: customer?.address ?? "",
     tax_id: customer?.tax_id ?? "",
     notes: customer?.notes ?? "",
@@ -67,6 +68,10 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
           <div className="space-y-1">
             <Label className="text-xs">โทรศัพท์</Label>
             <Input value={form.phone} onChange={set("phone")} placeholder="081-234-5678" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">LINE ID</Label>
+            <Input value={form.contact_line} onChange={set("contact_line")} placeholder="@brand หรือ brand_line" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">อีเมล</Label>

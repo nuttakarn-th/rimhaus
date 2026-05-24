@@ -33,6 +33,7 @@ export async function upsertCustomer(
     contact_name: input.contact_name || null,
     email: input.email || null,
     phone: input.phone || null,
+    contact_line: input.contact_line || null,
     address: input.address || null,
     tax_id: input.tax_id || null,
     notes: input.notes || null,
@@ -53,6 +54,7 @@ type ImportCustomer = {
   address?: string | null
   contact_name?: string | null
   phone?: string | null
+  contact_line?: string | null
   email?: string | null
   notes?: string | null
 }
@@ -68,6 +70,7 @@ export async function bulkImportCustomers(customers: ImportCustomer[]): Promise<
     contact_name: c.contact_name || null,
     email: c.email || null,
     phone: c.phone || null,
+    contact_line: c.contact_line || null,
     address: c.address || null,
     tax_id: c.tax_id || null,
     notes: c.notes || null,
@@ -77,6 +80,60 @@ export async function bulkImportCustomers(customers: ImportCustomer[]): Promise<
   if (error) return { success: false, error: error.message }
   revalidatePath("/customers")
   return { success: true, data: customers.length }
+}
+
+export type CustomerWithStats = Customer & {
+  latest_invoice_date: string | null
+  document_count: number
+}
+
+export async function getCustomersWithStats(): Promise<CustomerWithStats[]> {
+  const supabase = await createClient()
+  const { data: customers } = await supabase.from("customers").select("*").order("name")
+  if (!customers || customers.length === 0) return []
+
+  const ids = customers.map((c: Customer) => c.id)
+  const { data: docs } = await supabase
+    .from("documents")
+    .select("customer_id, doc_type, doc_date")
+    .in("customer_id", ids)
+    .order("doc_date", { ascending: false })
+
+  const latestInvoiceMap: Record<string, string> = {}
+  const docCountMap: Record<string, number> = {}
+  for (const d of docs ?? []) {
+    if (!d.customer_id) continue
+    docCountMap[d.customer_id] = (docCountMap[d.customer_id] ?? 0) + 1
+    if (d.doc_type === "invoice" && !latestInvoiceMap[d.customer_id]) {
+      latestInvoiceMap[d.customer_id] = d.doc_date
+    }
+  }
+
+  return customers.map((c: Customer) => ({
+    ...c,
+    latest_invoice_date: latestInvoiceMap[c.id] ?? null,
+    document_count: docCountMap[c.id] ?? 0,
+  }))
+}
+
+export type CustomerDocument = {
+  id: string
+  doc_type: string
+  doc_number: string
+  doc_date: string
+  total: number
+  status: string
+  wht_rate: number
+}
+
+export async function getCustomerDocuments(customerId: string): Promise<CustomerDocument[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("documents")
+    .select("id, doc_type, doc_number, doc_date, total, status, wht_rate")
+    .eq("customer_id", customerId)
+    .order("doc_date", { ascending: false })
+  return (data as CustomerDocument[]) ?? []
 }
 
 export async function deleteCustomer(id: string): Promise<ActionResult<null>> {

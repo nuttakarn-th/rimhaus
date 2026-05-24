@@ -154,6 +154,7 @@ export interface Customer {
   contact_name: string | null
   email: string | null
   phone: string | null
+  contact_line: string | null
   address: string | null
   tax_id: string | null
   notes: string | null
@@ -205,6 +206,7 @@ export interface Document {
   issuer_header_image_url: string | null
   issuer_contact_line: string | null
   linked_quotation_id: string | null
+  platforms: string[]
   created_at: string
   updated_at: string
   document_items?: DocumentItem[]

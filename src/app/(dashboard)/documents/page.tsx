@@ -99,10 +99,19 @@ export default async function DocumentsPage({
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-[hsl(25,10%,50%)] mt-0.5">
+                  <div className="flex items-center gap-2 text-xs text-[hsl(25,10%,50%)] mt-0.5 flex-wrap">
                     <span>{doc.customer_name ?? doc.customers?.name ?? "-"}</span>
                     <span>·</span>
                     <span>{new Date(doc.doc_date).toLocaleDateString("th-TH")}</span>
+                    {doc.platforms && doc.platforms.length > 0 && (
+                      <>
+                        <span>·</span>
+                        <span className="text-[hsl(24,85%,50%)]">{doc.platforms.map((p: string) => {
+                          const labels: Record<string, string> = { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee" }
+                          return labels[p] ?? p
+                        }).join(", ")}</span>
+                      </>
+                    )}
                     <span>·</span>
                     <span className="text-[hsl(25,10%,65%)]">
                       สร้าง {new Date(doc.created_at).toLocaleString("th-TH", {
@@ -111,6 +120,7 @@ export default async function DocumentsPage({
                       })}
                     </span>
                   </div>
+
                 </div>
                 <div className="text-right shrink-0 pr-2">
                   <div className="font-bold text-sm text-[hsl(24,85%,50%)]">{formatCurrency(doc.total)}</div>

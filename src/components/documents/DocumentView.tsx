@@ -166,6 +166,17 @@ export function DocumentView({ document: doc }: { document: Document }) {
             )}
           </div>
 
+          {/* Platforms */}
+          {doc.platforms && doc.platforms.length > 0 && (
+            <div className="mb-4 flex gap-4 text-sm">
+              <span className="font-bold text-[hsl(25,20%,10%)] w-12 shrink-0">Platform</span>
+              <span className="text-[hsl(25,10%,35%)]">{doc.platforms.map(p => {
+                const labels: Record<string, string> = { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee" }
+                return labels[p] ?? p
+              }).join(", ")}</span>
+            </div>
+          )}
+
           {/* Items table */}
           <table className="w-full text-sm mb-1 border-collapse">
             <thead>
