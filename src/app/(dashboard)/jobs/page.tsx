@@ -55,8 +55,42 @@ export default async function JobsPage({
         ))}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden">
+      {/* Mobile: card list */}
+      <div className="md:hidden space-y-2">
+        {jobs.length === 0 ? (
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] text-center py-12">
+            <p className="text-[hsl(25,10%,50%)]">ไม่มีงานรีวิว</p>
+            <Link href="/jobs/new" className="mt-4 inline-block">
+              <Button variant="outline" size="sm">สร้างงานแรก</Button>
+            </Link>
+          </div>
+        ) : jobs.map(job => (
+          <Link key={job.id} href={`/jobs/${job.id}`}>
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3.5 hover:border-[hsl(24,85%,60%)] transition-colors">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0">
+                  <p className="font-semibold text-[hsl(25,20%,15%)] text-sm leading-tight">{job.brand_name}</p>
+                  <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">{job.product_name}</p>
+                </div>
+                <JobStatusBadge status={job.status} />
+              </div>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <PaymentStatusBadge status={job.payment_status} />
+                  <span className="text-xs text-[hsl(25,10%,55%)]">{REVIEW_TYPE_LABELS[job.review_type]}</span>
+                  {job.deadline && (
+                    <span className="text-xs text-[hsl(25,10%,55%)]">· {formatDate(job.deadline)}</span>
+                  )}
+                </div>
+                <span className="text-sm font-bold text-[hsl(24,85%,50%)]">{formatCurrency(job.payment_amount)}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden">
         {jobs.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-[hsl(25,10%,50%)]">ไม่มีงานรีวิว</p>
@@ -85,21 +119,15 @@ export default async function JobsPage({
                       <p className="text-xs text-[hsl(25,10%,50%)]">{job.product_name}</p>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-[hsl(25,20%,35%)]">
-                    {REVIEW_TYPE_LABELS[job.review_type]}
-                  </td>
+                  <td className="px-4 py-3 text-[hsl(25,20%,35%)]">{REVIEW_TYPE_LABELS[job.review_type]}</td>
                   <td className="px-4 py-3 text-[hsl(25,20%,35%)]">
                     {job.deadline ? formatDate(job.deadline) : <span className="text-gray-300">-</span>}
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-[hsl(25,20%,15%)]">
                     {formatCurrency(job.payment_amount)}
                   </td>
-                  <td className="px-4 py-3">
-                    <PaymentStatusBadge status={job.payment_status} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <JobStatusBadge status={job.status} />
-                  </td>
+                  <td className="px-4 py-3"><PaymentStatusBadge status={job.payment_status} /></td>
+                  <td className="px-4 py-3"><JobStatusBadge status={job.status} /></td>
                 </tr>
               ))}
             </tbody>

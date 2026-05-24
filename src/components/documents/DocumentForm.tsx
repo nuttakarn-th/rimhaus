@@ -196,11 +196,11 @@ export function DocumentForm({
   }
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5 max-w-2xl w-full">
       {/* Document header */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
         <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ข้อมูลเอกสาร</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">ประเภทเอกสาร</Label>
             <Select value={docType} onValueChange={v => setDocType(v as DocType)} disabled={!!document}>
@@ -217,7 +217,7 @@ export function DocumentForm({
             <Input value={docNumber} onChange={e => setDocNumber(e.target.value)} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">วันที่</Label>
             <Input type="date" value={docDate} onChange={e => setDocDate(e.target.value)} />
@@ -275,7 +275,7 @@ export function DocumentForm({
           <Label className="text-xs">ที่อยู่</Label>
           <Textarea rows={2} value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">เบอร์โทร</Label>
             <Input value={issuerPhone} onChange={e => setIssuerPhone(e.target.value)} />
@@ -314,7 +314,7 @@ export function DocumentForm({
           <Label className="text-xs">ที่อยู่</Label>
           <Textarea rows={2} value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">เลขภาษี</Label>
             <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} />
@@ -349,32 +349,34 @@ export function DocumentForm({
         </div>
         <div className="space-y-3">
           {items.map((item, idx) => (
-            <div key={idx} className="grid grid-cols-12 gap-2 items-end">
-              <div className="col-span-6 space-y-1">
+            <div key={idx} className="space-y-2">
+              <div className="space-y-1">
                 {idx === 0 && <Label className="text-xs">รายละเอียด</Label>}
                 <Textarea rows={2} value={item.description}
                   onChange={e => updateItem(idx, "description", e.target.value)}
                   placeholder="จ้างบริการออกแบบสื่อสิ่งพิมพ์..." className="text-xs" />
               </div>
-              <div className="col-span-2 space-y-1">
-                {idx === 0 && <Label className="text-xs">จำนวน</Label>}
-                <Input type="number" min={1} value={item.quantity}
-                  onChange={e => updateItem(idx, "quantity", Number(e.target.value))} />
-              </div>
-              <div className="col-span-3 space-y-1">
-                {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
-                <Input type="number" min={0}
-                  value={item.unit_price === 0 ? "" : item.unit_price}
-                  onChange={e => updateItem(idx, "unit_price", e.target.value === "" ? 0 : Number(e.target.value))}
-                  placeholder="5000" />
-              </div>
-              <div className="col-span-1 flex justify-end">
-                {items.length > 1 && (
-                  <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600 px-2"
-                    onClick={() => setItems(p => p.filter((_, i) => i !== idx))}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                )}
+              <div className="flex gap-2 items-end">
+                <div className="w-20 shrink-0 space-y-1">
+                  {idx === 0 && <Label className="text-xs">จำนวน</Label>}
+                  <Input type="number" min={1} value={item.quantity}
+                    onChange={e => updateItem(idx, "quantity", Number(e.target.value))} />
+                </div>
+                <div className="flex-1 space-y-1">
+                  {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
+                  <Input type="number" min={0}
+                    value={item.unit_price === 0 ? "" : item.unit_price}
+                    onChange={e => updateItem(idx, "unit_price", e.target.value === "" ? 0 : Number(e.target.value))}
+                    placeholder="5000" />
+                </div>
+                <div className="shrink-0">
+                  {items.length > 1 ? (
+                    <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600 px-2"
+                      onClick={() => setItems(p => p.filter((_, i) => i !== idx))}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  ) : <div className="w-9" />}
+                </div>
               </div>
             </div>
           ))}

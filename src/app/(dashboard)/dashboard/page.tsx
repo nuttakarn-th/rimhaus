@@ -99,17 +99,14 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {recentJobs.map(job => (
-                <Link key={job.id} href={`/jobs/${job.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-[hsl(35,25%,95%)] transition-colors">
-                  <div>
-                    <p className="font-medium text-sm text-[hsl(25,20%,15%)]">{job.brand_name}</p>
-                    <p className="text-xs text-[hsl(25,10%,50%)]">{job.product_name}</p>
+                <Link key={job.id} href={`/jobs/${job.id}`} className="flex items-start justify-between gap-3 p-3 rounded-lg hover:bg-[hsl(35,25%,95%)] transition-colors">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm text-[hsl(25,20%,15%)] truncate">{job.brand_name}</p>
+                    <p className="text-xs text-[hsl(25,10%,50%)] truncate">{job.product_name}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${JOB_STATUS_COLORS[job.status]}`}>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end shrink-0">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${JOB_STATUS_COLORS[job.status]}`}>
                       {JOB_STATUS_LABELS[job.status]}
-                    </span>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${PAYMENT_STATUS_COLORS[job.payment_status]}`}>
-                      {PAYMENT_STATUS_LABELS[job.payment_status]}
                     </span>
                     <span className="text-sm font-semibold text-[hsl(25,20%,15%)]">{formatCurrency(job.payment_amount)}</span>
                   </div>

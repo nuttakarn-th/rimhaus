@@ -63,7 +63,7 @@ export function CustomerForm({ customer }: { customer?: Customer }) {
           <Label className="text-xs">ชื่อผู้ติดต่อ</Label>
           <Input value={form.contact_name} onChange={set("contact_name")} placeholder="คุณมิ้น" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">โทรศัพท์</Label>
             <Input value={form.phone} onChange={set("phone")} placeholder="081-234-5678" />

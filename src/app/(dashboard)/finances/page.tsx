@@ -54,23 +54,23 @@ export default async function FinancesPage({
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5">
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-3.5 md:p-5">
           <p className="text-xs text-[hsl(25,10%,50%)]">รายรับ</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{formatCurrency(summary.income)}</p>
-          <p className="text-xs text-[hsl(25,10%,50%)] mt-1">{monthLabel}</p>
+          <p className="text-lg md:text-2xl font-bold text-green-600 mt-1 leading-tight">{formatCurrency(summary.income)}</p>
+          <p className="text-xs text-[hsl(25,10%,50%)] mt-1 hidden sm:block">{monthLabel}</p>
         </div>
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5">
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-3.5 md:p-5">
           <p className="text-xs text-[hsl(25,10%,50%)]">รายจ่าย</p>
-          <p className="text-2xl font-bold text-red-500 mt-1">{formatCurrency(summary.expense)}</p>
-          <p className="text-xs text-[hsl(25,10%,50%)] mt-1">{monthLabel}</p>
+          <p className="text-lg md:text-2xl font-bold text-red-500 mt-1 leading-tight">{formatCurrency(summary.expense)}</p>
+          <p className="text-xs text-[hsl(25,10%,50%)] mt-1 hidden sm:block">{monthLabel}</p>
         </div>
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5">
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-3.5 md:p-5">
           <p className="text-xs text-[hsl(25,10%,50%)]">กำไรสุทธิ</p>
-          <p className={`text-2xl font-bold mt-1 ${summary.net >= 0 ? "text-[hsl(25,20%,15%)]" : "text-red-500"}`}>
+          <p className={`text-lg md:text-2xl font-bold mt-1 leading-tight ${summary.net >= 0 ? "text-[hsl(25,20%,15%)]" : "text-red-500"}`}>
             {formatCurrency(summary.net)}
           </p>
-          <p className="text-xs text-[hsl(25,10%,50%)] mt-1">{monthLabel}</p>
+          <p className="text-xs text-[hsl(25,10%,50%)] mt-1 hidden sm:block">{monthLabel}</p>
         </div>
       </div>
 
@@ -95,8 +95,44 @@ export default async function FinancesPage({
         ))}
       </div>
 
-      {/* Transactions table */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden">
+      {/* Mobile: transaction cards */}
+      <div className="md:hidden space-y-2">
+        {transactions.length === 0 ? (
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] text-center py-12">
+            <p className="text-[hsl(25,10%,50%)]">ไม่มีรายการในเดือนนี้</p>
+          </div>
+        ) : transactions.map(tx => (
+          <div key={tx.id} className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tx.type === "income" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {tx.type === "income" ? "รายรับ" : "รายจ่าย"}
+                  </span>
+                  {tx.category && <span className="text-xs text-[hsl(25,10%,55%)]">{tx.category}</span>}
+                  <span className="text-xs text-[hsl(25,10%,60%)]">{formatDate(tx.transaction_date)}</span>
+                </div>
+                <p className="text-sm text-[hsl(25,20%,20%)]">{tx.description ?? "-"}</p>
+                {tx.review_jobs && (
+                  <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">🔗 {tx.review_jobs.brand_name} — {tx.review_jobs.product_name}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className={`text-sm font-bold ${tx.type === "income" ? "text-green-600" : "text-red-500"}`}>
+                  {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount)}
+                </span>
+                <Link href={`/finances/${tx.id}/edit`} className="p-1 text-gray-400 hover:text-[hsl(24,85%,50%)] transition-colors rounded ml-1">
+                  <Pencil className="w-3.5 h-3.5" />
+                </Link>
+                <DeleteTransactionButton id={tx.id} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: transactions table */}
+      <div className="hidden md:block bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden">
         {transactions.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-[hsl(25,10%,50%)]">ไม่มีรายการในเดือนนี้</p>

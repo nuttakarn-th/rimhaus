@@ -47,6 +47,38 @@ export async function upsertCustomer(
   return { success: true, data }
 }
 
+type ImportCustomer = {
+  name: string
+  tax_id?: string | null
+  address?: string | null
+  contact_name?: string | null
+  phone?: string | null
+  email?: string | null
+  notes?: string | null
+}
+
+export async function bulkImportCustomers(customers: ImportCustomer[]): Promise<ActionResult<number>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "ไม่ได้เข้าสู่ระบบ" }
+
+  const payload = customers.map(c => ({
+    user_id: user.id,
+    name: c.name,
+    contact_name: c.contact_name || null,
+    email: c.email || null,
+    phone: c.phone || null,
+    address: c.address || null,
+    tax_id: c.tax_id || null,
+    notes: c.notes || null,
+  }))
+
+  const { error } = await supabase.from("customers").insert(payload)
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/customers")
+  return { success: true, data: customers.length }
+}
+
 export async function deleteCustomer(id: string): Promise<ActionResult<null>> {
   const supabase = await createClient()
   const { error } = await supabase.from("customers").delete().eq("id", id)

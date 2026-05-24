@@ -24,7 +24,7 @@ export default async function DocumentsPage({
   const docs = await getDocumentsWithLinks(docType)
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">เอกสาร</h1>
@@ -38,7 +38,7 @@ export default async function DocumentsPage({
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-[hsl(35,20%,88%)]">
+      <div className="flex gap-1 border-b border-[hsl(35,20%,88%)] overflow-x-auto">
         {TABS.map(tab => {
           const active = (tab.type === "all" && !type) || tab.type === type
           return (
