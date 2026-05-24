@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { upsertDocument, generateDocNumber } from "@/actions/documents.actions"
+import { upsertDocument, generateDocNumber, getDocument } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -124,16 +124,44 @@ export function DocumentForm({
     setCustomerTaxId(c.tax_id ?? ""); setCustomerContact(c.contact_name ?? "")
   }, [customerId, customers])
 
-  // Fill from linked quotation
+  // Fill ALL data from linked quotation (full fetch)
   useEffect(() => {
-    if (!linkedQuotationId) return
-    const qt = quotations.find(q => q.id === linkedQuotationId)
-    if (!qt) return
-    setCustomerName(qt.customer_name ?? "")
-    setCustomerAddress(qt.customer_address ?? "")
-    setCustomerTaxId(qt.customer_tax_id ?? "")
-    setCustomerContact(qt.customer_contact ?? "")
-  }, [linkedQuotationId, quotations])
+    if (!linkedQuotationId || docType === "quotation") return
+    getDocument(linkedQuotationId).then(qt => {
+      if (!qt) return
+      // Customer
+      setCustomerName(qt.customer_name ?? "")
+      setCustomerAddress(qt.customer_address ?? "")
+      setCustomerTaxId(qt.customer_tax_id ?? "")
+      setCustomerContact(qt.customer_contact ?? "")
+      // Issuer snapshot from quotation
+      if (qt.issuer_name) {
+        setIssuerId(qt.issuer_profile_id ?? "")
+        setIssuerName(qt.issuer_name ?? "")
+        setIssuerIdCard(qt.issuer_id_card ?? "")
+        setIssuerAddress(qt.issuer_address ?? "")
+        setIssuerPhone(qt.issuer_phone ?? "")
+        setIssuerEmail(qt.issuer_email ?? "")
+        setIssuerBankName(qt.issuer_bank_name ?? "")
+        setIssuerBankBranch(qt.issuer_bank_branch ?? "")
+        setIssuerAccountName(qt.issuer_account_name ?? "")
+        setIssuerAccountNumber(qt.issuer_account_number ?? "")
+        setIssuerSignatureUrl(qt.issuer_signature_url ?? "")
+        setIssuerHeaderImageUrl(qt.issuer_header_image_url ?? "")
+        setIssuerContactLine(qt.issuer_contact_line ?? "")
+      }
+      // Line items
+      if (qt.document_items && qt.document_items.length > 0) {
+        setItems(qt.document_items.map(i => ({
+          description: i.description,
+          quantity: i.quantity,
+          unit_price: i.unit_price,
+          amount: i.amount,
+        })))
+        setWhtEnabled((qt.wht_rate ?? 0) > 0)
+      }
+    })
+  }, [linkedQuotationId, docType])
 
   function updateItem(idx: number, field: keyof LineItem, value: string | number) {
     setItems(prev => {
@@ -222,10 +250,12 @@ export function DocumentForm({
             <Label className="text-xs">วันที่</Label>
             <Input type="date" value={docDate} onChange={e => setDocDate(e.target.value)} />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">กำหนดส่งงาน</Label>
-            <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-          </div>
+          {docType === "quotation" && (
+            <div className="space-y-1">
+              <Label className="text-xs">กำหนดส่งงาน</Label>
+              <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+            </div>
+          )}
         </div>
         <div className="space-y-1">
           <Label className="text-xs">สถานะ</Label>
@@ -241,146 +271,199 @@ export function DocumentForm({
         </div>
         {(docType === "invoice" || docType === "receipt") && quotations.length > 0 && (
           <div className="space-y-1">
-            <Label className="text-xs">อ้างอิงใบเสนอราคา (ไม่บังคับ)</Label>
+            <Label className="text-xs">อ้างอิงใบเสนอราคา</Label>
             <QuotationSearch
               quotations={quotations}
               value={linkedQuotationId}
               onChange={setLinkedQuotationId}
             />
+            {linkedQuotationId && (
+              <p className="text-xs text-[hsl(24,85%,50%)] flex items-center gap-1 mt-1">
+                ✓ ดึงข้อมูลผู้ออกเอกสาร ลูกค้า และรายการทั้งหมดอัตโนมัติ
+              </p>
+            )}
           </div>
         )}
       </div>
 
       {/* Issuer */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
-        <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ผู้ออกเอกสาร</h3>
-        {issuers.length > 0 && (
-          <div className="space-y-1">
-            <Label className="text-xs">เลือกจากโปรไฟล์</Label>
-            <Select value={issuerId} onValueChange={setIssuerId}>
-              <SelectTrigger><SelectValue placeholder="เลือกผู้ออกเอกสาร..." /></SelectTrigger>
-              <SelectContent>
-                {issuers.map(i => (
-                  <SelectItem key={i.id} value={i.id}>{i.name}{i.is_default ? " ★" : ""}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-        <div className="space-y-1">
-          <Label className="text-xs">ชื่อ *</Label>
-          <Input value={issuerName} onChange={e => setIssuerName(e.target.value)} placeholder="ณัฐกานต์ ทาจันทร์" />
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ผู้ออกเอกสาร</h3>
+          {linkedQuotationId && issuerName && (
+            <span className="text-xs text-[hsl(24,85%,50%)] bg-orange-50 px-2 py-0.5 rounded-full">ดึงจากใบเสนอราคา</span>
+          )}
         </div>
-        <div className="space-y-1">
-          <Label className="text-xs">ที่อยู่</Label>
-          <Textarea rows={2} value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">เบอร์โทร</Label>
-            <Input value={issuerPhone} onChange={e => setIssuerPhone(e.target.value)} />
+        {/* When quotation is linked, show compact locked display; profile selector hidden */}
+        {linkedQuotationId && issuerName ? (
+          <div className="text-sm text-[hsl(25,20%,25%)] bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2.5 space-y-0.5">
+            <p className="font-semibold">{issuerName}</p>
+            {issuerPhone && <p className="text-xs text-[hsl(25,10%,50%)]">{issuerPhone}</p>}
+            {issuerSignatureUrl && <p className="text-xs text-green-600">✓ มีลายเซ็น</p>}
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">อีเมล</Label>
-            <Input value={issuerEmail} onChange={e => setIssuerEmail(e.target.value)} />
-          </div>
-        </div>
-        {issuerSignatureUrl && (
-          <div className="flex items-center gap-2 text-xs text-green-600">
-            <span>✓ มีลายเซ็นแนบ</span>
-          </div>
+        ) : (
+          <>
+            {issuers.length > 0 && (
+              <div className="space-y-1">
+                <Label className="text-xs">เลือกจากโปรไฟล์</Label>
+                <Select value={issuerId} onValueChange={setIssuerId}>
+                  <SelectTrigger><SelectValue placeholder="เลือกผู้ออกเอกสาร..." /></SelectTrigger>
+                  <SelectContent>
+                    {issuers.map(i => (
+                      <SelectItem key={i.id} value={i.id}>{i.name}{i.is_default ? " ★" : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label className="text-xs">ชื่อ *</Label>
+              <Input value={issuerName} onChange={e => setIssuerName(e.target.value)} placeholder="ณัฐกานต์ ทาจันทร์" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">ที่อยู่</Label>
+              <Textarea rows={2} value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">เบอร์โทร</Label>
+                <Input value={issuerPhone} onChange={e => setIssuerPhone(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">อีเมล</Label>
+                <Input value={issuerEmail} onChange={e => setIssuerEmail(e.target.value)} />
+              </div>
+            </div>
+            {issuerSignatureUrl && (
+              <div className="flex items-center gap-2 text-xs text-green-600">
+                <span>✓ มีลายเซ็นแนบ</span>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Customer */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
-        <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ลูกค้า</h3>
-        {customers.length > 0 && (
-          <div className="space-y-1">
-            <Label className="text-xs">เลือกจากฐานข้อมูล (ไม่บังคับ)</Label>
-            <Select value={customerId} onValueChange={setCustomerId}>
-              <SelectTrigger><SelectValue placeholder="เลือกลูกค้า..." /></SelectTrigger>
-              <SelectContent>
-                {customers.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-              </SelectContent>
-            </Select>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ลูกค้า</h3>
+          {linkedQuotationId && customerName && (
+            <span className="text-xs text-[hsl(24,85%,50%)] bg-orange-50 px-2 py-0.5 rounded-full">ดึงจากใบเสนอราคา</span>
+          )}
+        </div>
+        {linkedQuotationId && customerName ? (
+          <div className="text-sm text-[hsl(25,20%,25%)] bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2.5 space-y-0.5">
+            <p className="font-semibold">{customerName}</p>
+            {customerTaxId && <p className="text-xs text-[hsl(25,10%,50%)]">เลขภาษี: {customerTaxId}</p>}
+            {customerContact && <p className="text-xs text-[hsl(25,10%,50%)]">ผู้ติดต่อ: {customerContact}</p>}
           </div>
+        ) : (
+          <>
+            {customers.length > 0 && (
+              <div className="space-y-1">
+                <Label className="text-xs">เลือกจากฐานข้อมูล (ไม่บังคับ)</Label>
+                <Select value={customerId} onValueChange={setCustomerId}>
+                  <SelectTrigger><SelectValue placeholder="เลือกลูกค้า..." /></SelectTrigger>
+                  <SelectContent>
+                    {customers.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label className="text-xs">ชื่อบริษัท / แบรนด์ *</Label>
+              <Input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="บริษัท ABC จำกัด" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">ที่อยู่</Label>
+              <Textarea rows={2} value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">เลขภาษี</Label>
+                <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">ผู้ติดต่อ</Label>
+                <Input value={customerContact} onChange={e => setCustomerContact(e.target.value)} />
+              </div>
+            </div>
+          </>
         )}
-        <div className="space-y-1">
-          <Label className="text-xs">ชื่อบริษัท / แบรนด์ *</Label>
-          <Input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="บริษัท ABC จำกัด" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">ที่อยู่</Label>
-          <Textarea rows={2} value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">เลขภาษี</Label>
-            <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">ผู้ติดต่อ</Label>
-            <Input value={customerContact} onChange={e => setCustomerContact(e.target.value)} />
-          </div>
-        </div>
       </div>
 
       {/* Line items */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">รายการ</h3>
-          <div className="flex items-center gap-2">
-            {packages.length > 0 && (
-              <PackagePicker
-                packages={packages}
-                onSelect={pkg => setItems(p => [...p, {
-                  description: pkg.name + (pkg.description ? `\n${pkg.description}` : ""),
-                  quantity: 1,
-                  unit_price: pkg.price ?? 0,
-                  amount: pkg.price ?? 0,
-                }])}
-              />
-            )}
-            <Button size="sm" variant="outline" onClick={() => setItems(p => [...p, emptyItem()])}>
-              <Plus className="w-3.5 h-3.5 mr-1" />เพิ่มรายการ
-            </Button>
-          </div>
-        </div>
-        <div className="space-y-3">
-          {items.map((item, idx) => (
-            <div key={idx} className="space-y-2">
-              <div className="space-y-1">
-                {idx === 0 && <Label className="text-xs">รายละเอียด</Label>}
-                <Textarea rows={2} value={item.description}
-                  onChange={e => updateItem(idx, "description", e.target.value)}
-                  placeholder="จ้างบริการออกแบบสื่อสิ่งพิมพ์..." className="text-xs" />
-              </div>
-              <div className="flex gap-2 items-end">
-                <div className="w-20 shrink-0 space-y-1">
-                  {idx === 0 && <Label className="text-xs">จำนวน</Label>}
-                  <Input type="number" min={1} value={item.quantity}
-                    onChange={e => updateItem(idx, "quantity", Number(e.target.value))} />
-                </div>
-                <div className="flex-1 space-y-1">
-                  {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
-                  <Input type="number" min={0}
-                    value={item.unit_price === 0 ? "" : item.unit_price}
-                    onChange={e => updateItem(idx, "unit_price", e.target.value === "" ? 0 : Number(e.target.value))}
-                    placeholder="5000" />
-                </div>
-                <div className="shrink-0">
-                  {items.length > 1 ? (
-                    <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600 px-2"
-                      onClick={() => setItems(p => p.filter((_, i) => i !== idx))}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  ) : <div className="w-9" />}
-                </div>
-              </div>
+          {linkedQuotationId ? (
+            <span className="text-xs text-[hsl(24,85%,50%)] bg-orange-50 px-2 py-0.5 rounded-full">ดึงจากใบเสนอราคา</span>
+          ) : (
+            <div className="flex items-center gap-2">
+              {packages.length > 0 && (
+                <PackagePicker
+                  packages={packages}
+                  onSelect={pkg => setItems(p => [...p, {
+                    description: pkg.name + (pkg.description ? `\n${pkg.description}` : ""),
+                    quantity: 1,
+                    unit_price: pkg.price ?? 0,
+                    amount: pkg.price ?? 0,
+                  }])}
+                />
+              )}
+              <Button size="sm" variant="outline" onClick={() => setItems(p => [...p, emptyItem()])}>
+                <Plus className="w-3.5 h-3.5 mr-1" />เพิ่มรายการ
+              </Button>
             </div>
-          ))}
+          )}
         </div>
+        {linkedQuotationId ? (
+          <div className="divide-y divide-[hsl(35,20%,92%)]">
+            {items.map((item, idx) => (
+              <div key={idx} className="py-2.5 flex items-start justify-between gap-4 text-sm">
+                <p className="text-[hsl(25,20%,20%)] whitespace-pre-line flex-1">{item.description}</p>
+                <span className="text-[hsl(25,10%,50%)] shrink-0 text-right">
+                  {item.quantity} × {new Intl.NumberFormat("th-TH").format(item.unit_price)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {items.map((item, idx) => (
+              <div key={idx} className="space-y-2">
+                <div className="space-y-1">
+                  {idx === 0 && <Label className="text-xs">รายละเอียด</Label>}
+                  <Textarea rows={2} value={item.description}
+                    onChange={e => updateItem(idx, "description", e.target.value)}
+                    placeholder="จ้างบริการออกแบบสื่อสิ่งพิมพ์..." className="text-xs" />
+                </div>
+                <div className="flex gap-2 items-end">
+                  <div className="w-20 shrink-0 space-y-1">
+                    {idx === 0 && <Label className="text-xs">จำนวน</Label>}
+                    <Input type="number" min={1} value={item.quantity}
+                      onChange={e => updateItem(idx, "quantity", Number(e.target.value))} />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
+                    <Input type="number" min={0}
+                      value={item.unit_price === 0 ? "" : item.unit_price}
+                      onChange={e => updateItem(idx, "unit_price", e.target.value === "" ? 0 : Number(e.target.value))}
+                      placeholder="5000" />
+                  </div>
+                  <div className="shrink-0">
+                    {items.length > 1 ? (
+                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600 px-2"
+                        onClick={() => setItems(p => p.filter((_, i) => i !== idx))}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    ) : <div className="w-9" />}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Summary */}

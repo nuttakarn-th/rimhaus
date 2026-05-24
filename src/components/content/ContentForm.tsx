@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { CONTENT_TYPES, CONTENT_STATUS_LABELS } from "@/lib/constants"
 import type { ContentItem, ReviewJob, Platform } from "@/lib/types"
 import { toast } from "sonner"
+import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 
 interface ContentFormProps {
   item?: ContentItem
@@ -155,8 +156,12 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
           <Textarea value={form.idea_notes ?? ""} onChange={e => setForm(p => ({ ...p, idea_notes: e.target.value }))} rows={3} placeholder="จดไอเดีย จุดที่อยากพูด..." />
         </div>
         <div className="space-y-2">
-          <Label>สคริปต์</Label>
-          <Textarea value={form.script ?? ""} onChange={e => setForm(p => ({ ...p, script: e.target.value }))} rows={5} placeholder="เขียนสคริปต์ที่นี่..." />
+          <Label>Brief / Script</Label>
+          <p className="text-xs text-[hsl(25,10%,55%)]">เขียน Story + Script VDO + Caption พร้อมแชร์ให้ลูกค้าเป็น PDF</p>
+          <ContentBriefEditor
+            value={form.script ?? ""}
+            onChange={v => setForm(p => ({ ...p, script: v }))}
+          />
         </div>
         <div className="space-y-2">
           <Label>Hashtags</Label>

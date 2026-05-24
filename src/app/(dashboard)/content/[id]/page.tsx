@@ -4,7 +4,7 @@ import { getContentItem, deleteContentItem } from "@/actions/content.actions"
 import { CONTENT_STATUS_COLORS, CONTENT_STATUS_LABELS, CONTENT_TYPES } from "@/lib/constants"
 import { formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Pencil } from "lucide-react"
+import { Pencil, FileDown } from "lucide-react"
 import { DeleteContentButton } from "@/components/content/DeleteContentButton"
 
 export default async function ContentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -27,7 +27,14 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
           </div>
           <p className="text-[hsl(25,10%,50%)] mt-1">{typeLabel}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {item.script && (
+            <Link href={`/content/${id}/brief`}>
+              <Button variant="outline" size="sm" className="text-[hsl(24,85%,50%)] border-[hsl(24,85%,50%)]">
+                <FileDown className="w-3.5 h-3.5 mr-1" />Brief / PDF
+              </Button>
+            </Link>
+          )}
           <Link href={`/content/${id}/edit`}>
             <Button variant="outline" size="sm"><Pencil className="w-3.5 h-3.5 mr-1" />แก้ไข</Button>
           </Link>
@@ -59,8 +66,16 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
 
       {item.script && (
         <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
-          <h3 className="font-semibold mb-3">สคริปต์</h3>
-          <p className="text-sm text-[hsl(25,20%,25%)] whitespace-pre-wrap">{item.script}</p>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">Brief / Script</h3>
+            <Link href={`/content/${id}/brief`} className="text-xs text-[hsl(24,85%,50%)] hover:underline flex items-center gap-1">
+              <FileDown className="w-3 h-3" />Preview &amp; PDF
+            </Link>
+          </div>
+          <div
+            className="brief-print text-sm text-[hsl(25,20%,20%)]"
+            dangerouslySetInnerHTML={{ __html: item.script }}
+          />
         </div>
       )}
     </div>
