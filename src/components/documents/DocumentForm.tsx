@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, TrendingUp } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
@@ -145,6 +145,15 @@ export function DocumentForm({
       next[idx] = item
       return next
     })
+  }
+
+  function handleGrossUp() {
+    setItems(prev => prev.map(item => {
+      const newUnitPrice = Math.round(item.unit_price / 0.97 * 100) / 100
+      const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
+      return { ...item, unit_price: newUnitPrice, amount: newAmount }
+    }))
+    setWhtEnabled(true)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -354,8 +363,10 @@ export function DocumentForm({
               </div>
               <div className="col-span-3 space-y-1">
                 {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
-                <Input type="number" min={0} value={item.unit_price}
-                  onChange={e => updateItem(idx, "unit_price", Number(e.target.value))} placeholder="5000" />
+                <Input type="number" min={0}
+                  value={item.unit_price === 0 ? "" : item.unit_price}
+                  onChange={e => updateItem(idx, "unit_price", e.target.value === "" ? 0 : Number(e.target.value))}
+                  placeholder="5000" />
               </div>
               <div className="col-span-1 flex justify-end">
                 {items.length > 1 && (
@@ -378,12 +389,23 @@ export function DocumentForm({
             <span className="text-[hsl(25,10%,50%)]">ยอดรวม</span>
             <span>{formatCurrency(subtotal)}</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <label className="flex items-center gap-2 cursor-pointer">
               <Checkbox checked={whtEnabled} onCheckedChange={v => setWhtEnabled(Boolean(v))} />
               <span className="text-[hsl(25,10%,50%)]">หักภาษี ณ ที่จ่าย 3%</span>
             </label>
-            <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGrossUp}
+                title="ปรับราคาทุกรายการ ÷ 0.97 เพื่อให้ยอดรับสุทธิหลังหัก WHT เท่ากับราคา Package จริง"
+                className="flex items-center gap-1 text-xs text-[hsl(24,85%,50%)] border border-[hsl(24,85%,50%)] rounded-md px-2 py-1 hover:bg-orange-50 transition-colors"
+              >
+                <TrendingUp className="w-3 h-3" />
+                Gross Up WHT
+              </button>
+              <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+            </div>
           </div>
           <div className="flex justify-between font-bold text-base border-t border-[hsl(35,20%,88%)] pt-2">
             <span>ยอดรับสุทธิ</span>
