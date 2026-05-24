@@ -13,7 +13,9 @@ import { Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
-import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob } from "@/lib/types"
+import { PackagePicker } from "@/components/documents/PackagePicker"
+import { QuotationSearch } from "@/components/documents/QuotationSearch"
+import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob, RateCardPackage } from "@/lib/types"
 
 type LineItem = { description: string; quantity: number; unit_price: number; amount: number }
 const emptyItem = (): LineItem => ({ description: "", quantity: 1, unit_price: 0, amount: 0 })
@@ -36,12 +38,14 @@ export function DocumentForm({
   jobs,
   issuers,
   quotations,
+  packages,
 }: {
   document?: Document
   customers: Customer[]
   jobs: ReviewJob[]
   issuers: IssuerProfile[]
   quotations: Document[]
+  packages: RateCardPackage[]
 }) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
@@ -226,19 +230,14 @@ export function DocumentForm({
             </SelectContent>
           </Select>
         </div>
-        {docType === "invoice" && quotations.length > 0 && (
+        {(docType === "invoice" || docType === "receipt") && quotations.length > 0 && (
           <div className="space-y-1">
             <Label className="text-xs">อ้างอิงใบเสนอราคา (ไม่บังคับ)</Label>
-            <Select value={linkedQuotationId} onValueChange={setLinkedQuotationId}>
-              <SelectTrigger><SelectValue placeholder="เลือกใบเสนอราคา..." /></SelectTrigger>
-              <SelectContent>
-                {quotations.map(q => (
-                  <SelectItem key={q.id} value={q.id}>
-                    {q.doc_number} · {q.customer_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <QuotationSearch
+              quotations={quotations}
+              value={linkedQuotationId}
+              onChange={setLinkedQuotationId}
+            />
           </div>
         )}
       </div>
@@ -320,11 +319,24 @@ export function DocumentForm({
 
       {/* Line items */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">รายการ</h3>
-          <Button size="sm" variant="outline" onClick={() => setItems(p => [...p, emptyItem()])}>
-            <Plus className="w-3.5 h-3.5 mr-1" />เพิ่มรายการ
-          </Button>
+          <div className="flex items-center gap-2">
+            {packages.length > 0 && (
+              <PackagePicker
+                packages={packages}
+                onSelect={pkg => setItems(p => [...p, {
+                  description: pkg.name + (pkg.description ? `\n${pkg.description}` : ""),
+                  quantity: 1,
+                  unit_price: pkg.price ?? 0,
+                  amount: pkg.price ?? 0,
+                }])}
+              />
+            )}
+            <Button size="sm" variant="outline" onClick={() => setItems(p => [...p, emptyItem()])}>
+              <Plus className="w-3.5 h-3.5 mr-1" />เพิ่มรายการ
+            </Button>
+          </div>
         </div>
         <div className="space-y-3">
           {items.map((item, idx) => (

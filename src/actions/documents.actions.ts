@@ -17,6 +17,44 @@ export async function getDocuments(docType?: DocType): Promise<Document[]> {
   return data
 }
 
+export type DocumentWithLinks = Document & {
+  invoice_count: number
+  receipt_count: number
+}
+
+export async function getDocumentsWithLinks(docType?: DocType): Promise<DocumentWithLinks[]> {
+  const supabase = await createClient()
+  let query = supabase
+    .from("documents")
+    .select("*, customers(name)")
+    .order("created_at", { ascending: false })
+  if (docType) query = query.eq("doc_type", docType)
+  const { data, error } = await query
+  if (error || !data) return []
+
+  // Fetch invoice/receipt counts for quotations
+  const quotationIds = data.filter(d => d.doc_type === "quotation").map(d => d.id)
+  let linkMap: Record<string, { invoice_count: number; receipt_count: number }> = {}
+  if (quotationIds.length > 0) {
+    const { data: linked } = await supabase
+      .from("documents")
+      .select("linked_quotation_id, doc_type")
+      .in("linked_quotation_id", quotationIds)
+    for (const l of linked ?? []) {
+      if (!l.linked_quotation_id) continue
+      if (!linkMap[l.linked_quotation_id]) linkMap[l.linked_quotation_id] = { invoice_count: 0, receipt_count: 0 }
+      if (l.doc_type === "invoice") linkMap[l.linked_quotation_id].invoice_count++
+      else if (l.doc_type === "receipt") linkMap[l.linked_quotation_id].receipt_count++
+    }
+  }
+
+  return data.map(d => ({
+    ...d,
+    invoice_count: linkMap[d.id]?.invoice_count ?? 0,
+    receipt_count: linkMap[d.id]?.receipt_count ?? 0,
+  }))
+}
+
 export async function getDocument(id: string): Promise<Document | null> {
   const supabase = await createClient()
   const { data } = await supabase
