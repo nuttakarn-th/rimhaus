@@ -125,6 +125,23 @@ export interface RateCardSettings {
   updated_at: string
 }
 
+export interface IssuerProfile {
+  id: string
+  user_id: string
+  name: string
+  id_card: string | null
+  address: string | null
+  phone: string | null
+  email: string | null
+  bank_name: string | null
+  bank_branch: string | null
+  account_name: string | null
+  account_number: string | null
+  signature_url: string | null
+  is_default: boolean
+  created_at: string
+}
+
 export type DocType = "quotation" | "invoice" | "receipt"
 export type DocStatus = "draft" | "sent" | "paid" | "cancelled"
 
@@ -170,6 +187,20 @@ export interface Document {
   wht_amount: number
   total: number
   notes: string | null
+  doc_remarks: string | null
+  payment_terms: string | null
+  issuer_profile_id: string | null
+  issuer_name: string | null
+  issuer_id_card: string | null
+  issuer_address: string | null
+  issuer_phone: string | null
+  issuer_email: string | null
+  issuer_bank_name: string | null
+  issuer_bank_branch: string | null
+  issuer_account_name: string | null
+  issuer_account_number: string | null
+  issuer_signature_url: string | null
+  linked_quotation_id: string | null
   created_at: string
   updated_at: string
   document_items?: DocumentItem[]

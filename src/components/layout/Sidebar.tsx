@@ -13,6 +13,7 @@ import {
   CreditCard,
   Building2,
   FileText,
+  User,
   LogOut,
 } from "lucide-react"
 
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/posts", icon: Smartphone, label: "จัดการโพส" },
   { href: "/customers", icon: Building2, label: "ลูกค้า" },
   { href: "/documents", icon: FileText, label: "เอกสาร" },
+  { href: "/settings/issuers", icon: User, label: "ผู้ออกเอกสาร" },
   { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },
 ]
 

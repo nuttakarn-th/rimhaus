@@ -13,87 +13,120 @@ import { Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
-import type { Customer, Document, DocType, DocStatus, ReviewJob } from "@/lib/types"
+import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob } from "@/lib/types"
 
 type LineItem = { description: string; quantity: number; unit_price: number; amount: number }
-
 const emptyItem = (): LineItem => ({ description: "", quantity: 1, unit_price: 0, amount: 0 })
+
+const DEFAULT_PAYMENT_TERMS: Record<DocType, string> = {
+  quotation: "ชำระเงินภายใน 30 วัน หลังจากส่งมอบงาน",
+  invoice: "ภายใน 15 วัน หลังจากส่งมอบงาน",
+  receipt: "",
+}
+
+const DEFAULT_REMARKS: Record<DocType, string> = {
+  quotation: "ยืนยันราคาภายใน 30 วัน นับจากวันเสนอราคา\nราคานี้รวมค่าแก้ไข โดยสามารถแก้ไขได้ไม่เกิน 3 ครั้ง ต่อ 1 ชิ้นงาน",
+  invoice: "",
+  receipt: "",
+}
 
 export function DocumentForm({
   document,
   customers,
   jobs,
+  issuers,
+  quotations,
 }: {
   document?: Document
   customers: Customer[]
   jobs: ReviewJob[]
+  issuers: IssuerProfile[]
+  quotations: Document[]
 }) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const defaultIssuer = issuers.find(i => i.is_default) ?? issuers[0]
+
   const [docType, setDocType] = useState<DocType>(document?.doc_type ?? "quotation")
   const [docNumber, setDocNumber] = useState(document?.doc_number ?? "")
   const [docDate, setDocDate] = useState(document?.doc_date ?? new Date().toISOString().slice(0, 10))
   const [dueDate, setDueDate] = useState(document?.due_date ?? "")
   const [status, setStatus] = useState<DocStatus>(document?.status ?? "draft")
+
+  const [issuerId, setIssuerId] = useState(document?.issuer_profile_id ?? defaultIssuer?.id ?? "")
+  const [issuerName, setIssuerName] = useState(document?.issuer_name ?? defaultIssuer?.name ?? "")
+  const [issuerIdCard, setIssuerIdCard] = useState(document?.issuer_id_card ?? defaultIssuer?.id_card ?? "")
+  const [issuerAddress, setIssuerAddress] = useState(document?.issuer_address ?? defaultIssuer?.address ?? "")
+  const [issuerPhone, setIssuerPhone] = useState(document?.issuer_phone ?? defaultIssuer?.phone ?? "")
+  const [issuerEmail, setIssuerEmail] = useState(document?.issuer_email ?? defaultIssuer?.email ?? "")
+  const [issuerBankName, setIssuerBankName] = useState(document?.issuer_bank_name ?? defaultIssuer?.bank_name ?? "")
+  const [issuerBankBranch, setIssuerBankBranch] = useState(document?.issuer_bank_branch ?? defaultIssuer?.bank_branch ?? "")
+  const [issuerAccountName, setIssuerAccountName] = useState(document?.issuer_account_name ?? defaultIssuer?.account_name ?? "")
+  const [issuerAccountNumber, setIssuerAccountNumber] = useState(document?.issuer_account_number ?? defaultIssuer?.account_number ?? "")
+  const [issuerSignatureUrl, setIssuerSignatureUrl] = useState(document?.issuer_signature_url ?? defaultIssuer?.signature_url ?? "")
+
   const [customerId, setCustomerId] = useState(document?.customer_id ?? "")
-  const [jobId, setJobId] = useState(document?.review_job_id ?? "")
   const [customerName, setCustomerName] = useState(document?.customer_name ?? "")
   const [customerAddress, setCustomerAddress] = useState(document?.customer_address ?? "")
   const [customerTaxId, setCustomerTaxId] = useState(document?.customer_tax_id ?? "")
   const [customerContact, setCustomerContact] = useState(document?.customer_contact ?? "")
+
+  const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [whtEnabled, setWhtEnabled] = useState((document?.wht_rate ?? 0) > 0)
+  const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? DEFAULT_PAYMENT_TERMS[document?.doc_type ?? "quotation"])
+  const [docRemarks, setDocRemarks] = useState(document?.doc_remarks ?? DEFAULT_REMARKS[document?.doc_type ?? "quotation"])
   const [notes, setNotes] = useState(document?.notes ?? "")
   const [items, setItems] = useState<LineItem[]>(
     document?.document_items?.map(i => ({
-      description: i.description,
-      quantity: i.quantity,
-      unit_price: i.unit_price,
-      amount: i.amount,
+      description: i.description, quantity: i.quantity,
+      unit_price: i.unit_price, amount: i.amount,
     })) ?? [emptyItem()]
   )
 
-  // Auto-generate doc number for new documents
+  // Auto-generate doc number for new docs
+  useEffect(() => {
+    if (!document) generateDocNumber(docType).then(setDocNumber)
+  }, [docType, document])
+
+  // Update defaults when doc type changes (new doc only)
   useEffect(() => {
     if (!document) {
-      generateDocNumber(docType).then(setDocNumber)
+      setPaymentTerms(DEFAULT_PAYMENT_TERMS[docType])
+      setDocRemarks(DEFAULT_REMARKS[docType])
     }
   }, [docType, document])
 
-  // Auto-fill customer info when selecting from dropdown
+  // Fill issuer from profile selection
+  useEffect(() => {
+    if (!issuerId) return
+    const p = issuers.find(i => i.id === issuerId)
+    if (!p) return
+    setIssuerName(p.name); setIssuerIdCard(p.id_card ?? "")
+    setIssuerAddress(p.address ?? ""); setIssuerPhone(p.phone ?? "")
+    setIssuerEmail(p.email ?? ""); setIssuerBankName(p.bank_name ?? "")
+    setIssuerBankBranch(p.bank_branch ?? ""); setIssuerAccountName(p.account_name ?? "")
+    setIssuerAccountNumber(p.account_number ?? ""); setIssuerSignatureUrl(p.signature_url ?? "")
+  }, [issuerId, issuers])
+
+  // Fill customer from dropdown
   useEffect(() => {
     if (!customerId) return
     const c = customers.find(c => c.id === customerId)
     if (!c) return
-    setCustomerName(c.name)
-    setCustomerAddress(c.address ?? "")
-    setCustomerTaxId(c.tax_id ?? "")
-    setCustomerContact(c.contact_name ?? "")
+    setCustomerName(c.name); setCustomerAddress(c.address ?? "")
+    setCustomerTaxId(c.tax_id ?? ""); setCustomerContact(c.contact_name ?? "")
   }, [customerId, customers])
 
-  // Auto-fill from job
+  // Fill from linked quotation
   useEffect(() => {
-    if (!jobId) return
-    const job = jobs.find(j => j.id === jobId)
-    if (!job) return
-    if (!customerName) setCustomerName(job.brand_name)
-    if (items.length === 1 && !items[0].description) {
-      const desc = `${job.product_name}`
-      const price = job.payment_amount
-      setItems([{ description: desc, quantity: 1, unit_price: price, amount: price }])
-    }
-  }, [jobId, jobs])
-
-  function calcSubtotal() {
-    return items.reduce((sum, i) => sum + (i.amount || 0), 0)
-  }
-
-  function calcWht() {
-    return whtEnabled ? Math.round(calcSubtotal() * 0.03 * 100) / 100 : 0
-  }
-
-  function calcTotal() {
-    return calcSubtotal() - calcWht()
-  }
+    if (!linkedQuotationId) return
+    const qt = quotations.find(q => q.id === linkedQuotationId)
+    if (!qt) return
+    setCustomerName(qt.customer_name ?? "")
+    setCustomerAddress(qt.customer_address ?? "")
+    setCustomerTaxId(qt.customer_tax_id ?? "")
+    setCustomerContact(qt.customer_contact ?? "")
+  }, [linkedQuotationId, quotations])
 
   function updateItem(idx: number, field: keyof LineItem, value: string | number) {
     setItems(prev => {
@@ -107,17 +140,18 @@ export function DocumentForm({
     })
   }
 
+  const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
+  const whtAmount = whtEnabled ? Math.round(subtotal * 0.03 * 100) / 100 : 0
+  const total = subtotal - whtAmount
+
   async function handleSave() {
     if (!customerName.trim()) { toast.error("กรุณาระบุชื่อลูกค้า"); return }
     if (items.some(i => !i.description.trim())) { toast.error("กรุณากรอกรายการทุกช่อง"); return }
     setSaving(true)
-    const subtotal = calcSubtotal()
-    const whtAmount = calcWht()
-    const total = calcTotal()
     const result = await upsertDocument({
       id: document?.id,
       customer_id: customerId || null,
-      review_job_id: jobId || null,
+      linked_quotation_id: linkedQuotationId || null,
       doc_type: docType,
       doc_number: docNumber,
       doc_date: docDate,
@@ -127,11 +161,14 @@ export function DocumentForm({
       customer_address: customerAddress,
       customer_tax_id: customerTaxId,
       customer_contact: customerContact,
-      subtotal,
-      wht_rate: whtEnabled ? 3 : 0,
-      wht_amount: whtAmount,
-      total,
-      notes,
+      subtotal, wht_rate: whtEnabled ? 3 : 0, wht_amount: whtAmount, total,
+      notes, doc_remarks: docRemarks, payment_terms: paymentTerms,
+      issuer_profile_id: issuerId || null,
+      issuer_name: issuerName, issuer_id_card: issuerIdCard,
+      issuer_address: issuerAddress, issuer_phone: issuerPhone,
+      issuer_email: issuerEmail, issuer_bank_name: issuerBankName,
+      issuer_bank_branch: issuerBankBranch, issuer_account_name: issuerAccountName,
+      issuer_account_number: issuerAccountNumber, issuer_signature_url: issuerSignatureUrl,
       items: items.map((item, i) => ({ ...item, sort_order: i })),
     })
     setSaving(false)
@@ -141,13 +178,9 @@ export function DocumentForm({
     router.refresh()
   }
 
-  const subtotal = calcSubtotal()
-  const whtAmount = calcWht()
-  const total = calcTotal()
-
   return (
     <div className="space-y-5 max-w-2xl">
-      {/* Header */}
+      {/* Document header */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
         <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ข้อมูลเอกสาร</h3>
         <div className="grid grid-cols-2 gap-3">
@@ -164,7 +197,7 @@ export function DocumentForm({
           </div>
           <div className="space-y-1">
             <Label className="text-xs">เลขที่</Label>
-            <Input value={docNumber} onChange={e => setDocNumber(e.target.value)} placeholder="QT-2026-001" />
+            <Input value={docNumber} onChange={e => setDocNumber(e.target.value)} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -189,6 +222,62 @@ export function DocumentForm({
             </SelectContent>
           </Select>
         </div>
+        {docType === "invoice" && quotations.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">อ้างอิงใบเสนอราคา (ไม่บังคับ)</Label>
+            <Select value={linkedQuotationId} onValueChange={setLinkedQuotationId}>
+              <SelectTrigger><SelectValue placeholder="เลือกใบเสนอราคา..." /></SelectTrigger>
+              <SelectContent>
+                {quotations.map(q => (
+                  <SelectItem key={q.id} value={q.id}>
+                    {q.doc_number} · {q.customer_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {/* Issuer */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+        <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ผู้ออกเอกสาร</h3>
+        {issuers.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">เลือกจากโปรไฟล์</Label>
+            <Select value={issuerId} onValueChange={setIssuerId}>
+              <SelectTrigger><SelectValue placeholder="เลือกผู้ออกเอกสาร..." /></SelectTrigger>
+              <SelectContent>
+                {issuers.map(i => (
+                  <SelectItem key={i.id} value={i.id}>{i.name}{i.is_default ? " ★" : ""}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        <div className="space-y-1">
+          <Label className="text-xs">ชื่อ *</Label>
+          <Input value={issuerName} onChange={e => setIssuerName(e.target.value)} placeholder="ณัฐกานต์ ทาจันทร์" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">ที่อยู่</Label>
+          <Textarea rows={2} value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">เบอร์โทร</Label>
+            <Input value={issuerPhone} onChange={e => setIssuerPhone(e.target.value)} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">อีเมล</Label>
+            <Input value={issuerEmail} onChange={e => setIssuerEmail(e.target.value)} />
+          </div>
+        </div>
+        {issuerSignatureUrl && (
+          <div className="flex items-center gap-2 text-xs text-green-600">
+            <span>✓ มีลายเซ็นแนบ</span>
+          </div>
+        )}
       </div>
 
       {/* Customer */}
@@ -200,9 +289,7 @@ export function DocumentForm({
             <Select value={customerId} onValueChange={setCustomerId}>
               <SelectTrigger><SelectValue placeholder="เลือกลูกค้า..." /></SelectTrigger>
               <SelectContent>
-                {customers.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
+                {customers.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>
@@ -213,34 +300,19 @@ export function DocumentForm({
         </div>
         <div className="space-y-1">
           <Label className="text-xs">ที่อยู่</Label>
-          <Textarea rows={2} value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} placeholder="123 ถนน... แขวง... เขต... กรุงเทพ 10XXX" />
+          <Textarea rows={2} value={customerAddress} onChange={e => setCustomerAddress(e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">เลขภาษี</Label>
-            <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} placeholder="0123456789012" />
+            <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">ผู้ติดต่อ</Label>
-            <Input value={customerContact} onChange={e => setCustomerContact(e.target.value)} placeholder="คุณมิ้น" />
+            <Input value={customerContact} onChange={e => setCustomerContact(e.target.value)} />
           </div>
         </div>
       </div>
-
-      {/* Job link */}
-      {jobs.length > 0 && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
-          <Label className="text-xs font-semibold text-[hsl(25,20%,15%)]">เชื่อมกับงานรีวิว (ไม่บังคับ)</Label>
-          <Select value={jobId} onValueChange={setJobId}>
-            <SelectTrigger><SelectValue placeholder="เลือกงาน..." /></SelectTrigger>
-            <SelectContent>
-              {jobs.map(j => (
-                <SelectItem key={j.id} value={j.id}>{j.brand_name} — {j.product_name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
 
       {/* Line items */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
@@ -255,39 +327,24 @@ export function DocumentForm({
             <div key={idx} className="grid grid-cols-12 gap-2 items-end">
               <div className="col-span-6 space-y-1">
                 {idx === 0 && <Label className="text-xs">รายละเอียด</Label>}
-                <Input
-                  value={item.description}
+                <Textarea rows={2} value={item.description}
                   onChange={e => updateItem(idx, "description", e.target.value)}
-                  placeholder="Short VDO Tiktok รีวิว..."
-                />
+                  placeholder="จ้างบริการออกแบบสื่อสิ่งพิมพ์..." className="text-xs" />
               </div>
               <div className="col-span-2 space-y-1">
                 {idx === 0 && <Label className="text-xs">จำนวน</Label>}
-                <Input
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  onChange={e => updateItem(idx, "quantity", Number(e.target.value))}
-                />
+                <Input type="number" min={1} value={item.quantity}
+                  onChange={e => updateItem(idx, "quantity", Number(e.target.value))} />
               </div>
               <div className="col-span-3 space-y-1">
-                {idx === 0 && <Label className="text-xs">ราคา (บาท)</Label>}
-                <Input
-                  type="number"
-                  min={0}
-                  value={item.unit_price}
-                  onChange={e => updateItem(idx, "unit_price", Number(e.target.value))}
-                  placeholder="4000"
-                />
+                {idx === 0 && <Label className="text-xs">ราคา/หน่วย</Label>}
+                <Input type="number" min={0} value={item.unit_price}
+                  onChange={e => updateItem(idx, "unit_price", Number(e.target.value))} placeholder="5000" />
               </div>
-              <div className="col-span-1 flex justify-end pb-0.5">
+              <div className="col-span-1 flex justify-end">
                 {items.length > 1 && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-red-400 hover:text-red-600 px-2"
-                    onClick={() => setItems(p => p.filter((_, i) => i !== idx))}
-                  >
+                  <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-600 px-2"
+                    onClick={() => setItems(p => p.filter((_, i) => i !== idx))}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 )}
@@ -313,16 +370,30 @@ export function DocumentForm({
             <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
           </div>
           <div className="flex justify-between font-bold text-base border-t border-[hsl(35,20%,88%)] pt-2">
-            <span>ยอดรับ</span>
+            <span>ยอดรับสุทธิ</span>
             <span className="text-[hsl(24,85%,50%)]">{formatCurrency(total)}</span>
           </div>
         </div>
       </div>
 
-      {/* Notes */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
-        <Label className="text-xs font-semibold text-[hsl(25,20%,15%)]">หมายเหตุ</Label>
-        <Textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="หมายเหตุเพิ่มเติม..." />
+      {/* Remarks & payment terms */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+        {docType !== "receipt" && (
+          <div className="space-y-1">
+            <Label className="text-xs font-semibold text-[hsl(25,20%,15%)]">หมายเหตุ (แสดงในเอกสาร)</Label>
+            <Textarea rows={3} value={docRemarks} onChange={e => setDocRemarks(e.target.value)}
+              placeholder="ยืนยันราคาภายใน 30 วัน..." />
+          </div>
+        )}
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold text-[hsl(25,20%,15%)]">เงื่อนไขการชำระเงิน</Label>
+          <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)}
+            placeholder="ชำระเงินภายใน 30 วัน หลังจากส่งมอบงาน" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">บันทึกภายใน (ไม่แสดงในเอกสาร)</Label>
+          <Textarea rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="หมายเหตุสำหรับตัวเอง..." />
+        </div>
       </div>
 
       <div className="flex gap-3">
