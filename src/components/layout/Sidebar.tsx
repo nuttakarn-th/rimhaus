@@ -20,7 +20,7 @@ const navItems = [
   { href: "/finances", icon: Wallet, label: "การเงิน" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
   { href: "/posts", icon: Smartphone, label: "จัดการโพส" },
-  { href: "/ratecard", icon: CreditCard, label: "Rate Card" },
+  { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },
 ]
 
 export function Sidebar() {

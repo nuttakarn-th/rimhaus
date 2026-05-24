@@ -16,6 +16,7 @@ export default async function AdminRateCardPage() {
         </div>
         <Link
           href="/ratecard"
+          rel="noopener noreferrer"
           target="_blank"
           className="flex items-center gap-1.5 text-sm text-[hsl(24,85%,50%)] hover:underline"
         >
