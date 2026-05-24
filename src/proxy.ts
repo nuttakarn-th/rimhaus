@@ -5,7 +5,7 @@ export function proxy(request: NextRequest) {
 
   // Optimistic check — just read cookie, no network call (Next.js 16 requirement)
   const hasSession = request.cookies.getAll().some(
-    c => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+    c => c.name.startsWith("sb-") && c.name.includes("-auth-token")
   )
 
   if (!hasSession && pathname !== "/login") {
