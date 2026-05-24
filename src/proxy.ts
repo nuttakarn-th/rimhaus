@@ -8,11 +8,12 @@ export function proxy(request: NextRequest) {
     c => c.name.startsWith("sb-") && c.name.includes("-auth-token")
   )
 
-  if (!hasSession && pathname !== "/login") {
+  const publicPaths = ["/login", "/ratecard"]
+  if (!hasSession && !publicPaths.includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  if (hasSession && pathname === "/login") {
+  if (hasSession && (pathname === "/login")) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 

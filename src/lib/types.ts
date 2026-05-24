@@ -94,6 +94,37 @@ export interface SocialPost {
   updated_at: string
 }
 
+export type RateCardCategory = "per_platform" | "bundle" | "addon" | "barter"
+
+export interface RateCardPackage {
+  id: string
+  user_id: string
+  name: string
+  category: RateCardCategory
+  price: number | null
+  original_price: number | null
+  unit: string | null
+  description: string | null
+  sub_items: Array<{ label: string; price: number }> | null
+  is_featured: boolean
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface RateCardSettings {
+  id: string
+  user_id: string
+  page_name: string | null
+  page_category: string | null
+  image_url: string | null
+  contact_line: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  notes: string[] | null
+  updated_at: string
+}
+
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }

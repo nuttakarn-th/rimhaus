@@ -1,4 +1,11 @@
-import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus } from "./types"
+import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus, RateCardCategory } from "./types"
+
+export const RATE_CARD_CATEGORY_LABELS: Record<RateCardCategory, string> = {
+  per_platform: "ต่อแพลตฟอร์ม",
+  bundle: "เหมาทุกแพลตฟอร์ม",
+  addon: "เพิ่มเติม",
+  barter: "ระบบ Barter",
+}
 
 export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
   accepted: "รับงาน",
