@@ -153,7 +153,7 @@ export function DocumentForm({
         setIssuerHeaderImageUrl(qt.issuer_header_image_url ?? "")
         setIssuerContactLine(qt.issuer_contact_line ?? "")
       }
-      // Line items
+      // Line items + WHT + platforms
       if (qt.document_items && qt.document_items.length > 0) {
         setItems(qt.document_items.map(i => ({
           description: i.description,
@@ -162,6 +162,10 @@ export function DocumentForm({
           amount: i.amount,
         })))
         setWhtEnabled((qt.wht_rate ?? 0) > 0)
+      }
+      // Platforms from quotation
+      if (qt.platforms && qt.platforms.length > 0) {
+        setDocPlatforms(qt.platforms)
       }
     })
   }, [linkedQuotationId, docType])
@@ -273,7 +277,7 @@ export function DocumentForm({
             </SelectContent>
           </Select>
         </div>
-        {platforms.filter(p => p.is_active).length > 0 && (
+        {docType === "quotation" && platforms.filter(p => p.is_active).length > 0 && (
           <div className="space-y-1">
             <Label className="text-xs">แพลตฟอร์ม (สำหรับระบุในเอกสาร)</Label>
             <div className="flex flex-wrap gap-3 pt-1">
@@ -293,6 +297,17 @@ export function DocumentForm({
                 </label>
               ))}
             </div>
+          </div>
+        )}
+        {(docType === "invoice" || docType === "receipt") && docPlatforms.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">แพลตฟอร์ม</Label>
+            <p className="text-sm text-[hsl(25,20%,25%)] bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2">
+              {docPlatforms.map(id => {
+                const p = platforms.find(pl => pl.id === id)
+                return p ? p.label : id
+              }).join(", ")}
+            </p>
           </div>
         )}
         {(docType === "invoice" || docType === "receipt") && quotations.length > 0 && (
@@ -500,24 +515,33 @@ export function DocumentForm({
             <span className="text-[hsl(25,10%,50%)]">ยอดรวม</span>
             <span>{formatCurrency(subtotal)}</span>
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Checkbox checked={whtEnabled} onCheckedChange={v => setWhtEnabled(Boolean(v))} />
-              <span className="text-[hsl(25,10%,50%)]">หักภาษี ณ ที่จ่าย 3%</span>
-            </label>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleGrossUp}
-                title="ปรับราคาทุกรายการ ÷ 0.97 เพื่อให้ยอดรับสุทธิหลังหัก WHT เท่ากับราคา Package จริง"
-                className="flex items-center gap-1 text-xs text-[hsl(24,85%,50%)] border border-[hsl(24,85%,50%)] rounded-md px-2 py-1 hover:bg-orange-50 transition-colors"
-              >
-                <TrendingUp className="w-3 h-3" />
-                Gross Up WHT
-              </button>
-              <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+          {docType === "quotation" ? (
+            <div className="flex items-center justify-between gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={whtEnabled} onCheckedChange={v => setWhtEnabled(Boolean(v))} />
+                <span className="text-[hsl(25,10%,50%)]">หักภาษี ณ ที่จ่าย 3%</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleGrossUp}
+                  title="ปรับราคาทุกรายการ ÷ 0.97 เพื่อให้ยอดรับสุทธิหลังหัก WHT เท่ากับราคา Package จริง"
+                  className="flex items-center gap-1 text-xs text-[hsl(24,85%,50%)] border border-[hsl(24,85%,50%)] rounded-md px-2 py-1 hover:bg-orange-50 transition-colors"
+                >
+                  <TrendingUp className="w-3 h-3" />
+                  Gross Up WHT
+                </button>
+                <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            whtEnabled && (
+              <div className="flex justify-between text-[hsl(25,10%,50%)]">
+                <span>หักภาษี ณ ที่จ่าย 3%</span>
+                <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+              </div>
+            )
+          )}
           <div className="flex justify-between font-bold text-base border-t border-[hsl(35,20%,88%)] pt-2">
             <span>ยอดรับสุทธิ</span>
             <span className="text-[hsl(24,85%,50%)]">{formatCurrency(total)}</span>
