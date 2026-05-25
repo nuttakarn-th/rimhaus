@@ -6,7 +6,7 @@ import Link from "next/link"
 import { updateDocumentStatus, deleteDocument } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Printer, Pencil, Trash2 } from "lucide-react"
+import { Download, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency, bahtText, cn } from "@/lib/utils"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
@@ -101,7 +101,13 @@ export function DocumentView({ document: doc }: { document: Document }) {
     invoice: "ใบส่งมอบงาน/ใบแจ้งหนี้",
     receipt: "ใบเสร็จรับเงิน",
   }
+  const titleColorMap: Record<string, string> = {
+    quotation: "text-[hsl(24,85%,50%)]",
+    invoice: "text-blue-600",
+    receipt: "text-green-600",
+  }
   const title = titleMap[doc.doc_type]
+  const titleColor = titleColorMap[doc.doc_type] ?? "text-[hsl(25,20%,10%)]"
 
   const remarkLines = (doc.doc_remarks ?? "").split("\n").filter(Boolean)
   const hasBank = doc.issuer_account_number || doc.issuer_bank_name
@@ -123,8 +129,8 @@ export function DocumentView({ document: doc }: { document: Document }) {
           {DOC_STATUS_LABELS[status]}
         </span>
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={handleDownloadPDF}>
-            <Printer className="w-3.5 h-3.5 mr-1.5" />Download PDF
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleDownloadPDF}>
+            <Download className="w-3.5 h-3.5 mr-1.5" />Download PDF
           </Button>
           <Link href={`/documents/${doc.id}/edit`}>
             <Button size="sm" variant="outline">
@@ -177,7 +183,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
             </div>
 
             <div className="text-right shrink-0 ml-4">
-              <div className="text-2xl font-black text-[hsl(25,20%,10%)] tracking-tight whitespace-nowrap">{title}</div>
+              <div className={`text-2xl font-black tracking-tight whitespace-nowrap ${titleColor}`}>{title}</div>
               <div className="mt-2 text-sm space-y-0.5">
                 <div className="flex justify-end gap-4 items-center">
                   <span className="text-[hsl(25,10%,45%)]">เลขที่</span>

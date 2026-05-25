@@ -1,11 +1,29 @@
 import Link from "next/link"
 import { getDocumentsWithLinks } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
-import { Plus, FileText, Pencil, FileCheck, Receipt } from "lucide-react"
+import { Plus, FileText, Pencil, FileCheck, Receipt, Download } from "lucide-react"
 import { DOC_TYPE_LABELS, DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
 import { formatCurrency, cn } from "@/lib/utils"
 import { DeleteDocumentButton } from "@/components/documents/DeleteDocumentButton"
 import type { DocType } from "@/lib/types"
+
+const DOC_TYPE_BADGE: Record<string, string> = {
+  quotation: "bg-orange-50 text-orange-600",
+  invoice: "bg-blue-50 text-blue-600",
+  receipt: "bg-green-50 text-green-600",
+}
+
+const DOC_TYPE_ICON_BG: Record<string, string> = {
+  quotation: "bg-orange-50",
+  invoice: "bg-blue-50",
+  receipt: "bg-green-50",
+}
+
+const DOC_TYPE_ICON_COLOR: Record<string, string> = {
+  quotation: "text-[hsl(24,85%,50%)]",
+  invoice: "text-blue-600",
+  receipt: "text-green-600",
+}
 
 const TABS: { type: DocType | "all"; label: string }[] = [
   { type: "all", label: "ทั้งหมด" },
@@ -75,13 +93,13 @@ export default async function DocumentsPage({
             >
               {/* Clickable main area */}
               <Link href={`/documents/${doc.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4 text-[hsl(24,85%,50%)]" />
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${DOC_TYPE_ICON_BG[doc.doc_type] ?? "bg-orange-50"}`}>
+                  <FileText className={`w-4 h-4 ${DOC_TYPE_ICON_COLOR[doc.doc_type] ?? "text-[hsl(24,85%,50%)]"}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm text-[hsl(25,20%,15%)]">{doc.doc_number}</span>
-                    <span className="text-xs text-[hsl(25,10%,60%)] bg-[hsl(35,25%,94%)] px-2 py-0.5 rounded-full">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${DOC_TYPE_BADGE[doc.doc_type] ?? "bg-[hsl(35,25%,94%)] text-[hsl(25,10%,60%)]"}`}>
                       {DOC_TYPE_LABELS[doc.doc_type]}
                     </span>
                     <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", DOC_STATUS_COLORS[doc.status])}>
@@ -132,6 +150,11 @@ export default async function DocumentsPage({
 
               {/* Actions */}
               <div className="flex items-center gap-0.5 shrink-0">
+                <Link href={`/documents/${doc.id}`}>
+                  <Button size="sm" variant="ghost" className="text-blue-500 hover:text-blue-700">
+                    <Download className="w-3.5 h-3.5" />
+                  </Button>
+                </Link>
                 <Link href={`/documents/${doc.id}/edit`}>
                   <Button size="sm" variant="ghost" className="text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)]">
                     <Pencil className="w-3.5 h-3.5" />
