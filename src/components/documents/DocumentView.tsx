@@ -64,9 +64,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
   return (
     <div>
       {/* Controls — hidden on print */}
-      <div className="print:hidden flex items-center gap-3 mb-6 flex-wrap">
+      <div className="print:hidden flex flex-wrap items-center gap-2 mb-4">
         <Select value={status} onValueChange={v => handleStatusChange(v as DocStatus)} disabled={updating}>
-          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-32 h-8 text-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="draft">ร่าง</SelectItem>
             <SelectItem value="sent">ส่งแล้ว</SelectItem>
@@ -77,7 +77,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
         <span className={cn("text-xs px-2.5 py-1 rounded-full font-medium", DOC_STATUS_COLORS[status])}>
           {DOC_STATUS_LABELS[status]}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           <DownloadPDFButton doc={doc} />
           <Link href={`/documents/${doc.id}/edit`}>
             <Button size="sm" variant="outline">
@@ -90,10 +90,11 @@ export function DocumentView({ document: doc }: { document: Document }) {
         </div>
       </div>
 
-      {/* ===== A4 DOCUMENT ===== */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
+      {/* ===== A4 DOCUMENT — horizontally scrollable on mobile ===== */}
+      <div className="overflow-x-auto -mx-4 sm:mx-0 print:mx-0">
+      <div className="min-w-[600px] bg-white rounded-none sm:rounded-xl border-y sm:border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
-        <div id="doc-printarea" className="p-10 print:p-0 max-w-[794px] mx-auto print:max-w-none">
+        <div id="doc-printarea" className="p-4 sm:p-8 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
           {/* Header: issuer left, title+number right */}
           <div className="flex justify-between items-start mb-6">
@@ -130,7 +131,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
             </div>
 
             <div className="text-right shrink-0 ml-4">
-              <div className={`text-2xl font-black tracking-tight whitespace-nowrap ${titleColor}`}>{title}</div>
+              <div className={`text-lg sm:text-2xl font-black tracking-tight whitespace-nowrap ${titleColor}`}>{title}</div>
               <div className="mt-2 text-sm space-y-0.5">
                 <div className="flex justify-end gap-4 items-center">
                   <span className="text-[hsl(25,10%,45%)]">เลขที่</span>
@@ -361,6 +362,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
           )}
 
         </div>
+      </div>
       </div>
     </div>
   )

@@ -1,17 +1,18 @@
 import { Font, renderToBuffer } from "@react-pdf/renderer"
-import { join } from "path"
 import { getDocument } from "@/actions/documents.actions"
 import { DocumentPDFTemplate, getDocFilename } from "@/components/documents/DocumentPDFTemplate"
+import { NOTO_SANS_THAI_REGULAR, NOTO_SANS_THAI_BOLD } from "@/lib/pdf-fonts"
 
-// Register Noto Sans Thai from the filesystem once per server process
+// Fonts are embedded as base64 data URLs — works in all environments
+// (Vercel serverless, local dev, Docker) without filesystem access
 let fontRegistered = false
 function registerFont() {
   if (fontRegistered) return
   Font.register({
     family: "NotoSansThai",
     fonts: [
-      { src: join(process.cwd(), "public/fonts/NotoSansThai-Regular.ttf") },
-      { src: join(process.cwd(), "public/fonts/NotoSansThai-Bold.ttf"), fontWeight: "bold" },
+      { src: NOTO_SANS_THAI_REGULAR },
+      { src: NOTO_SANS_THAI_BOLD, fontWeight: "bold" },
     ],
   })
   fontRegistered = true
@@ -36,7 +37,6 @@ export async function GET(
     return new Response(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
-        // RFC 5987 encoding supports Unicode filenames
         "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`,
       },
     })
