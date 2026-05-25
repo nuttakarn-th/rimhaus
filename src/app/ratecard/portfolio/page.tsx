@@ -46,38 +46,47 @@ function getEmbedInfo(url: string): EmbedResult {
   return { platform: "other", embedUrl: null }
 }
 
-const FB_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
 const YT_ALLOW = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+const IG_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+
+function ExternalLink({ url, label }: { url: string; label: string }) {
+  return (
+    <div className="aspect-video flex flex-col items-center justify-center gap-3 bg-[hsl(35,20%,95%)]">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[hsl(24,85%,50%)] text-white text-sm font-medium hover:bg-[hsl(24,85%,43%)] transition-colors"
+      >
+        {label} →
+      </a>
+    </div>
+  )
+}
 
 function VideoCard({ item }: { item: PortfolioItem }) {
   const { platform, embedUrl } = getEmbedInfo(item.url)
-  const isPortrait = platform === "tiktok" || platform === "instagram" || platform === "facebook_reel"
+  const isPortrait = platform === "tiktok" || platform === "instagram"
   const isFacebook = platform === "facebook_reel" || platform === "facebook_video"
 
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      {embedUrl ? (
+      {isFacebook ? (
+        // Facebook embeds require domain registration — show link instead
+        <ExternalLink url={item.url} label="ดูใน Facebook" />
+      ) : embedUrl ? (
         <div className={`relative w-full ${isPortrait ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
           <iframe
             src={embedUrl}
             title={item.title ?? "video"}
-            allow={isFacebook ? FB_ALLOW : YT_ALLOW}
+            allow={platform === "instagram" ? IG_ALLOW : YT_ALLOW}
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             className="absolute inset-0 w-full h-full border-0"
           />
         </div>
       ) : (
-        <div className="aspect-video flex items-center justify-center bg-[hsl(35,20%,95%)]">
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-[hsl(24,85%,50%)] underline underline-offset-2"
-          >
-            ดูวิดีโอ →
-          </a>
-        </div>
+        <ExternalLink url={item.url} label="ดูวิดีโอ" />
       )}
       {item.title && (
         <div className="px-4 py-2.5">
@@ -89,21 +98,20 @@ function VideoCard({ item }: { item: PortfolioItem }) {
 }
 
 function PhotoCard({ item }: { item: PortfolioItem }) {
-  const { platform, embedUrl } = getEmbedInfo(item.url)
+  const { platform } = getEmbedInfo(item.url)
 
-  if (platform === "facebook_photo" && embedUrl) {
+  if (platform === "facebook_photo") {
     return (
       <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-        <div className="w-full min-h-64 overflow-hidden">
-          <iframe
-            src={embedUrl}
-            title={item.title ?? "photo"}
-            allow={FB_ALLOW}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="w-full min-h-64 border-0"
-            scrolling="no"
-          />
+        <div className="aspect-square flex flex-col items-center justify-center gap-3 bg-[hsl(35,20%,95%)]">
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[hsl(24,85%,50%)] text-white text-sm font-medium hover:bg-[hsl(24,85%,43%)] transition-colors"
+          >
+            ดูรูปใน Facebook →
+          </a>
         </div>
         {item.title && (
           <div className="px-4 py-2.5">
