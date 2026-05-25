@@ -3,17 +3,15 @@
 import { useState } from "react"
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { getDocument } from "@/actions/documents.actions"
 import { downloadDocPDF } from "./DocumentPDF"
+import type { Document } from "@/lib/types"
 
-export function DocListDownloadBtn({ docId }: { docId: string }) {
+export function DownloadPDFButton({ doc }: { doc: Document }) {
   const [loading, setLoading] = useState(false)
 
   async function handleClick() {
     setLoading(true)
     try {
-      const doc = await getDocument(docId)
-      if (!doc) return
       await downloadDocPDF(doc)
     } finally {
       setLoading(false)
@@ -23,12 +21,12 @@ export function DocListDownloadBtn({ docId }: { docId: string }) {
   return (
     <Button
       size="sm"
-      variant="ghost"
-      className="text-blue-500 hover:text-blue-700"
+      className="bg-blue-600 hover:bg-blue-700 text-white"
       onClick={handleClick}
       disabled={loading}
     >
-      <Download className="w-3.5 h-3.5" />
+      <Download className="w-3.5 h-3.5 mr-1.5" />
+      {loading ? "กำลังสร้าง..." : "Download PDF"}
     </Button>
   )
 }

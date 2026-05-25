@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { updateDocumentStatus, deleteDocument } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Download, Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import { formatCurrency, bahtText, cn } from "@/lib/utils"
+import { bahtText, cn } from "@/lib/utils"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
+import { DownloadPDFButton } from "@/components/documents/DownloadPDFButton"
 import type { Document, DocStatus } from "@/lib/types"
 
 function formatThaiDate(dateStr: string) {
@@ -39,57 +40,6 @@ export function DocumentView({ document: doc }: { document: Document }) {
     toast.success("ลบแล้ว")
     router.push("/documents")
   }
-
-  async function handleDownloadPDF() {
-    const element = window.document.getElementById("doc-printarea")
-    if (!element) return
-
-    const typeLabel: Record<string, string> = { quotation: "ใบเสนอราคา", invoice: "ใบส่งมอบงาน", receipt: "ใบเสร็จ" }
-    const parts = doc.doc_number.split("-")
-    const runNumber = parts[parts.length - 1] ?? ""
-    const d = new Date(doc.doc_date)
-    const dd = String(d.getDate()).padStart(2, "0")
-    const mm = String(d.getMonth() + 1).padStart(2, "0")
-    const yy = String(d.getFullYear()).slice(-2)
-    const customer = (doc.customer_name ?? "").replace(/\s+/g, "")
-    const filename = `${typeLabel[doc.doc_type] ?? doc.doc_type}${runNumber}_${customer}_${dd}${mm}${yy}.pdf`
-
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-      import("html2canvas"),
-      import("jspdf"),
-    ])
-
-    // Clone off-screen to avoid on-screen layout disruption
-    const clone = element.cloneNode(true) as HTMLElement
-    clone.style.cssText = `position:absolute;left:-9999px;top:0;padding:0;margin:0;width:794px;max-width:none;background:white;font-family:'Noto Sans Thai','Sarabun',sans-serif;`
-    document.body.appendChild(clone)
-
-    try {
-      const canvas = await html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false })
-      const imgData = canvas.toDataURL("image/png")
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-      const mLeft = 15, mTop = 20, mRight = 15, mBottom = 20
-      const printW = 210 - mLeft - mRight
-      const printH = 297 - mTop - mBottom
-      const imgH = (canvas.height * printW) / canvas.width
-      let sliceY = 0
-      while (sliceY < imgH) {
-        if (sliceY > 0) pdf.addPage()
-        pdf.addImage(imgData, "PNG", mLeft, mTop - sliceY, printW, imgH)
-        sliceY += printH
-      }
-      pdf.save(filename)
-    } finally {
-      document.body.removeChild(clone)
-    }
-  }
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("download") === "1") {
-      const t = setTimeout(() => handleDownloadPDF(), 800)
-      return () => clearTimeout(t)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isQuotation = doc.doc_type === "quotation"
   const isInvoice = doc.doc_type === "invoice"
@@ -128,9 +78,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
           {DOC_STATUS_LABELS[status]}
         </span>
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleDownloadPDF}>
-            <Download className="w-3.5 h-3.5 mr-1.5" />Download PDF
-          </Button>
+          <DownloadPDFButton doc={doc} />
           <Link href={`/documents/${doc.id}/edit`}>
             <Button size="sm" variant="outline">
               <Pencil className="w-3.5 h-3.5 mr-1.5" />แก้ไข
