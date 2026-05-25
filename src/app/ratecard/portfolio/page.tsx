@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"
 import { getPortfolioItems } from "@/actions/portfolio.actions"
 import type { PortfolioItem } from "@/lib/types"
 
-type EmbedPlatform = "youtube" | "tiktok" | "facebook_reel" | "facebook_video" | "facebook_photo" | "other"
+type EmbedPlatform = "youtube" | "tiktok" | "instagram" | "facebook_reel" | "facebook_video" | "facebook_photo" | "other"
 type EmbedResult = { platform: EmbedPlatform; embedUrl: string | null }
 
 function getEmbedInfo(url: string): EmbedResult {
@@ -14,6 +14,10 @@ function getEmbedInfo(url: string): EmbedResult {
   // TikTok
   const ttMatch = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/)
   if (ttMatch) return { platform: "tiktok", embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}` }
+
+  // Instagram Reel / Post
+  const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/)
+  if (igMatch) return { platform: "instagram", embedUrl: `https://www.instagram.com/reel/${igMatch[1]}/embed/` }
 
   // Facebook Reel (portrait) — reel/ or share/r/
   if (/facebook\.com\/(reel\/|share\/r\/)/.test(url)) {
@@ -47,7 +51,7 @@ const YT_ALLOW = "accelerometer; autoplay; clipboard-write; encrypted-media; gyr
 
 function VideoCard({ item }: { item: PortfolioItem }) {
   const { platform, embedUrl } = getEmbedInfo(item.url)
-  const isPortrait = platform === "tiktok" || platform === "facebook_reel"
+  const isPortrait = platform === "tiktok" || platform === "instagram" || platform === "facebook_reel"
   const isFacebook = platform === "facebook_reel" || platform === "facebook_video"
 
   return (
