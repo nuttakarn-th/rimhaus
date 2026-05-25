@@ -191,13 +191,13 @@ export function DocumentView({ document: doc }: { document: Document }) {
             <tbody>
               {doc.document_items?.map((item, i) => (
                 <tr key={item.id} className="border-b border-[hsl(35,20%,88%)]">
-                  <td className="py-3 px-3 text-center text-[hsl(25,10%,50%)]">{i + 1}</td>
-                  <td className="py-3 px-3 whitespace-pre-line leading-snug">{item.description}</td>
-                  <td className="py-3 px-3 text-center text-[hsl(25,10%,50%)]">{item.quantity}</td>
-                  <td className="py-3 px-3 text-right text-[hsl(25,10%,40%)]">
+                  <td className="py-1.5 px-3 text-center text-[hsl(25,10%,50%)]">{i + 1}</td>
+                  <td className="py-1.5 px-3 whitespace-pre-line leading-snug">{item.description}</td>
+                  <td className="py-1.5 px-3 text-center text-[hsl(25,10%,50%)]">{item.quantity}</td>
+                  <td className="py-1.5 px-3 text-right text-[hsl(25,10%,40%)]">
                     {item.unit_price.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
-                  <td className="py-3 px-3 text-right font-medium">
+                  <td className="py-1.5 px-3 text-right font-medium">
                     {item.amount.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
@@ -205,17 +205,17 @@ export function DocumentView({ document: doc }: { document: Document }) {
               {/* Empty rows to fill space */}
               {Array.from({ length: Math.max(0, 3 - (doc.document_items?.length ?? 0)) }).map((_, i) => (
                 <tr key={`empty-${i}`} className="border-b border-[hsl(35,20%,88%)]">
-                  <td className="py-3 px-3">&nbsp;</td>
-                  <td className="py-3 px-3" />
-                  <td className="py-3 px-3" />
-                  <td className="py-3 px-3" />
-                  <td className="py-3 px-3" />
+                  <td className="py-1.5 px-3">&nbsp;</td>
+                  <td className="py-1.5 px-3" />
+                  <td className="py-1.5 px-3" />
+                  <td className="py-1.5 px-3" />
+                  <td className="py-1.5 px-3" />
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-[hsl(25,20%,15%)]">
-                <td colSpan={3} className="py-3 px-3 text-sm">
+                <td colSpan={3} className="py-2 px-3 text-sm">
                   <span className="font-bold">รวมทั้งสิ้น</span>
                   {" "}
                   <span className="text-[hsl(25,10%,45%)]">
@@ -224,11 +224,11 @@ export function DocumentView({ document: doc }: { document: Document }) {
                 </td>
                 {doc.wht_rate > 0 ? (
                   <>
-                    <td className="py-3 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
+                    <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
                       ก่อนหัก WHT {doc.wht_rate}%<br />
                       หัก ณ ที่จ่าย {doc.wht_rate}%
                     </td>
-                    <td className="py-3 px-3 text-right">
+                    <td className="py-2 px-3 text-right">
                       <div className="text-[hsl(25,10%,40%)] text-xs">
                         {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                       </div>
@@ -241,7 +241,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                     </td>
                   </>
                 ) : (
-                  <td colSpan={2} className="py-3 px-3 text-right font-bold text-base">
+                  <td colSpan={2} className="py-2 px-3 text-right font-bold text-base">
                     {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                   </td>
                 )}
@@ -291,30 +291,30 @@ export function DocumentView({ document: doc }: { document: Document }) {
           )}
 
           {/* Signature section */}
-          <div className="mt-6 grid grid-cols-2 gap-6">
+          <div className="mt-4 grid grid-cols-2 gap-4">
             {/* Left: Customer/receiver */}
-            <div className="border border-[hsl(35,20%,80%)] rounded p-4 text-xs text-center space-y-4">
+            <div className="border border-[hsl(35,20%,80%)] rounded p-3 text-xs text-center space-y-2">
               <div className="font-bold text-[hsl(25,20%,15%)] text-left">
                 {isInvoice ? "ผู้รับงาน" : (isQuotation ? "ลูกค้า/ผู้อนุมัติ" : "ผู้จ่ายเงิน")}
               </div>
-              <div className="h-12" />
+              <div className="h-8" />
               <div className="border-b border-[hsl(25,20%,40%)] mx-4" />
               <div className="text-[hsl(25,10%,45%)]">(........................................................)</div>
               <div className="text-[hsl(25,10%,45%)]">วันที่...... /...... /......</div>
             </div>
 
             {/* Right: Issuer/sender */}
-            <div className="border border-[hsl(35,20%,80%)] rounded p-4 text-xs text-center space-y-2">
+            <div className="border border-[hsl(35,20%,80%)] rounded p-3 text-xs text-center space-y-1.5">
               <div className="font-bold text-[hsl(25,20%,15%)] text-left">
                 {isInvoice ? "ผู้ส่งงาน" : (isQuotation ? "ผู้เสนอราคา" : "ผู้รับเงิน")}
               </div>
-              <div className="flex items-end justify-center h-16">
+              <div className="flex items-end justify-center h-10">
                 {doc.issuer_signature_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={doc.issuer_signature_url} alt="ลายเซ็น"
-                    className="max-h-14 max-w-[160px] object-contain" />
+                    className="max-h-9 max-w-[140px] object-contain" />
                 ) : (
-                  <div className="h-12" />
+                  <div className="h-8" />
                 )}
               </div>
               <div className="border-b border-[hsl(25,20%,40%)] mx-4" />
