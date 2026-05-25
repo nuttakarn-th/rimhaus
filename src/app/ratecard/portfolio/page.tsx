@@ -3,30 +3,49 @@ export const dynamic = "force-dynamic"
 import { getPortfolioItems } from "@/actions/portfolio.actions"
 import type { PortfolioItem } from "@/lib/types"
 
-function getEmbedUrl(url: string): { embedUrl: string; platform: "youtube" | "tiktok" | "other" } {
-  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([a-zA-Z0-9_-]{11})/)
+type EmbedResult =
+  | { platform: "youtube" | "tiktok"; embedUrl: string }
+  | { platform: "other"; embedUrl: null }
+
+function getEmbedInfo(url: string): EmbedResult {
+  const ytMatch = url.match(/(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/))([a-zA-Z0-9_-]{11})/)
   if (ytMatch) return { platform: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0` }
 
   const ttMatch = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/)
   if (ttMatch) return { platform: "tiktok", embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}` }
 
-  return { platform: "other", embedUrl: url }
+  return { platform: "other", embedUrl: null }
 }
 
 function VideoCard({ item }: { item: PortfolioItem }) {
-  const { embedUrl, platform } = getEmbedUrl(item.url)
-  const isTikTok = platform === "tiktok"
+  const info = getEmbedInfo(item.url)
+  const isTikTok = info.platform === "tiktok"
 
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      <div className={`relative w-full ${isTikTok ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
-        <iframe
-          src={embedUrl}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full"
-        />
-      </div>
+      {info.embedUrl ? (
+        <div className={`relative w-full ${isTikTok ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
+          <iframe
+            src={info.embedUrl}
+            title={item.title ?? "video"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="absolute inset-0 w-full h-full"
+          />
+        </div>
+      ) : (
+        <div className="aspect-video flex items-center justify-center bg-[hsl(35,20%,95%)]">
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[hsl(24,85%,50%)] underline underline-offset-2"
+          >
+            ดูวิดีโอ →
+          </a>
+        </div>
+      )}
       {item.title && (
         <div className="px-4 py-2.5">
           <p className="text-sm font-medium text-[hsl(25,20%,15%)]">{item.title}</p>
