@@ -69,10 +69,12 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
             {isPhoto && item.images && item.images.length > 0 && (
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-3">ภาพ Draft ({item.images.length} ภาพ)</h2>
-                <div className="grid grid-cols-4" style={{ gap: "5px" }}>
+                <div className="grid grid-cols-5 gap-1.5">
                   {item.images.map((src, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={i} src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-auto block rounded-sm" style={{ maxHeight: "110px", objectFit: "cover" }} />
+                    <div key={i} className="bg-[hsl(35,20%,94%)] rounded-sm overflow-hidden flex items-center justify-center aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-full object-contain" />
+                    </div>
                   ))}
                 </div>
               </div>
