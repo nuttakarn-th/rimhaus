@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getPartners } from "@/actions/portfolio.actions"
 
 export default async function PartnersPage() {

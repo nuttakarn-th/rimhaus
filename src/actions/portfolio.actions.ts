@@ -1,12 +1,11 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import type { ActionResult, PortfolioItem, Partner } from "@/lib/types"
 
 export async function getPortfolioItems(): Promise<PortfolioItem[]> {
-  const supabase = createAdminClient()
+  const supabase = await createClient()
   const { data } = await supabase
     .from("portfolio_items")
     .select("*")
@@ -46,7 +45,7 @@ export async function deletePortfolioItem(id: string): Promise<ActionResult<void
 }
 
 export async function getPartners(): Promise<Partner[]> {
-  const supabase = createAdminClient()
+  const supabase = await createClient()
   const { data } = await supabase
     .from("partners")
     .select("*")

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getPortfolioItems } from "@/actions/portfolio.actions"
 import type { PortfolioItem } from "@/lib/types"
 

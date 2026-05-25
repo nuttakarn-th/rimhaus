@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getPackages, getSettings } from "@/actions/ratecard.actions"
 import { formatCurrency } from "@/lib/utils"
 import type { RateCardPackage } from "@/lib/types"
