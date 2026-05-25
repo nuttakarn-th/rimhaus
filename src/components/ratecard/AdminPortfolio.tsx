@@ -127,11 +127,11 @@ export function AdminPortfolio({ items }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">URL {form.type === "video" ? "(YouTube / TikTok)" : "(รูปภาพ)"}</Label>
+            <Label className="text-xs">URL {form.type === "video" ? "(YouTube / TikTok / Facebook Reel)" : "(รูปภาพ / Facebook Album)"}</Label>
             <Input
               value={form.url}
               onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-              placeholder={form.type === "video" ? "https://youtu.be/..." : "https://..."}
+              placeholder={form.type === "video" ? "https://www.facebook.com/share/r/..." : "https://www.facebook.com/share/p/..."}
             />
           </div>
         </div>

@@ -3,35 +3,64 @@ export const dynamic = "force-dynamic"
 import { getPortfolioItems } from "@/actions/portfolio.actions"
 import type { PortfolioItem } from "@/lib/types"
 
-type EmbedResult =
-  | { platform: "youtube" | "tiktok"; embedUrl: string }
-  | { platform: "other"; embedUrl: null }
+type EmbedPlatform = "youtube" | "tiktok" | "facebook_reel" | "facebook_video" | "facebook_photo" | "other"
+type EmbedResult = { platform: EmbedPlatform; embedUrl: string | null }
 
 function getEmbedInfo(url: string): EmbedResult {
+  // YouTube
   const ytMatch = url.match(/(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/))([a-zA-Z0-9_-]{11})/)
   if (ytMatch) return { platform: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0` }
 
+  // TikTok
   const ttMatch = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/)
   if (ttMatch) return { platform: "tiktok", embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}` }
+
+  // Facebook Reel (portrait) — reel/ or share/r/
+  if (/facebook\.com\/(reel\/|share\/r\/)/.test(url)) {
+    return {
+      platform: "facebook_reel",
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=280`,
+    }
+  }
+
+  // Facebook regular video — watch, /videos/, share/v/, fb.watch
+  if (/facebook\.com\/(watch|share\/v\/|.*\/videos\/)|fb\.watch/.test(url)) {
+    return {
+      platform: "facebook_video",
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`,
+    }
+  }
+
+  // Facebook photo / album — photo, media/set, share/p/
+  if (/facebook\.com\/(photo|media\/set|share\/p\/)/.test(url)) {
+    return {
+      platform: "facebook_photo",
+      embedUrl: `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&width=500&show_text=true`,
+    }
+  }
 
   return { platform: "other", embedUrl: null }
 }
 
+const FB_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+const YT_ALLOW = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+
 function VideoCard({ item }: { item: PortfolioItem }) {
-  const info = getEmbedInfo(item.url)
-  const isTikTok = info.platform === "tiktok"
+  const { platform, embedUrl } = getEmbedInfo(item.url)
+  const isPortrait = platform === "tiktok" || platform === "facebook_reel"
+  const isFacebook = platform === "facebook_reel" || platform === "facebook_video"
 
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      {info.embedUrl ? (
-        <div className={`relative w-full ${isTikTok ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
+      {embedUrl ? (
+        <div className={`relative w-full ${isPortrait ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
           <iframe
-            src={info.embedUrl}
+            src={embedUrl}
             title={item.title ?? "video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow={isFacebook ? FB_ALLOW : YT_ALLOW}
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full border-0"
           />
         </div>
       ) : (
@@ -56,6 +85,31 @@ function VideoCard({ item }: { item: PortfolioItem }) {
 }
 
 function PhotoCard({ item }: { item: PortfolioItem }) {
+  const { platform, embedUrl } = getEmbedInfo(item.url)
+
+  if (platform === "facebook_photo" && embedUrl) {
+    return (
+      <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
+        <div className="w-full min-h-64 overflow-hidden">
+          <iframe
+            src={embedUrl}
+            title={item.title ?? "photo"}
+            allow={FB_ALLOW}
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="w-full min-h-64 border-0"
+            scrolling="no"
+          />
+        </div>
+        {item.title && (
+          <div className="px-4 py-2.5">
+            <p className="text-sm font-medium text-[hsl(25,20%,15%)]">{item.title}</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
