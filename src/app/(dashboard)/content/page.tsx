@@ -70,9 +70,8 @@ function ContentListRow({ item }: { item: ContentItem }) {
         }
       </div>
 
-      {/* Info */}
+      {/* Info — title section (flex-1) */}
       <div className="flex-1 min-w-0">
-        {/* Row 1: type badge + status + sponsored */}
         <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
           <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md", cfg.badgeBg, cfg.badgeText)}>
             <Icon className="w-2.5 h-2.5" />
@@ -85,16 +84,16 @@ function ContentListRow({ item }: { item: ContentItem }) {
             <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-medium">สปอนเซอร์</span>
           )}
         </div>
-
-        {/* Row 2: title */}
         <Link href={`/content/${item.id}`} className="block">
           <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)] truncate hover:text-[hsl(24,85%,50%)] transition-colors">
             {item.title}
           </h3>
         </Link>
+      </div>
 
-        {/* Row 3: platforms + date */}
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+      {/* Platforms + date — own column, matches header w-32 */}
+      <div className="hidden md:flex flex-col items-end gap-1 w-32 shrink-0">
+        <div className="flex items-center gap-1 flex-wrap justify-end">
           {item.platforms.map(p => (
             <span
               key={p}
@@ -104,16 +103,16 @@ function ContentListRow({ item }: { item: ContentItem }) {
               {PLATFORM_LABELS[p] ?? p}
             </span>
           ))}
-          {item.planned_date && (
-            <span className="text-[11px] text-[hsl(25,10%,55%)] flex items-center gap-0.5">
-              📅 {formatDate(item.planned_date)}
-            </span>
-          )}
         </div>
+        {item.planned_date && (
+          <span className="text-[11px] text-[hsl(25,10%,55%)]">
+            📅 {formatDate(item.planned_date)}
+          </span>
+        )}
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-0.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+      {/* Actions — own column, matches header w-24 */}
+      <div className="flex items-center justify-end gap-0.5 w-24 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
         <Link href={`/content/${item.id}/edit`} title="แก้ไข">
           <button className="p-1.5 rounded-lg text-[hsl(25,10%,55%)] hover:text-[hsl(24,85%,50%)] hover:bg-orange-50 transition-colors">
             <Pencil className="w-3.5 h-3.5" />
