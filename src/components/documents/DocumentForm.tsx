@@ -451,12 +451,23 @@ export function DocumentForm({
               {packages.length > 0 && (
                 <PackagePicker
                   packages={packages}
-                  onSelect={pkg => setItems(p => [...p, {
-                    description: pkg.name + (pkg.description ? `\n${pkg.description}` : ""),
-                    quantity: 1,
-                    unit_price: pkg.price ?? 0,
-                    amount: pkg.price ?? 0,
-                  }])}
+                  onSelect={pkg => {
+                    const newItem = {
+                      description: pkg.name + (pkg.description ? `\n${pkg.description}` : ""),
+                      quantity: 1,
+                      unit_price: pkg.price ?? 0,
+                      amount: pkg.price ?? 0,
+                    }
+                    setItems(p => {
+                      const firstEmpty = p.findIndex(i => !i.description.trim() && i.unit_price === 0)
+                      if (firstEmpty !== -1) {
+                        const next = [...p]
+                        next[firstEmpty] = newItem
+                        return next
+                      }
+                      return [...p, newItem]
+                    })
+                  }}
                 />
               )}
               <Button size="sm" variant="outline" onClick={() => setItems(p => [...p, emptyItem()])}>
