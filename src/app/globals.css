@@ -62,7 +62,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm;
+    margin: 10mm 5mm;
   }
   html, body {
     background: white !important;

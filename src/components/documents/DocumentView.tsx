@@ -124,8 +124,8 @@ export function DocumentView({ document: doc }: { document: Document }) {
               )}
             </div>
 
-            <div className="text-right">
-              <div className="text-4xl font-black text-[hsl(25,20%,10%)] tracking-tight">{title}</div>
+            <div className="text-right shrink-0 ml-4">
+              <div className="text-2xl font-black text-[hsl(25,20%,10%)] tracking-tight whitespace-nowrap">{title}</div>
               <div className="mt-2 text-sm space-y-0.5">
                 <div className="flex justify-end gap-4 items-center">
                   <span className="text-[hsl(25,10%,45%)]">เลขที่</span>
