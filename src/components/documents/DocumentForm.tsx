@@ -82,7 +82,9 @@ export function DocumentForm({
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
   const [whtMode, setWhtMode] = useState<"none" | "deduct" | "grossup">(() => {
-    if ((document?.wht_rate ?? 0) > 0) return "deduct"
+    const rate = document?.wht_rate ?? 0
+    if (rate < 0) return "grossup"
+    if (rate > 0) return "deduct"
     return "none"
   })
   const [discountType, setDiscountType] = useState<"%" | "฿">((document?.discount_type as "%" | "฿") ?? "%")
@@ -188,18 +190,7 @@ export function DocumentForm({
   }
 
   function handleSetWhtMode(mode: "deduct" | "grossup") {
-    const next = whtMode === mode ? "none" : mode
-    const wasGrossup = whtMode === "grossup"
-    const willGrossup = next === "grossup"
-
-    setItems(prev => prev.map(item => {
-      let price = item.unit_price
-      if (wasGrossup) price = Math.round(price * 0.97 * 100) / 100   // revert
-      if (willGrossup) price = Math.round(price / 0.97 * 100) / 100  // apply
-      const amount = Math.round(price * item.quantity * 100) / 100
-      return { ...item, unit_price: price, amount }
-    }))
-    setWhtMode(next)
+    setWhtMode(prev => prev === mode ? "none" : mode)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -207,8 +198,12 @@ export function DocumentForm({
     ? (discountType === "%" ? Math.round(subtotal * discountValue / 100 * 100) / 100 : discountValue)
     : 0
   const afterDiscount = subtotal - discountAmount
-  const whtAmount = whtMode !== "none" ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
-  const total = afterDiscount - whtAmount
+  const grossupAmount = whtMode === "grossup"
+    ? Math.round((afterDiscount / 0.97 - afterDiscount) * 100) / 100
+    : 0
+  const billedAmount = afterDiscount + grossupAmount
+  const whtAmount = whtMode !== "none" ? Math.round(billedAmount * 0.03 * 100) / 100 : 0
+  const total = billedAmount - whtAmount
 
   async function handleSave() {
     if (!customerName.trim()) { toast.error("กรุณาระบุชื่อลูกค้า"); return }
@@ -227,7 +222,7 @@ export function DocumentForm({
       customer_address: customerAddress,
       customer_tax_id: customerTaxId,
       customer_contact: customerContact,
-      subtotal, discount_type: discountType, discount_value: discountValue, discount_amount: discountAmount, wht_rate: whtMode !== "none" ? 3 : 0, wht_amount: whtAmount, total,
+      subtotal, discount_type: discountType, discount_value: discountValue, discount_amount: discountAmount, wht_rate: whtMode === "grossup" ? -3 : whtMode === "deduct" ? 3 : 0, wht_amount: whtAmount, total,
       notes, doc_remarks: docRemarks, payment_terms: paymentTerms,
       issuer_profile_id: issuerId || null,
       issuer_name: issuerName, issuer_id_card: issuerIdCard,
@@ -577,10 +572,16 @@ export function DocumentForm({
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="flex items-center gap-2">
                   <Checkbox checked={whtMode === "grossup"} onCheckedChange={() => handleSetWhtMode("grossup")} />
-                  <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(ราคารายการ ÷ 0.97)</span></span>
+                  <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(÷ 0.97)</span></span>
                 </span>
-                {whtMode === "grossup" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
+                {whtMode === "grossup" && <span className="text-green-600 text-sm">+ {formatCurrency(grossupAmount)}</span>}
               </label>
+              {whtMode === "grossup" && (
+                <div className="flex justify-between text-sm pl-6">
+                  <span className="text-[hsl(25,10%,50%)]">หัก ณ ที่จ่าย 3%</span>
+                  <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+                </div>
+              )}
             </div>
           ) : (
             whtMode !== "none" && (
