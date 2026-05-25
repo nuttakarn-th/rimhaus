@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { updateDocumentStatus, deleteDocument } from "@/actions/documents.actions"
@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { bahtText, cn } from "@/lib/utils"
-import { downloadDocPDF } from "@/components/documents/DownloadPDFButton"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
 import { DownloadPDFButton } from "@/components/documents/DownloadPDFButton"
 import type { Document, DocStatus } from "@/lib/types"
@@ -23,12 +22,6 @@ export function DocumentView({ document: doc }: { document: Document }) {
   const router = useRouter()
   const [status, setStatus] = useState<DocStatus>(doc.status)
   const [updating, setUpdating] = useState(false)
-
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).get("download")) return
-    const t = setTimeout(() => downloadDocPDF(doc), 800)
-    return () => clearTimeout(t)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStatusChange(newStatus: DocStatus) {
     setUpdating(true)
