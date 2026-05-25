@@ -2,32 +2,33 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { deleteContentItem } from "@/actions/content.actions"
-import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
+import { deleteContentItem } from "@/actions/content.actions"
 import { toast } from "sonner"
 
-export function DeleteContentButton({ id }: { id: string }) {
+export function DeleteContentButton({ id, redirectOnDelete }: { id: string; redirectOnDelete?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  async function handleDelete() {
-    if (!confirm("ต้องการลบคอนเทนต์นี้?")) return
+  async function handleDelete(e: React.MouseEvent) {
+    e.preventDefault()
+    if (!confirm("ลบคอนเทนต์นี้ใช่มั้ย?")) return
     setLoading(true)
     const result = await deleteContentItem(id)
-    if (result.success) {
-      toast.success("ลบคอนเทนต์สำเร็จ")
-      router.push("/content")
-      router.refresh()
-    } else {
-      toast.error(result.error)
-      setLoading(false)
-    }
+    if (!result.success) { toast.error(result.error); setLoading(false); return }
+    toast.success("ลบแล้ว")
+    if (redirectOnDelete) router.push("/content")
+    else router.refresh()
   }
 
   return (
-    <Button variant="outline" size="sm" onClick={handleDelete} disabled={loading} className="text-red-600 border-red-200 hover:bg-red-50">
-      <Trash2 className="w-3.5 h-3.5 mr-1" />ลบ
-    </Button>
+    <button
+      onClick={handleDelete}
+      disabled={loading}
+      title="ลบ"
+      className="p-1.5 rounded-lg text-[hsl(25,10%,55%)] hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+    >
+      <Trash2 className="w-3.5 h-3.5" />
+    </button>
   )
 }
