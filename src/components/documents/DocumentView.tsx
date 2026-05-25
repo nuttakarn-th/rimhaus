@@ -222,29 +222,55 @@ export function DocumentView({ document: doc }: { document: Document }) {
                     ({bahtText(doc.total)})
                   </span>
                 </td>
-                {doc.wht_rate > 0 ? (
-                  <>
-                    <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
-                      ก่อนหัก WHT {doc.wht_rate}%<br />
-                      หัก ณ ที่จ่าย {doc.wht_rate}%
-                    </td>
-                    <td className="py-2 px-3 text-right">
-                      <div className="text-[hsl(25,10%,40%)] text-xs">
-                        {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-red-600 text-xs">
-                        -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
-                        {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                      </div>
-                    </td>
-                  </>
-                ) : (
-                  <td colSpan={2} className="py-2 px-3 text-right font-bold text-base">
-                    {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                  </td>
-                )}
+                {(() => {
+                  const hasDiscount = (doc.discount_amount ?? 0) > 0
+                  const afterDiscount = doc.subtotal - (doc.discount_amount ?? 0)
+                  return (
+                    <>
+                      <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
+                        {hasDiscount && (
+                          <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
+                        )}
+                        {doc.wht_rate > 0 && (
+                          <><span>ก่อนหัก WHT {doc.wht_rate}%</span><br />
+                          <span>หัก ณ ที่จ่าย {doc.wht_rate}%</span></>
+                        )}
+                      </td>
+                      <td className="py-2 px-3 text-right">
+                        {hasDiscount && (
+                          <>
+                            <div className="text-[hsl(25,10%,40%)] text-xs">
+                              {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-red-600 text-xs">
+                              -{(doc.discount_amount ?? 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </div>
+                          </>
+                        )}
+                        {doc.wht_rate > 0 && (
+                          <>
+                            {!hasDiscount && (
+                              <div className="text-[hsl(25,10%,40%)] text-xs">
+                                {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                              </div>
+                            )}
+                            {hasDiscount && (
+                              <div className="text-[hsl(25,10%,40%)] text-xs">
+                                {afterDiscount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                              </div>
+                            )}
+                            <div className="text-red-600 text-xs">
+                              -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </div>
+                          </>
+                        )}
+                        <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
+                          {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                        </div>
+                      </td>
+                    </>
+                  )
+                })()}
               </tr>
             </tfoot>
           </table>

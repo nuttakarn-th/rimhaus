@@ -82,6 +82,8 @@ export function DocumentForm({
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
   const [whtEnabled, setWhtEnabled] = useState((document?.wht_rate ?? 0) > 0)
+  const [discountType, setDiscountType] = useState<"%" | "฿">((document?.discount_type as "%" | "฿") ?? "%")
+  const [discountValue, setDiscountValue] = useState(document?.discount_value ?? 0)
   const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? DEFAULT_PAYMENT_TERMS[document?.doc_type ?? "quotation"])
   const [docRemarks, setDocRemarks] = useState(document?.doc_remarks ?? DEFAULT_REMARKS[document?.doc_type ?? "quotation"])
   const [notes, setNotes] = useState(document?.notes ?? "")
@@ -197,12 +199,16 @@ export function DocumentForm({
       const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
       return { ...item, unit_price: newUnitPrice, amount: newAmount }
     }))
-    setWhtEnabled(false)
+    // intentionally does not change whtEnabled — user controls the checkbox
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
-  const whtAmount = whtEnabled ? Math.round(subtotal * 0.03 * 100) / 100 : 0
-  const total = subtotal - whtAmount
+  const discountAmount = discountValue > 0
+    ? (discountType === "%" ? Math.round(subtotal * discountValue / 100 * 100) / 100 : discountValue)
+    : 0
+  const afterDiscount = subtotal - discountAmount
+  const whtAmount = whtEnabled ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
+  const total = afterDiscount - whtAmount
 
   async function handleSave() {
     if (!customerName.trim()) { toast.error("กรุณาระบุชื่อลูกค้า"); return }
@@ -221,7 +227,7 @@ export function DocumentForm({
       customer_address: customerAddress,
       customer_tax_id: customerTaxId,
       customer_contact: customerContact,
-      subtotal, wht_rate: whtEnabled ? 3 : 0, wht_amount: whtAmount, total,
+      subtotal, discount_type: discountType, discount_value: discountValue, discount_amount: discountAmount, wht_rate: whtEnabled ? 3 : 0, wht_amount: whtAmount, total,
       notes, doc_remarks: docRemarks, payment_terms: paymentTerms,
       issuer_profile_id: issuerId || null,
       issuer_name: issuerName, issuer_id_card: issuerIdCard,
@@ -524,6 +530,41 @@ export function DocumentForm({
             <span className="text-[hsl(25,10%,50%)]">ยอดรวม</span>
             <span>{formatCurrency(subtotal)}</span>
           </div>
+          {/* Discount row */}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[hsl(25,10%,50%)] shrink-0">ส่วนลด</span>
+            <div className="flex items-center gap-1.5">
+              <div className="flex rounded-lg border border-[hsl(35,20%,88%)] overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setDiscountType("%")}
+                  className={`px-2 py-1 transition-colors ${discountType === "%" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-white text-[hsl(25,10%,50%)] hover:bg-[hsl(35,30%,97%)]"}`}
+                >%</button>
+                <button
+                  type="button"
+                  onClick={() => setDiscountType("฿")}
+                  className={`px-2 py-1 transition-colors ${discountType === "฿" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-white text-[hsl(25,10%,50%)] hover:bg-[hsl(35,30%,97%)]"}`}
+                >฿</button>
+              </div>
+              <input
+                type="number"
+                min="0"
+                value={discountValue || ""}
+                onChange={e => setDiscountValue(parseFloat(e.target.value) || 0)}
+                placeholder="0"
+                className="w-24 text-right text-sm border border-[hsl(35,20%,88%)] rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+              />
+              {discountAmount > 0 && (
+                <span className="text-red-600 text-sm min-w-[80px] text-right">- {formatCurrency(discountAmount)}</span>
+              )}
+            </div>
+          </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-sm text-[hsl(25,10%,50%)]">
+              <span>หลังส่วนลด</span>
+              <span>{formatCurrency(afterDiscount)}</span>
+            </div>
+          )}
           {docType === "quotation" ? (
             <div className="flex items-center justify-between gap-3">
               <label className="flex items-center gap-2 cursor-pointer">

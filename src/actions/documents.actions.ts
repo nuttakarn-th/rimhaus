@@ -105,6 +105,9 @@ type UpsertDocumentInput = {
   customer_tax_id?: string | null
   customer_contact?: string | null
   subtotal: number
+  discount_type?: string
+  discount_value?: number
+  discount_amount?: number
   wht_rate: number
   wht_amount: number
   total: number
@@ -148,6 +151,9 @@ export async function upsertDocument(input: UpsertDocumentInput): Promise<Action
     customer_tax_id: input.customer_tax_id || null,
     customer_contact: input.customer_contact || null,
     subtotal: input.subtotal,
+    discount_type: input.discount_type ?? "%",
+    discount_value: input.discount_value ?? 0,
+    discount_amount: input.discount_amount ?? 0,
     wht_rate: input.wht_rate,
     wht_amount: input.wht_amount,
     total: input.total,

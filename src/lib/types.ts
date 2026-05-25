@@ -188,6 +188,9 @@ export interface Document {
   customer_tax_id: string | null
   customer_contact: string | null
   subtotal: number
+  discount_type: string
+  discount_value: number
+  discount_amount: number
   wht_rate: number
   wht_amount: number
   total: number
