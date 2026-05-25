@@ -275,10 +275,13 @@ export function DocumentView({ document: doc }: { document: Document }) {
                   </ul>
                 </div>
               )}
-              {doc.payment_terms && (
+              {(doc.payment_terms || doc.wht_rate !== 0) && (
                 <div>
                   <div className="font-bold text-[hsl(25,20%,15%)]">เงื่อนไขการชำระเงิน :</div>
-                  <div className="mt-0.5">● {doc.payment_terms}</div>
+                  {doc.payment_terms && <div className="mt-0.5">● {doc.payment_terms}</div>}
+                  {doc.wht_rate !== 0 && (
+                    <div className="mt-0.5">● กรุณาหักภาษี ณ ที่จ่าย 3% และออกหนังสือรับรองการหักภาษี ณ ที่จ่ายให้ด้วย</div>
+                  )}
                 </div>
               )}
               {hasBank && (
