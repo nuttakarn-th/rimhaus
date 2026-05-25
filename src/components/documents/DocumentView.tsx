@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import { bahtText, buildDocFilename, cn } from "@/lib/utils"
+import { bahtText, cn } from "@/lib/utils"
+import { downloadDocPDF } from "@/components/documents/DownloadPDFButton"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
 import { DownloadPDFButton } from "@/components/documents/DownloadPDFButton"
 import type { Document, DocStatus } from "@/lib/types"
@@ -24,13 +25,8 @@ export function DocumentView({ document: doc }: { document: Document }) {
   const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
-    if (!new URLSearchParams(window.location.search).get("print")) return
-    const t = setTimeout(() => {
-      const prev = document.title
-      document.title = buildDocFilename(doc)
-      window.print()
-      document.title = prev
-    }, 600)
+    if (!new URLSearchParams(window.location.search).get("download")) return
+    const t = setTimeout(() => downloadDocPDF(doc), 800)
     return () => clearTimeout(t)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
