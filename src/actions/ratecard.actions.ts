@@ -1,11 +1,12 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import type { ActionResult, RateCardPackage, RateCardSettings } from "@/lib/types"
 
 export async function getPackages(): Promise<RateCardPackage[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from("rate_card_packages")
     .select("*")
@@ -15,7 +16,7 @@ export async function getPackages(): Promise<RateCardPackage[]> {
 }
 
 export async function getAllPackages(): Promise<RateCardPackage[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from("rate_card_packages")
     .select("*")
@@ -24,7 +25,7 @@ export async function getAllPackages(): Promise<RateCardPackage[]> {
 }
 
 export async function getSettings(): Promise<RateCardSettings | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase
     .from("rate_card_settings")
     .select("*")
