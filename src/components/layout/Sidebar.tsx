@@ -37,7 +37,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile topbar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-white border-b border-[hsl(35,20%,88%)] flex items-center px-4 gap-3">
+      <div data-mobile-topbar className="md:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-white border-b border-[hsl(35,20%,88%)] flex items-center px-4 gap-3">
         <button
           onClick={() => setMobileOpen(true)}
           className="p-1.5 rounded-lg hover:bg-[hsl(35,25%,92%)] transition-colors"

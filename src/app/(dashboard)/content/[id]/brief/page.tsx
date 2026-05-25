@@ -17,7 +17,7 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
   const isPhoto = item.content_type === "photo"
 
   return (
-    <div className="min-h-screen bg-[hsl(35,30%,97%)]">
+    <div className="min-h-screen bg-[hsl(35,30%,97%)] print:min-h-0 print:bg-white">
       {/* Controls — hidden on print */}
       <div className="print:hidden sticky top-0 z-10 bg-white border-b border-[hsl(35,20%,88%)] px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -32,9 +32,9 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
 
       {/* A4 Brief document */}
       <div className="p-4 md:p-8 print:p-0">
-        <div className="bg-white max-w-[794px] mx-auto shadow-sm print:shadow-none print:max-w-none rounded-lg overflow-hidden">
+        <div className="bg-white max-w-[794px] mx-auto shadow-sm print:shadow-none print:max-w-none print:m-0 rounded-lg overflow-hidden print:overflow-visible print:rounded-none">
           {/* Header */}
-          <div className="bg-[hsl(25,20%,15%)] text-white px-8 py-6 print:px-10 print:py-8">
+          <div className="bg-[hsl(25,20%,15%)] text-white px-8 py-6 print:px-8 print:py-6">
             <p className="text-xs text-[hsl(35,20%,70%)] uppercase tracking-widest mb-1">Content Brief</p>
             <h1 className="text-xl font-bold leading-snug">{item.title}</h1>
             <div className="flex items-center gap-4 mt-3 text-sm text-[hsl(35,20%,75%)] flex-wrap">
@@ -46,7 +46,7 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
           </div>
 
           {/* Body */}
-          <div className="px-8 py-6 print:px-10 print:py-8 space-y-6">
+          <div className="px-8 py-6 print:px-8 print:py-6 space-y-6">
             {item.idea_notes && (
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-2">ไอเดีย / โน้ต</h2>
@@ -69,11 +69,11 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
             {isPhoto && item.images && item.images.length > 0 && (
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-3">ภาพ Draft ({item.images.length} ภาพ)</h2>
-                <div className="columns-3 gap-1.5 print:columns-3">
+                <div className="columns-3 gap-1.5">
                   {item.images.map((src, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
                     <div key={i} className="mb-1.5 break-inside-avoid rounded overflow-hidden border border-[hsl(35,20%,88%)]">
-                      <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-auto block" style={{ maxHeight: "180px", objectFit: "contain", background: "hsl(35,30%,97%)" }} />
+                      <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full h-auto block" style={{ maxHeight: "160px", objectFit: "contain", background: "hsl(35,30%,97%)" }} />
                     </div>
                   ))}
                 </div>
@@ -107,7 +107,7 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
           </div>
 
           {/* Footer */}
-          <div className="px-8 py-4 print:px-10 border-t border-[hsl(35,20%,88%)] flex items-center justify-between text-xs text-[hsl(25,10%,60%)]">
+          <div className="px-8 py-4 border-t border-[hsl(35,20%,88%)] flex items-center justify-between text-xs text-[hsl(25,10%,60%)]">
             <span>Rimhaus — Content Brief</span>
             <span>{new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}</span>
           </div>

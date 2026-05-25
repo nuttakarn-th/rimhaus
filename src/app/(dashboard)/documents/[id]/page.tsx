@@ -11,7 +11,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
   if (!doc) notFound()
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-4 max-w-2xl print:max-w-none print:m-0 print:p-0 print:space-y-0">
       <div className="flex items-center justify-between print:hidden">
         <Link href="/documents" className="flex items-center gap-1 text-sm text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors">
           <ChevronLeft className="w-4 h-4" />กลับ

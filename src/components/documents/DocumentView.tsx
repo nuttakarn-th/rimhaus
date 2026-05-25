@@ -86,9 +86,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
       </div>
 
       {/* ===== A4 DOCUMENT ===== */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
-        <div className="p-10 print:p-8 max-w-[794px] mx-auto">
+        <div className="p-10 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
           {/* Header: issuer left, title+number right */}
           <div className="flex justify-between items-start mb-6">

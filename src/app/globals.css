@@ -60,10 +60,40 @@ body {
 }
 
 @media print {
-  body { background: white; }
-  .print\:hidden { display: none !important; }
-  aside, nav { display: none !important; }
-  main { margin-left: 0 !important; padding-top: 0 !important; }
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+  html, body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Hide ALL dashboard chrome */
+  .print\:hidden,
+  aside,
+  nav,
+  [data-mobile-topbar] {
+    display: none !important;
+  }
+  /* Reset layout shell */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  /* Remove min-h-screen so no extra blank page */
+  .dashboard-shell {
+    min-height: 0 !important;
+    background: white !important;
+    display: block !important;
+  }
+  /* Document/brief page wrapper */
+  .print-page-wrapper {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
 /* Tiptap / ProseMirror editor styles */
