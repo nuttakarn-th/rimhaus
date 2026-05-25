@@ -20,6 +20,8 @@ import type { Customer, Document, IssuerProfile, DocType, DocStatus, ReviewJob, 
 type LineItem = { description: string; quantity: number; unit_price: number; amount: number }
 const emptyItem = (): LineItem => ({ description: "", quantity: 1, unit_price: 0, amount: 0 })
 
+const WHT_NOTICE = "กรุณาหักภาษี ณ ที่จ่าย 3% และออกหนังสือรับรองการหักภาษี ณ ที่จ่ายให้ด้วย"
+
 const DEFAULT_PAYMENT_TERMS: Record<DocType, string> = {
   quotation: "ชำระเงินภายใน 30 วัน หลังจากส่งมอบงาน",
   invoice: "ภายใน 15 วัน หลังจากส่งมอบงาน",
@@ -176,6 +178,15 @@ export function DocumentForm({
       }
     })
   }, [linkedQuotationId, docType])
+
+  // Auto-add/remove WHT notice in payment terms when checkbox toggled
+  useEffect(() => {
+    if (whtMode !== "none") {
+      setPaymentTerms(prev => prev.includes(WHT_NOTICE) ? prev : prev ? `${prev}\n${WHT_NOTICE}` : WHT_NOTICE)
+    } else {
+      setPaymentTerms(prev => prev.replace(`\n${WHT_NOTICE}`, "").replace(WHT_NOTICE, "").trim())
+    }
+  }, [whtMode])
 
   function updateItem(idx: number, field: keyof LineItem, value: string | number) {
     setItems(prev => {
@@ -617,7 +628,7 @@ export function DocumentForm({
         )}
         <div className="space-y-1">
           <Label className="text-xs font-semibold text-[hsl(25,20%,15%)]">เงื่อนไขการชำระเงิน</Label>
-          <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)}
+          <Textarea rows={3} value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)}
             placeholder="ชำระเงินภายใน 30 วัน หลังจากส่งมอบงาน" />
         </div>
         <div className="space-y-1">
