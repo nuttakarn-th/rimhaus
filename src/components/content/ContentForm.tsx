@@ -14,6 +14,7 @@ import type { ContentItem, ReviewJob, Platform } from "@/lib/types"
 import { toast } from "sonner"
 import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
+import { SceneTableEditor, sceneRowsToHTML, parseSceneRows, type SceneRow } from "@/components/content/SceneTableEditor"
 
 interface ContentFormProps {
   item?: ContentItem
@@ -64,6 +65,28 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
 
   const isVideoType = VIDEO_TYPES.includes(form.content_type)
   const isPhotoType = form.content_type === "photo"
+
+  // Scene table mode
+  const initialRows = item?.script ? parseSceneRows(item.script) : null
+  const [scriptMode, setScriptMode] = useState<"table" | "editor">(initialRows ? "table" : "editor")
+  const [sceneRows, setSceneRows] = useState<SceneRow[]>(initialRows ?? [{ scene: "", voiceover: "", text: "" }])
+
+  function handleSceneRowsChange(rows: SceneRow[]) {
+    setSceneRows(rows)
+    setForm(p => ({ ...p, script: sceneRowsToHTML(rows) }))
+  }
+
+  function switchToTableMode() {
+    setScriptMode("table")
+    setForm(p => ({ ...p, script: sceneRowsToHTML(sceneRows) }))
+  }
+
+  function switchToEditorMode() {
+    setScriptMode("editor")
+    // strip the marker — keep only the HTML table in the editor
+    const html = (form.script ?? "").replace(/^<!--scene-table:.*?-->/, "")
+    setForm(p => ({ ...p, script: html }))
+  }
 
   function togglePlatform(id: string) {
     setForm(prev => ({
@@ -204,17 +227,59 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
         {/* ── RIGHT PANEL: editor / media ─────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-5">
 
-          {/* VIDEO: Story + Scene editor */}
+          {/* VIDEO: Story + Scene — toggle between table form and free editor */}
           {isVideoType && (
-            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
-              <div>
-                <h3 className="font-semibold text-sm">Story + Scene</h3>
-                <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียน Story / Concept และ Script ตาม Scene</p>
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+              {/* Header + toggle */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-semibold text-sm">Story + Scene</h3>
+                  <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียน Story / Concept และ Script ตาม Scene</p>
+                </div>
+                {/* Mode toggle */}
+                <div className="flex items-center gap-0.5 bg-[hsl(35,25%,93%)] rounded-lg p-0.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={switchToTableMode}
+                    className={[
+                      "px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap",
+                      scriptMode === "table"
+                        ? "bg-white shadow-sm text-[hsl(24,85%,50%)]"
+                        : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,20%)]",
+                    ].join(" ")}
+                  >
+                    📋 กรอกแบบฟอร์ม
+                  </button>
+                  <button
+                    type="button"
+                    onClick={switchToEditorMode}
+                    className={[
+                      "px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap",
+                      scriptMode === "editor"
+                        ? "bg-white shadow-sm text-[hsl(24,85%,50%)]"
+                        : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,20%)]",
+                    ].join(" ")}
+                  >
+                    ✏️ แก้ไขเอง
+                  </button>
+                </div>
               </div>
-              <ContentBriefEditor
-                value={form.script ?? ""}
-                onChange={v => setForm(p => ({ ...p, script: v }))}
-              />
+
+              {/* Scene Table form mode */}
+              {scriptMode === "table" && (
+                <SceneTableEditor
+                  rows={sceneRows}
+                  onChange={handleSceneRowsChange}
+                />
+              )}
+
+              {/* Free-form rich text editor mode */}
+              {scriptMode === "editor" && (
+                <ContentBriefEditor
+                  value={form.script ?? ""}
+                  onChange={v => setForm(p => ({ ...p, script: v }))}
+                />
+              )}
             </div>
           )}
 
