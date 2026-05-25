@@ -224,20 +224,12 @@ export function DocumentView({ document: doc }: { document: Document }) {
                 </td>
                 {(() => {
                   const hasDiscount = (doc.discount_amount ?? 0) > 0
-                  const afterDiscount = doc.subtotal - (doc.discount_amount ?? 0)
-                  const isGrossup = doc.wht_rate < 0
                   const hasWht = doc.wht_rate !== 0
-                  const grossupAmount = isGrossup
-                    ? Math.round((afterDiscount / 0.97 - afterDiscount) * 100) / 100
-                    : 0
                   return (
                     <>
                       <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
                         {hasDiscount && (
                           <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
-                        )}
-                        {isGrossup && (
-                          <><span>เพิ่มราคา ก่อนหัก 3%</span><br /></>
                         )}
                         {hasWht && (
                           <span>หัก ณ ที่จ่าย 3%</span>
@@ -253,11 +245,6 @@ export function DocumentView({ document: doc }: { document: Document }) {
                               -{(doc.discount_amount ?? 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                             </div>
                           </>
-                        )}
-                        {isGrossup && (
-                          <div className="text-green-700 text-xs">
-                            +{grossupAmount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                          </div>
                         )}
                         {hasWht && (
                           <div className="text-red-600 text-xs">

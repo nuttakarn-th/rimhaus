@@ -190,7 +190,17 @@ export function DocumentForm({
   }
 
   function handleSetWhtMode(mode: "deduct" | "grossup") {
-    setWhtMode(prev => prev === mode ? "none" : mode)
+    const next = whtMode === mode ? "none" : mode
+    const wasGrossup = whtMode === "grossup"
+    const willGrossup = next === "grossup"
+    setItems(prev => prev.map(item => {
+      let price = item.unit_price
+      if (wasGrossup) price = Math.round(price * 0.97 * 100) / 100
+      if (willGrossup) price = Math.round(price / 0.97 * 100) / 100
+      const amount = Math.round(price * item.quantity * 100) / 100
+      return { ...item, unit_price: price, amount }
+    }))
+    setWhtMode(next)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -198,12 +208,8 @@ export function DocumentForm({
     ? (discountType === "%" ? Math.round(subtotal * discountValue / 100 * 100) / 100 : discountValue)
     : 0
   const afterDiscount = subtotal - discountAmount
-  const grossupAmount = whtMode === "grossup"
-    ? Math.round((afterDiscount / 0.97 - afterDiscount) * 100) / 100
-    : 0
-  const billedAmount = afterDiscount + grossupAmount
-  const whtAmount = whtMode !== "none" ? Math.round(billedAmount * 0.03 * 100) / 100 : 0
-  const total = billedAmount - whtAmount
+  const whtAmount = whtMode !== "none" ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
+  const total = afterDiscount - whtAmount
 
   async function handleSave() {
     if (!customerName.trim()) { toast.error("กรุณาระบุชื่อลูกค้า"); return }
@@ -574,14 +580,8 @@ export function DocumentForm({
                   <Checkbox checked={whtMode === "grossup"} onCheckedChange={() => handleSetWhtMode("grossup")} />
                   <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(÷ 0.97)</span></span>
                 </span>
-                {whtMode === "grossup" && <span className="text-green-600 text-sm">+ {formatCurrency(grossupAmount)}</span>}
+                {whtMode === "grossup" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
               </label>
-              {whtMode === "grossup" && (
-                <div className="flex justify-between text-sm pl-6">
-                  <span className="text-[hsl(25,10%,50%)]">หัก ณ ที่จ่าย 3%</span>
-                  <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
-                </div>
-              )}
             </div>
           ) : (
             whtMode !== "none" && (
