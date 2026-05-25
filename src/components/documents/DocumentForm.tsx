@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2, PlusCircle } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
@@ -81,8 +81,10 @@ export function DocumentForm({
 
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
-  const [whtEnabled, setWhtEnabled] = useState((document?.wht_rate ?? 0) > 0)
-  const [grossedUp, setGrossedUp] = useState(false)
+  const [whtMode, setWhtMode] = useState<"none" | "deduct" | "grossup">(() => {
+    if ((document?.wht_rate ?? 0) > 0) return "deduct"
+    return "none"
+  })
   const [discountType, setDiscountType] = useState<"%" | "฿">((document?.discount_type as "%" | "฿") ?? "%")
   const [discountValue, setDiscountValue] = useState(document?.discount_value ?? 0)
   const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? DEFAULT_PAYMENT_TERMS[document?.doc_type ?? "quotation"])
@@ -164,7 +166,7 @@ export function DocumentForm({
           unit_price: i.unit_price,
           amount: i.amount,
         })))
-        setWhtEnabled((qt.wht_rate ?? 0) > 0)
+        setWhtMode((qt.wht_rate ?? 0) > 0 ? "deduct" : "none")
       }
       // Platforms from quotation
       if (qt.platforms && qt.platforms.length > 0) {
@@ -185,14 +187,19 @@ export function DocumentForm({
     })
   }
 
-  function handleGrossUpHidden() {
-    if (grossedUp) return
+  function handleSetWhtMode(mode: "deduct" | "grossup") {
+    const next = whtMode === mode ? "none" : mode
+    const wasGrossup = whtMode === "grossup"
+    const willGrossup = next === "grossup"
+
     setItems(prev => prev.map(item => {
-      const newUnitPrice = Math.round(item.unit_price / 0.97 * 100) / 100
-      const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
-      return { ...item, unit_price: newUnitPrice, amount: newAmount }
+      let price = item.unit_price
+      if (wasGrossup) price = Math.round(price * 0.97 * 100) / 100   // revert
+      if (willGrossup) price = Math.round(price / 0.97 * 100) / 100  // apply
+      const amount = Math.round(price * item.quantity * 100) / 100
+      return { ...item, unit_price: price, amount }
     }))
-    setGrossedUp(true)
+    setWhtMode(next)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -200,7 +207,7 @@ export function DocumentForm({
     ? (discountType === "%" ? Math.round(subtotal * discountValue / 100 * 100) / 100 : discountValue)
     : 0
   const afterDiscount = subtotal - discountAmount
-  const whtAmount = whtEnabled ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
+  const whtAmount = whtMode !== "none" ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
   const total = afterDiscount - whtAmount
 
   async function handleSave() {
@@ -220,7 +227,7 @@ export function DocumentForm({
       customer_address: customerAddress,
       customer_tax_id: customerTaxId,
       customer_contact: customerContact,
-      subtotal, discount_type: discountType, discount_value: discountValue, discount_amount: discountAmount, wht_rate: whtEnabled ? 3 : 0, wht_amount: whtAmount, total,
+      subtotal, discount_type: discountType, discount_value: discountValue, discount_amount: discountAmount, wht_rate: whtMode !== "none" ? 3 : 0, wht_amount: whtAmount, total,
       notes, doc_remarks: docRemarks, payment_terms: paymentTerms,
       issuer_profile_id: issuerId || null,
       issuer_name: issuerName, issuer_id_card: issuerIdCard,
@@ -559,27 +566,24 @@ export function DocumentForm({
             </div>
           )}
           {docType === "quotation" ? (
-            <div className="flex items-center justify-between gap-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox checked={whtEnabled} onCheckedChange={v => setWhtEnabled(Boolean(v))} />
-                <span className="text-[hsl(25,10%,50%)]">หักภาษี ณ ที่จ่าย 3%</span>
+            <div className="space-y-1.5">
+              <label className="flex items-center justify-between cursor-pointer" onClick={() => handleSetWhtMode("deduct")}>
+                <span className="flex items-center gap-2">
+                  <Checkbox checked={whtMode === "deduct"} onCheckedChange={() => handleSetWhtMode("deduct")} />
+                  <span className="text-[hsl(25,10%,50%)] text-sm">หักภาษี ณ ที่จ่าย 3%</span>
+                </span>
+                {whtMode === "deduct" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
               </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleGrossUpHidden}
-                  disabled={grossedUp}
-                  title="ปรับราคา ÷ 0.97 เพื่อให้ได้ราคาเต็ม (กดได้ครั้งเดียว)"
-                  className="flex items-center gap-1 text-xs text-emerald-600 border border-emerald-500 rounded-md px-2 py-1 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <PlusCircle className="w-3 h-3" />
-                  เพิ่มราคา ก่อนหัก 3%
-                </button>
-                <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
-              </div>
+              <label className="flex items-center justify-between cursor-pointer" onClick={() => handleSetWhtMode("grossup")}>
+                <span className="flex items-center gap-2">
+                  <Checkbox checked={whtMode === "grossup"} onCheckedChange={() => handleSetWhtMode("grossup")} />
+                  <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(ราคารายการ ÷ 0.97)</span></span>
+                </span>
+                {whtMode === "grossup" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
+              </label>
             </div>
           ) : (
-            whtEnabled && (
+            whtMode !== "none" && (
               <div className="flex justify-between text-[hsl(25,10%,50%)]">
                 <span>หักภาษี ณ ที่จ่าย 3%</span>
                 <span className="text-red-600">- {formatCurrency(whtAmount)}</span>

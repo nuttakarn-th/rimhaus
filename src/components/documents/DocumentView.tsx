@@ -232,8 +232,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                           <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
                         )}
                         {doc.wht_rate > 0 && (
-                          <><span>ก่อนหัก WHT {doc.wht_rate}%</span><br />
-                          <span>หัก ณ ที่จ่าย {doc.wht_rate}%</span></>
+                          <span>หัก ณ ที่จ่าย {doc.wht_rate}%</span>
                         )}
                       </td>
                       <td className="py-2 px-3 text-right">
@@ -248,21 +247,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
                           </>
                         )}
                         {doc.wht_rate > 0 && (
-                          <>
-                            {!hasDiscount && (
-                              <div className="text-[hsl(25,10%,40%)] text-xs">
-                                {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                              </div>
-                            )}
-                            {hasDiscount && (
-                              <div className="text-[hsl(25,10%,40%)] text-xs">
-                                {afterDiscount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                              </div>
-                            )}
-                            <div className="text-red-600 text-xs">
-                              -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                            </div>
-                          </>
+                          <div className="text-red-600 text-xs">
+                            -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          </div>
                         )}
                         <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
                           {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
