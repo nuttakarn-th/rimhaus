@@ -88,155 +88,165 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
   const statusOptions = Object.entries(CONTENT_STATUS_LABELS).map(([k, v]) => ({ value: k, label: v }))
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {/* Info section */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-4">
-        <h3 className="font-semibold">ข้อมูลคอนเทนต์</h3>
-        <div className="space-y-2">
-          <Label>ชื่อคอนเทนต์ *</Label>
-          <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="เช่น รีวิวโซฟา IKEA SÖDERHAMN" required />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>ประเภทคอนเทนต์ *</Label>
-            <Select value={form.content_type} onValueChange={v => setForm(p => ({ ...p, content_type: v }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {CONTENT_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
+    <form onSubmit={handleSubmit} className="max-w-6xl">
+      {/* Desktop: 2-col (form left | editor right), Mobile: single col */}
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+
+        {/* ── LEFT PANEL: form controls ───────────────────────────── */}
+        <div className="w-full lg:w-80 xl:w-96 shrink-0 space-y-5">
+
+          {/* Info section */}
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+            <h3 className="font-semibold text-sm">ข้อมูลคอนเทนต์</h3>
+            <div className="space-y-2">
+              <Label>ชื่อคอนเทนต์ *</Label>
+              <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="เช่น รีวิวโซฟา IKEA SÖDERHAMN" required />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>ประเภท *</Label>
+                <Select value={form.content_type} onValueChange={v => setForm(p => ({ ...p, content_type: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CONTENT_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>สถานะ</Label>
+                <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v as ContentFormValues["status"] }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>แพลตฟอร์ม</Label>
+              <div className="flex flex-wrap gap-3">
+                {platforms.filter(p => p.is_active).map(p => (
+                  <label key={p.id} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox checked={form.platforms.includes(p.id)} onCheckedChange={() => togglePlatform(p.id)} />
+                    <span className="text-sm font-medium" style={{ color: form.platforms.includes(p.id) ? p.color : undefined }}>{p.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs">วันโพส</Label>
+                <Input type="date" value={form.planned_date ?? ""} onChange={e => setForm(p => ({ ...p, planned_date: e.target.value || null }))} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">วันถ่าย</Label>
+                <Input type="date" value={form.shoot_date ?? ""} onChange={e => setForm(p => ({ ...p, shoot_date: e.target.value || null }))} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Checkbox checked={form.is_sponsored} onCheckedChange={v => setForm(p => ({ ...p, is_sponsored: Boolean(v) }))} id="is_sponsored" />
+              <Label htmlFor="is_sponsored" className="text-sm cursor-pointer">เป็นคอนเทนต์สปอนเซอร์</Label>
+            </div>
+
+            {jobs.length > 0 && (
+              <div className="space-y-2">
+                <Label>เชื่อมงานรีวิว</Label>
+                <Select value={form.review_job_id ?? "none"} onValueChange={v => setForm(p => ({ ...p, review_job_id: v === "none" ? null : v }))}>
+                  <SelectTrigger><SelectValue placeholder="เลือกงาน..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">ไม่เชื่อมกับงานไหน</SelectItem>
+                    {jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.brand_name} — {j.product_name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
-          <div className="space-y-2">
-            <Label>สถานะ</Label>
-            <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v as ContentFormValues["status"] }))}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {statusOptions.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
+
+          {/* Idea notes */}
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+            <h3 className="font-semibold text-sm">ไอเดีย / โน้ต</h3>
+            <Textarea value={form.idea_notes ?? ""} onChange={e => setForm(p => ({ ...p, idea_notes: e.target.value }))} rows={4} placeholder="จดไอเดีย จุดที่อยากพูด..." />
+          </div>
+
+          {/* Caption (Video + Photo) */}
+          {(isVideoType || isPhotoType) && (
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+              <div>
+                <h3 className="font-semibold text-sm">Caption</h3>
+                <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">รวม Emoji ได้</p>
+              </div>
+              <Textarea
+                value={form.caption ?? ""}
+                onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
+                rows={6}
+                placeholder="เขียน Caption โพส... ✨"
+                className="text-sm leading-relaxed"
+              />
+            </div>
+          )}
+
+          {/* Hashtags */}
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
+            <Label>Hashtags</Label>
+            <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
+          </div>
+
+          {/* Submit */}
+          <div className="flex gap-3">
+            <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}</Button>
+            <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
           </div>
         </div>
 
-        {/* Platforms */}
-        <div className="space-y-2">
-          <Label>แพลตฟอร์ม</Label>
-          <div className="flex flex-wrap gap-3">
-            {platforms.filter(p => p.is_active).map(p => (
-              <label key={p.id} className="flex items-center gap-2 cursor-pointer">
-                <Checkbox checked={form.platforms.includes(p.id)} onCheckedChange={() => togglePlatform(p.id)} />
-                <span className="text-sm font-medium" style={{ color: form.platforms.includes(p.id) ? p.color : undefined }}>{p.label}</span>
-              </label>
-            ))}
-          </div>
+        {/* ── RIGHT PANEL: editor / media ─────────────────────────── */}
+        <div className="flex-1 min-w-0 space-y-5">
+
+          {/* VIDEO: Story + Scene editor */}
+          {isVideoType && (
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+              <div>
+                <h3 className="font-semibold text-sm">Story + Scene</h3>
+                <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียน Story / Concept และ Script ตาม Scene</p>
+              </div>
+              <ContentBriefEditor
+                value={form.script ?? ""}
+                onChange={v => setForm(p => ({ ...p, script: v }))}
+              />
+            </div>
+          )}
+
+          {/* PHOTO: Image grid upload */}
+          {isPhotoType && (
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+              <div>
+                <h3 className="font-semibold text-sm">ภาพ Draft</h3>
+                <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">บีบอัดอัตโนมัติ ≤100KB/ภาพ</p>
+              </div>
+              <PhotoAlbumUpload
+                images={form.images ?? []}
+                onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
+              />
+            </div>
+          )}
+
+          {/* BLOG: single script editor */}
+          {!isVideoType && !isPhotoType && (
+            <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+              <div>
+                <h3 className="font-semibold text-sm">เนื้อหา / Script</h3>
+                <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียนเนื้อหาพร้อมแชร์ให้ลูกค้าเป็น PDF</p>
+              </div>
+              <ContentBriefEditor
+                value={form.script ?? ""}
+                onChange={v => setForm(p => ({ ...p, script: v }))}
+              />
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>วันที่วางแผนจะโพส</Label>
-            <Input type="date" value={form.planned_date ?? ""} onChange={e => setForm(p => ({ ...p, planned_date: e.target.value || null }))} />
-          </div>
-          <div className="space-y-2">
-            <Label>วันถ่าย/ผลิต</Label>
-            <Input type="date" value={form.shoot_date ?? ""} onChange={e => setForm(p => ({ ...p, shoot_date: e.target.value || null }))} />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Checkbox checked={form.is_sponsored} onCheckedChange={v => setForm(p => ({ ...p, is_sponsored: Boolean(v) }))} id="is_sponsored" />
-          <Label htmlFor="is_sponsored">เป็นคอนเทนต์สปอนเซอร์</Label>
-        </div>
-
-        {jobs.length > 0 && (
-          <div className="space-y-2">
-            <Label>เชื่อมกับงานรีวิว (ไม่บังคับ)</Label>
-            <Select value={form.review_job_id ?? "none"} onValueChange={v => setForm(p => ({ ...p, review_job_id: v === "none" ? null : v }))}>
-              <SelectTrigger><SelectValue placeholder="เลือกงาน..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">ไม่เชื่อมกับงานไหน</SelectItem>
-                {jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.brand_name} — {j.product_name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
-
-      {/* Idea notes (all types) */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
-        <h3 className="font-semibold">ไอเดียและสคริปต์</h3>
-        <div className="space-y-2">
-          <Label>ไอเดีย / โน้ต</Label>
-          <Textarea value={form.idea_notes ?? ""} onChange={e => setForm(p => ({ ...p, idea_notes: e.target.value }))} rows={3} placeholder="จดไอเดีย จุดที่อยากพูด..." />
-        </div>
-      </div>
-
-      {/* VIDEO: Story + Scene editor */}
-      {isVideoType && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
-          <div>
-            <h3 className="font-semibold">Story + Scene</h3>
-            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียน Story / Concept และ Script ตาม Scene</p>
-          </div>
-          <ContentBriefEditor
-            value={form.script ?? ""}
-            onChange={v => setForm(p => ({ ...p, script: v }))}
-          />
-        </div>
-      )}
-
-      {/* PHOTO: Image grid upload */}
-      {isPhotoType && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
-          <div>
-            <h3 className="font-semibold">ภาพ Draft</h3>
-            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">อัปโหลดภาพ draft เพื่อแสดงให้ลูกค้าเห็น — บีบอัดอัตโนมัติ ≤100KB/ภาพ</p>
-          </div>
-          <PhotoAlbumUpload
-            images={form.images ?? []}
-            onChange={imgs => setForm(p => ({ ...p, images: imgs }))}
-          />
-        </div>
-      )}
-
-      {/* BLOG: single script editor */}
-      {!isVideoType && !isPhotoType && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
-          <div>
-            <h3 className="font-semibold">เนื้อหา / Script</h3>
-            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">เขียนเนื้อหาพร้อมแชร์ให้ลูกค้าเป็น PDF</p>
-          </div>
-          <ContentBriefEditor
-            value={form.script ?? ""}
-            onChange={v => setForm(p => ({ ...p, script: v }))}
-          />
-        </div>
-      )}
-
-      {/* Caption (Video + Photo) */}
-      {(isVideoType || isPhotoType) && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
-          <div>
-            <h3 className="font-semibold">Caption</h3>
-            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ข้อความสำหรับโพสในโซเชียล รวม Emoji ได้</p>
-          </div>
-          <Textarea
-            value={form.caption ?? ""}
-            onChange={e => setForm(p => ({ ...p, caption: e.target.value }))}
-            rows={5}
-            placeholder="เขียน Caption โพส... ✨ รวม Emoji และ Line Break ได้"
-            className="text-sm leading-relaxed"
-          />
-        </div>
-      )}
-
-      {/* Hashtags */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-2">
-        <Label>Hashtags</Label>
-        <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
-      </div>
-
-      <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}</Button>
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
       </div>
     </form>
   )
