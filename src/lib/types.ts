@@ -216,6 +216,25 @@ export interface Document {
   review_jobs?: { brand_name: string; product_name: string } | null
 }
 
+export interface PortfolioItem {
+  id: string
+  user_id: string
+  type: "video" | "photo"
+  title: string | null
+  url: string
+  sort_order: number
+  created_at: string
+}
+
+export interface Partner {
+  id: string
+  user_id: string
+  name: string | null
+  logo_url: string
+  sort_order: number
+  created_at: string
+}
+
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }

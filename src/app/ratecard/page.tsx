@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { getPackages, getSettings } from "@/actions/ratecard.actions"
 import { formatCurrency } from "@/lib/utils"
 import type { RateCardPackage } from "@/lib/types"
@@ -59,16 +58,7 @@ export default async function RateCardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(35,30%,97%)]">
-      {/* Top bar */}
-      <div className="bg-white border-b border-[hsl(35,20%,88%)] px-6 py-3 flex justify-between items-center">
-        <span className="font-bold text-[hsl(25,20%,15%)]">🏠 Rimhaus</span>
-        <Link href="/dashboard" className="text-xs text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors">
-          Admin →
-        </Link>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-10">
+    <div className="max-w-3xl mx-auto px-4 py-10 space-y-10">
         {/* Hero */}
         <div className="text-center space-y-3">
           <h1 className="text-3xl font-black text-[hsl(25,20%,15%)]">
@@ -187,7 +177,6 @@ export default async function RateCardPage() {
         )}
 
         <p className="text-center text-xs text-[hsl(25,10%,65%)] pb-4">{settings?.page_name} (un.finished.house)</p>
-      </div>
     </div>
   )
 }
