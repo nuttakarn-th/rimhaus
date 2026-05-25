@@ -1,9 +1,13 @@
 import { PDFDocument, rgb } from "pdf-lib"
 import fontkit from "@pdf-lib/fontkit"
-import { readFileSync } from "fs"
-import { join } from "path"
 import { getDocument } from "@/actions/documents.actions"
 import { buildDocFilename, bahtText } from "@/lib/utils"
+import { NOTO_SANS_THAI_REGULAR, NOTO_SANS_THAI_BOLD } from "@/lib/pdf-fonts"
+
+function dataUrlToBytes(dataUrl: string): Uint8Array {
+  const base64 = dataUrl.split(",")[1]
+  return Buffer.from(base64, "base64")
+}
 
 const MM = 2.834645 // 1mm in points
 const W = 595.28   // A4 width
@@ -36,10 +40,8 @@ export async function GET(
     const pdfDoc = await PDFDocument.create()
     pdfDoc.registerFontkit(fontkit)
 
-    const regularBytes = readFileSync(join(process.cwd(), "public/fonts/NotoSansThai-Regular.ttf"))
-    const boldBytes = readFileSync(join(process.cwd(), "public/fonts/NotoSansThai-Bold.ttf"))
-    const font = await pdfDoc.embedFont(regularBytes)
-    const fontB = await pdfDoc.embedFont(boldBytes)
+    const font = await pdfDoc.embedFont(dataUrlToBytes(NOTO_SANS_THAI_REGULAR))
+    const fontB = await pdfDoc.embedFont(dataUrlToBytes(NOTO_SANS_THAI_BOLD))
 
     const page = pdfDoc.addPage([W, H])
 
@@ -266,7 +268,7 @@ export async function GET(
     const pdfBytes = await pdfDoc.save()
     const filename = buildDocFilename(doc)
 
-    return new Response(pdfBytes as unknown as BodyInit, {
+    return new Response(Buffer.from(pdfBytes), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(filename)}.pdf`,
