@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
@@ -10,7 +11,6 @@ import TableRow from "@tiptap/extension-table-row"
 import TableCell from "@tiptap/extension-table-cell"
 import TableHeader from "@tiptap/extension-table-header"
 import Placeholder from "@tiptap/extension-placeholder"
-import { useEffect, useRef } from "react"
 import {
   Bold, Italic, UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3,
@@ -22,6 +22,33 @@ import { cn } from "@/lib/utils"
 
 const BRIEF_TEMPLATE = `<h2>Story / Concept</h2><p>เล่าเรื่องหรือแนวคิดหลักของคอนเทนต์...</p><h2>Scene</h2><p>Scene 1: ...</p><p>Scene 2: ...</p><p>Scene 3: ...</p>`
 
+// Extend TableCell and TableHeader to preserve inline style (for font-size)
+const StyledTableCell = TableCell.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      style: {
+        default: null,
+        parseHTML: el => el.getAttribute("style"),
+        renderHTML: attrs => attrs.style ? { style: attrs.style } : {},
+      },
+    }
+  },
+})
+
+const StyledTableHeader = TableHeader.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      style: {
+        default: null,
+        parseHTML: el => el.getAttribute("style"),
+        renderHTML: attrs => attrs.style ? { style: attrs.style } : {},
+      },
+    }
+  },
+})
+
 type Props = {
   value: string
   onChange: (html: string) => void
@@ -30,6 +57,12 @@ type Props = {
 
 export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const tableButtonRef = useRef<HTMLButtonElement>(null)
+
+  const [tablePopover, setTablePopover] = useState(false)
+  const [tableRows, setTableRows] = useState(3)
+  const [tableCols, setTableCols] = useState(3)
+  const [tableFontSize, setTableFontSize] = useState(10)
 
   const editor = useEditor({
     extensions: [
@@ -39,8 +72,8 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Table.configure({ resizable: true }),
       TableRow,
-      TableHeader,
-      TableCell,
+      StyledTableHeader,
+      StyledTableCell,
       Placeholder.configure({
         placeholder: placeholder ?? "เขียน Brief/Script ที่นี่...",
         emptyEditorClass: "is-editor-empty",
@@ -55,7 +88,6 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
     },
   })
 
-  // Sync external value changes (e.g., when editing existing item)
   useEffect(() => {
     if (!editor) return
     if (value && value !== editor.getHTML()) {
@@ -64,8 +96,33 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
-  function insertTable() {
-    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+  // Close popover on outside click
+  useEffect(() => {
+    if (!tablePopover) return
+    function handler(e: MouseEvent) {
+      if (tableButtonRef.current && !tableButtonRef.current.closest("[data-table-popover]")?.contains(e.target as Node)) {
+        setTablePopover(false)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [tablePopover])
+
+  function handleInsertTable() {
+    const fs = tableFontSize > 0 ? `font-size:${tableFontSize}pt` : ""
+    const thAttr = fs ? ` style="${fs}"` : ""
+    const tdAttr = fs ? ` style="${fs}"` : ""
+    const numRows = Math.max(1, tableRows)
+    const numCols = Math.max(1, tableCols)
+
+    const headerCells = Array(numCols).fill(`<th${thAttr}><p></p></th>`).join("")
+    const bodyRows = Array(Math.max(1, numRows - 1))
+      .fill(`<tr>${Array(numCols).fill(`<td${tdAttr}><p></p></td>`).join("")}</tr>`)
+      .join("")
+
+    const html = `<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table><p></p>`
+    editor?.chain().focus().insertContent(html).run()
+    setTablePopover(false)
   }
 
   function insertImage() {
@@ -86,12 +143,18 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   if (!editor) return null
 
   const ToolBtn = ({
-    onClick, active, title, children,
-  }: { onClick: () => void; active?: boolean; title: string; children: React.ReactNode }) => (
+    onClick, active, title, children, btnRef, "data-table-popover": dataAttr,
+  }: {
+    onClick: () => void; active?: boolean; title: string; children: React.ReactNode
+    btnRef?: React.RefObject<HTMLButtonElement | null>
+    "data-table-popover"?: string
+  }) => (
     <button
+      ref={btnRef}
       type="button"
       onClick={onClick}
       title={title}
+      data-table-popover={dataAttr}
       className={cn(
         "p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors",
         active ? "bg-[hsl(35,25%,88%)] text-[hsl(24,85%,50%)]" : "text-[hsl(25,20%,35%)]"
@@ -153,9 +216,71 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
 
         <span className="w-px h-4 bg-[hsl(35,20%,85%)] mx-1" />
 
-        <ToolBtn onClick={insertTable} title="แทรกตาราง" active={false}>
-          <TableIcon className="w-3.5 h-3.5" />
-        </ToolBtn>
+        {/* Table button with popover */}
+        <div className="relative" data-table-popover="container">
+          <button
+            ref={tableButtonRef}
+            type="button"
+            title="แทรกตาราง"
+            data-table-popover="trigger"
+            onClick={() => setTablePopover(v => !v)}
+            className={cn(
+              "p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors",
+              tablePopover ? "bg-[hsl(35,25%,88%)] text-[hsl(24,85%,50%)]" : "text-[hsl(25,20%,35%)]"
+            )}
+          >
+            <TableIcon className="w-3.5 h-3.5" />
+          </button>
+
+          {tablePopover && (
+            <div
+              data-table-popover="panel"
+              className="absolute left-0 top-full mt-1 z-50 bg-white border border-[hsl(35,20%,85%)] rounded-xl shadow-lg p-4 w-56"
+              onMouseDown={e => e.stopPropagation()}
+            >
+              <p className="text-xs font-semibold text-[hsl(25,20%,20%)] mb-3">ตั้งค่าตาราง</p>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">จำนวนแถว</label>
+                  <input
+                    type="number" min={1} max={30} value={tableRows}
+                    onChange={e => setTableRows(Math.max(1, Number(e.target.value)))}
+                    className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">จำนวนคอลัมน์</label>
+                  <input
+                    type="number" min={1} max={10} value={tableCols}
+                    onChange={e => setTableCols(Math.max(1, Number(e.target.value)))}
+                    className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">ขนาด Text (pt)</label>
+                  <div className="relative w-full">
+                    <input
+                      type="number" min={6} max={72} value={tableFontSize}
+                      onChange={e => setTableFontSize(Math.max(6, Number(e.target.value)))}
+                      className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 pr-7 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[hsl(25,10%,55%)] pointer-events-none">pt</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleInsertTable}
+                className="mt-3 w-full rounded-lg bg-[hsl(24,85%,50%)] hover:bg-[hsl(24,85%,44%)] text-white text-xs font-semibold py-2 transition-colors"
+              >
+                แทรกตาราง
+              </button>
+            </div>
+          )}
+        </div>
+
         <ToolBtn onClick={insertImage} title="แทรกรูปภาพ" active={false}>
           <ImageIcon className="w-3.5 h-3.5" />
         </ToolBtn>
