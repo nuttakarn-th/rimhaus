@@ -209,7 +209,9 @@ export function DocumentForm({
     : 0
   const afterDiscount = subtotal - discountAmount
   const whtAmount = whtMode !== "none" ? Math.round(afterDiscount * 0.03 * 100) / 100 : 0
-  const total = afterDiscount - whtAmount
+  // grossup: total = grossed-up subtotal (shown to customer, they withhold 3% themselves)
+  // deduct:  total = afterDiscount - whtAmount
+  const total = whtMode === "grossup" ? afterDiscount : afterDiscount - whtAmount
 
   async function handleSave() {
     if (!customerName.trim()) { toast.error("กรุณาระบุชื่อลูกค้า"); return }
@@ -580,7 +582,7 @@ export function DocumentForm({
                   <Checkbox checked={whtMode === "grossup"} onCheckedChange={() => handleSetWhtMode("grossup")} />
                   <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(÷ 0.97)</span></span>
                 </span>
-                {whtMode === "grossup" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
+                {whtMode === "grossup" && <span className="text-xs text-[hsl(25,10%,50%)]">ลูกค้าหัก {formatCurrency(whtAmount)}</span>}
               </label>
             </div>
           ) : (
@@ -592,9 +594,15 @@ export function DocumentForm({
             )
           )}
           <div className="flex justify-between font-bold text-base border-t border-[hsl(35,20%,88%)] pt-2">
-            <span>ยอดรับสุทธิ</span>
+            <span>{whtMode === "grossup" ? "ยอดในเอกสาร" : "ยอดรับสุทธิ"}</span>
             <span className="text-[hsl(24,85%,50%)]">{formatCurrency(total)}</span>
           </div>
+          {whtMode === "grossup" && (
+            <div className="flex justify-between text-xs text-[hsl(25,10%,50%)]">
+              <span>ยอดรับจริงหลังลูกค้าหัก 3%</span>
+              <span>{formatCurrency(total - whtAmount)}</span>
+            </div>
+          )}
         </div>
       </div>
 

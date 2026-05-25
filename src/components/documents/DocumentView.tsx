@@ -224,7 +224,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                 </td>
                 {(() => {
                   const hasDiscount = (doc.discount_amount ?? 0) > 0
-                  const hasWht = doc.wht_rate !== 0
+                  const hasWht = doc.wht_rate > 0  // grossup (wht_rate=-3) hides WHT line
                   return (
                     <>
                       <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
@@ -275,11 +275,11 @@ export function DocumentView({ document: doc }: { document: Document }) {
                   </ul>
                 </div>
               )}
-              {(doc.payment_terms || doc.wht_rate !== 0) && (
+              {(doc.payment_terms || doc.wht_rate > 0) && (
                 <div>
                   <div className="font-bold text-[hsl(25,20%,15%)]">เงื่อนไขการชำระเงิน :</div>
                   {doc.payment_terms && <div className="mt-0.5">● {doc.payment_terms}</div>}
-                  {doc.wht_rate !== 0 && (
+                  {doc.wht_rate > 0 && (
                     <div className="mt-0.5">● กรุณาหักภาษี ณ ที่จ่าย 3% และออกหนังสือรับรองการหักภาษี ณ ที่จ่ายให้ด้วย</div>
                   )}
                 </div>
