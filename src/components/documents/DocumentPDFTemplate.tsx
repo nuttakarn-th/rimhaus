@@ -1,7 +1,5 @@
-"use client"
-
 import {
-  Document, Page, View, Text, Image, StyleSheet, Font, pdf,
+  Document, Page, View, Text, Image, StyleSheet,
 } from "@react-pdf/renderer"
 import { bahtText } from "@/lib/utils"
 import type { Document as Doc } from "@/lib/types"
@@ -10,35 +8,22 @@ const PLATFORM_LABELS: Record<string, string> = {
   facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
   youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee",
 }
-
 const DOC_TITLE: Record<string, string> = {
   quotation: "ใบเสนอราคา",
   invoice: "ใบส่งมอบงาน/ใบแจ้งหนี้",
   receipt: "ใบเสร็จรับเงิน",
 }
-
 const TITLE_COLOR: Record<string, string> = {
-  quotation: "#D97706",
-  invoice: "#2563EB",
-  receipt: "#16A34A",
+  quotation: "#D97706", invoice: "#2563EB", receipt: "#16A34A",
 }
-
 const CUSTOMER_LABEL: Record<string, string> = {
-  quotation: "เสนอ",
-  invoice: "ATTN:",
-  receipt: "ได้รับเงินจาก",
+  quotation: "เสนอ", invoice: "ATTN:", receipt: "ได้รับเงินจาก",
 }
-
 const SIG_LEFT: Record<string, string> = {
-  quotation: "ลูกค้า/ผู้อนุมัติ",
-  invoice: "ผู้รับงาน",
-  receipt: "ผู้จ่ายเงิน",
+  quotation: "ลูกค้า/ผู้อนุมัติ", invoice: "ผู้รับงาน", receipt: "ผู้จ่ายเงิน",
 }
-
 const SIG_RIGHT: Record<string, string> = {
-  quotation: "ผู้เสนอราคา",
-  invoice: "ผู้ส่งงาน",
-  receipt: "ผู้รับเงิน",
+  quotation: "ผู้เสนอราคา", invoice: "ผู้ส่งงาน", receipt: "ผู้รับเงิน",
 }
 
 function formatThaiDate(dateStr: string) {
@@ -46,7 +31,6 @@ function formatThaiDate(dateStr: string) {
     year: "numeric", month: "numeric", day: "numeric",
   })
 }
-
 function fmt(n: number) {
   return n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -64,7 +48,6 @@ const S = StyleSheet.create({
   row: { flexDirection: "row" },
   flex1: { flex: 1 },
 
-  // Header
   issuerName: { fontSize: 11, fontWeight: "bold" },
   issuerDetail: { color: "#57534e", fontSize: 8, marginTop: 2 },
   headerRight: { alignItems: "flex-end", minWidth: 170 },
@@ -75,13 +58,11 @@ const S = StyleSheet.create({
 
   divider: { marginTop: 10, marginBottom: 10, borderBottom: "0.5pt solid #d4cdc4" },
 
-  // Customer
   custRow: { flexDirection: "row", marginTop: 3 },
   custLabel: { fontWeight: "bold", width: 40, flexShrink: 0 },
   custValue: { flex: 1, fontWeight: "bold" },
   custDetail: { color: "#57534e", fontSize: 8 },
 
-  // Table
   tHead: {
     flexDirection: "row",
     backgroundColor: "#292524",
@@ -108,33 +89,24 @@ const S = StyleSheet.create({
   cAmount: { width: 72, textAlign: "right" },
   thText: { fontSize: 8, fontWeight: "bold" },
 
-  // Remarks
   secTitle: { fontWeight: "bold", marginTop: 8, marginBottom: 2 },
   bulletRow: { flexDirection: "row", marginTop: 2 },
   bullet: { width: 12 },
   bulletText: { flex: 1, color: "#44403c" },
 
-  // Signatures
   sigRow: { flexDirection: "row", marginTop: 20 },
-  sigBox: {
-    flex: 1,
-    border: "0.5pt solid #c9bfb3",
-    borderRadius: 3,
-    padding: 10,
-    minHeight: 90,
-  },
+  sigBox: { flex: 1, border: "0.5pt solid #c9bfb3", borderRadius: 3, padding: 10, minHeight: 90 },
   sigBoxLeft: { marginRight: 8 },
   sigLabel: { fontWeight: "bold", fontSize: 9, marginBottom: 6 },
   sigLine: { borderBottom: "0.5pt solid #57534e", marginTop: 16, marginBottom: 4, marginHorizontal: 8 },
   sigName: { color: "#44403c", fontSize: 8, textAlign: "center" },
   sigDate: { color: "#78716c", fontSize: 8, textAlign: "center", marginTop: 2 },
-
   footerNote: { marginTop: 8, fontSize: 8, color: "#78716c" },
   logoImage: { maxHeight: 52, maxWidth: 190, marginBottom: 4 },
   sigImage: { maxHeight: 34, maxWidth: 120, marginTop: 4, marginBottom: 4, alignSelf: "center" },
 })
 
-export function DocumentPDFContent({ doc }: { doc: Doc }) {
+export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
   const titleColor = TITLE_COLOR[doc.doc_type] ?? "#D97706"
   const title = DOC_TITLE[doc.doc_type] ?? doc.doc_type
   const isInvoice = doc.doc_type === "invoice"
@@ -157,9 +129,7 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
               <Image src={doc.issuer_header_image_url} style={S.logoImage} />
             )}
             {doc.issuer_name && <Text style={S.issuerName}>{doc.issuer_name}</Text>}
-            {doc.issuer_address && (
-              <Text style={S.issuerDetail}>{doc.issuer_address}</Text>
-            )}
+            {doc.issuer_address && <Text style={S.issuerDetail}>{doc.issuer_address}</Text>}
             {(doc.issuer_phone || doc.issuer_email) && (
               <Text style={S.issuerDetail}>
                 {[
@@ -172,7 +142,6 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
               <Text style={S.issuerDetail}>เลขที่บัตรประชาชน {doc.issuer_id_card}</Text>
             )}
           </View>
-
           <View style={S.headerRight}>
             <Text style={[S.docTitle, { color: titleColor }]}>{title}</Text>
             <View style={S.metaRow}>
@@ -221,7 +190,7 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
           </View>
         ) : null}
 
-        {/* Items table */}
+        {/* Table */}
         <View style={S.tHead}>
           <Text style={[S.cNo, S.thText]}>ลำดับ</Text>
           <Text style={[S.cDesc, S.thText]}>รายการ</Text>
@@ -229,7 +198,6 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
           <Text style={[S.cPrice, S.thText]}>ราคาต่อหน่วย</Text>
           <Text style={[S.cAmount, S.thText]}>จำนวนเงิน</Text>
         </View>
-
         {doc.document_items?.map((item, i) => (
           <View key={item.id} style={S.tRow} wrap={false}>
             <Text style={[S.cNo, { color: "#78716c" }]}>{i + 1}</Text>
@@ -310,7 +278,6 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
           </View>
         )}
 
-        {/* Invoice delivery note */}
         {isInvoice && (
           <Text style={{ marginTop: 10, fontWeight: "bold", fontSize: 9 }}>
             ได้รับงานตามรายการข้างต้นไว้โดยถูกต้องและเรียบร้อย
@@ -336,7 +303,6 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
           </View>
         </View>
 
-        {/* Footer for quotation */}
         {isQuotation && (doc.issuer_contact_line || doc.issuer_email) && (
           <Text style={S.footerNote}>
             {doc.issuer_contact_line
@@ -350,22 +316,7 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
   )
 }
 
-// -------- Font registration (lazy, browser-only) --------
-let fontReady = false
-export function ensureFont() {
-  if (fontReady) return
-  Font.register({
-    family: "NotoSansThai",
-    fonts: [
-      { src: `${window.location.origin}/fonts/NotoSansThai-Regular.ttf` },
-      { src: `${window.location.origin}/fonts/NotoSansThai-Bold.ttf`, fontWeight: "bold" },
-    ],
-  })
-  fontReady = true
-}
-
-// -------- Filename helper --------
-export function getDocFilename(doc: Doc): string {
+export function getDocFilename(doc: Pick<Doc, "doc_type" | "doc_number" | "doc_date" | "customer_name">): string {
   const typeLabel: Record<string, string> = {
     quotation: "ใบเสนอราคา", invoice: "ใบส่งมอบงาน", receipt: "ใบเสร็จ",
   }
@@ -376,16 +327,4 @@ export function getDocFilename(doc: Doc): string {
   const yy = String(d.getFullYear()).slice(-2)
   const cust = (doc.customer_name ?? "").replace(/\s+/g, "")
   return `${typeLabel[doc.doc_type] ?? doc.doc_type}${run}_${cust}_${dd}${mm}${yy}.pdf`
-}
-
-// -------- Core download function --------
-export async function downloadDocPDF(doc: Doc) {
-  ensureFont()
-  const blob = await pdf(<DocumentPDFContent doc={doc} />).toBlob()
-  const url = URL.createObjectURL(blob)
-  const a = window.document.createElement("a")
-  a.href = url
-  a.download = getDocFilename(doc)
-  a.click()
-  URL.revokeObjectURL(url)
 }
