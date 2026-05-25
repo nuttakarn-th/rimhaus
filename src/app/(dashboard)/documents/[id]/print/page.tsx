@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getDocument } from "@/actions/documents.actions"
 import { PrintDocButton } from "@/components/documents/PrintDocButton"
-import { bahtText } from "@/lib/utils"
+import { bahtText, buildDocFilename } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
 
 function formatThaiDate(dateStr: string) {
@@ -49,7 +49,7 @@ export default async function DocumentPrintPage({
         <Link href={`/documents/${id}`} className="text-sm text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] transition-colors">
           ← กลับ
         </Link>
-        <PrintDocButton auto={auto === "1"} />
+        <PrintDocButton auto={auto === "1"} filename={buildDocFilename(doc)} />
       </div>
 
       {/* Document */}
