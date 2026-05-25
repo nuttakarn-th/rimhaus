@@ -567,14 +567,14 @@ export function DocumentForm({
           )}
           {docType === "quotation" ? (
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between cursor-pointer" onClick={() => handleSetWhtMode("deduct")}>
+              <label className="flex items-center justify-between cursor-pointer">
                 <span className="flex items-center gap-2">
                   <Checkbox checked={whtMode === "deduct"} onCheckedChange={() => handleSetWhtMode("deduct")} />
                   <span className="text-[hsl(25,10%,50%)] text-sm">หักภาษี ณ ที่จ่าย 3%</span>
                 </span>
                 {whtMode === "deduct" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
               </label>
-              <label className="flex items-center justify-between cursor-pointer" onClick={() => handleSetWhtMode("grossup")}>
+              <label className="flex items-center justify-between cursor-pointer">
                 <span className="flex items-center gap-2">
                   <Checkbox checked={whtMode === "grossup"} onCheckedChange={() => handleSetWhtMode("grossup")} />
                   <span className="text-[hsl(25,10%,50%)] text-sm">เพิ่มราคา ก่อนหัก 3% <span className="text-xs text-[hsl(25,10%,65%)]">(ราคารายการ ÷ 0.97)</span></span>
