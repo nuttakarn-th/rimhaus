@@ -40,6 +40,22 @@ export function DocumentView({ document: doc }: { document: Document }) {
     router.push("/documents")
   }
 
+  function handleDownloadPDF() {
+    const typeLabel: Record<string, string> = { quotation: "ใบเสนอราคา", invoice: "ใบส่งมอบงาน", receipt: "ใบเสร็จ" }
+    const parts = doc.doc_number.split("-")
+    const runNumber = parts[parts.length - 1] ?? ""
+    const d = new Date(doc.doc_date)
+    const dd = String(d.getDate()).padStart(2, "0")
+    const mm = String(d.getMonth() + 1).padStart(2, "0")
+    const yy = String(d.getFullYear()).slice(-2)
+    const customer = (doc.customer_name ?? "").replace(/\s+/g, "")
+    const filename = `${typeLabel[doc.doc_type] ?? doc.doc_type}${runNumber}_${customer}_${dd}${mm}${yy}`
+    const prev = window.document.title
+    window.document.title = filename
+    window.print()
+    window.document.title = prev
+  }
+
   const isQuotation = doc.doc_type === "quotation"
   const isInvoice = doc.doc_type === "invoice"
   const isReceipt = doc.doc_type === "receipt"
@@ -71,8 +87,8 @@ export function DocumentView({ document: doc }: { document: Document }) {
           {DOC_STATUS_LABELS[status]}
         </span>
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
-            <Printer className="w-3.5 h-3.5 mr-1.5" />พิมพ์ / PDF
+          <Button size="sm" variant="outline" onClick={handleDownloadPDF}>
+            <Printer className="w-3.5 h-3.5 mr-1.5" />Download PDF
           </Button>
           <Link href={`/documents/${doc.id}/edit`}>
             <Button size="sm" variant="outline">
