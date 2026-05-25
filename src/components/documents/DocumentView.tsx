@@ -55,25 +55,38 @@ export function DocumentView({ document: doc }: { document: Document }) {
     if (!element) return
 
     Promise.all([import("html2canvas"), import("jspdf")]).then(async ([{ default: html2canvas }, { jsPDF }]) => {
+      // Strip inner padding so jsPDF margins control whitespace exactly
+      const prevPadding = element.style.padding
+      const prevMaxWidth = element.style.maxWidth
+      const prevWidth = element.style.width
+      element.style.padding = "0"
+      element.style.maxWidth = "none"
+      element.style.width = "794px"
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
       })
+
+      element.style.padding = prevPadding
+      element.style.maxWidth = prevMaxWidth
+      element.style.width = prevWidth
+
       const imgData = canvas.toDataURL("image/png")
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-      const pageW = pdf.internal.pageSize.getWidth()
-      const pageH = pdf.internal.pageSize.getHeight()
-      const margin = { top: 20, bottom: 20, left: 15, right: 15 }
-      const printW = pageW - margin.left - margin.right
-      const printH = pageH - margin.top - margin.bottom
+      const pageW = pdf.internal.pageSize.getWidth()   // 210mm
+      const pageH = pdf.internal.pageSize.getHeight()  // 297mm
+      const mTop = 20, mBottom = 20, mLeft = 15, mRight = 15
+      const printW = pageW - mLeft - mRight
+      const printH = pageH - mTop - mBottom
       const imgH = (canvas.height * printW) / canvas.width
-      let y = 0
-      while (y < imgH) {
-        if (y > 0) pdf.addPage()
-        pdf.addImage(imgData, "PNG", margin.left, margin.top - y, printW, imgH)
-        y += printH
+      let sliceY = 0
+      while (sliceY < imgH) {
+        if (sliceY > 0) pdf.addPage()
+        pdf.addImage(imgData, "PNG", mLeft, mTop - sliceY, printW, imgH)
+        sliceY += printH
       }
       pdf.save(filename)
     })
@@ -125,9 +138,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
       </div>
 
       {/* ===== A4 DOCUMENT ===== */}
-      <div id="doc-printarea" className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
-        <div className="p-10 print:p-0 max-w-[794px] mx-auto print:max-w-none">
+        <div id="doc-printarea" className="p-10 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
           {/* Header: issuer left, title+number right */}
           <div className="flex justify-between items-start mb-6">
