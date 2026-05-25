@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2, TrendingUp, PlusCircle } from "lucide-react"
+import { Plus, Trash2, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
@@ -82,6 +82,7 @@ export function DocumentForm({
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
   const [whtEnabled, setWhtEnabled] = useState((document?.wht_rate ?? 0) > 0)
+  const [grossedUp, setGrossedUp] = useState(false)
   const [discountType, setDiscountType] = useState<"%" | "฿">((document?.discount_type as "%" | "฿") ?? "%")
   const [discountValue, setDiscountValue] = useState(document?.discount_value ?? 0)
   const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? DEFAULT_PAYMENT_TERMS[document?.doc_type ?? "quotation"])
@@ -184,22 +185,14 @@ export function DocumentForm({
     })
   }
 
-  function handleGrossUp() {
-    setItems(prev => prev.map(item => {
-      const newUnitPrice = Math.round(item.unit_price / 0.97 * 100) / 100
-      const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
-      return { ...item, unit_price: newUnitPrice, amount: newAmount }
-    }))
-    setWhtEnabled(true)
-  }
-
   function handleGrossUpHidden() {
+    if (grossedUp) return
     setItems(prev => prev.map(item => {
       const newUnitPrice = Math.round(item.unit_price / 0.97 * 100) / 100
       const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
       return { ...item, unit_price: newUnitPrice, amount: newAmount }
     }))
-    // intentionally does not change whtEnabled — user controls the checkbox
+    setGrossedUp(true)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -575,20 +568,12 @@ export function DocumentForm({
                 <button
                   type="button"
                   onClick={handleGrossUpHidden}
-                  title="ปรับราคา ÷ 0.97 เพื่อให้ได้ราคาเต็ม — ไม่แสดงบรรทัดหัก WHT ในเอกสาร"
-                  className="flex items-center gap-1 text-xs text-emerald-600 border border-emerald-500 rounded-md px-2 py-1 hover:bg-emerald-50 transition-colors"
+                  disabled={grossedUp}
+                  title="ปรับราคา ÷ 0.97 เพื่อให้ได้ราคาเต็ม (กดได้ครั้งเดียว)"
+                  className="flex items-center gap-1 text-xs text-emerald-600 border border-emerald-500 rounded-md px-2 py-1 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <PlusCircle className="w-3 h-3" />
                   เพิ่มราคา ก่อนหัก 3%
-                </button>
-                <button
-                  type="button"
-                  onClick={handleGrossUp}
-                  title="ปรับราคาทุกรายการ ÷ 0.97 เพื่อให้ยอดรับสุทธิหลังหัก WHT เท่ากับราคา Package จริง"
-                  className="flex items-center gap-1 text-xs text-[hsl(24,85%,50%)] border border-[hsl(24,85%,50%)] rounded-md px-2 py-1 hover:bg-orange-50 transition-colors"
-                >
-                  <TrendingUp className="w-3 h-3" />
-                  Gross Up WHT
                 </button>
                 <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
               </div>
