@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
+import { Mark, mergeAttributes } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Image from "@tiptap/extension-image"
@@ -16,13 +17,29 @@ import {
   Heading1, Heading2, Heading3,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   TableIcon, Image as ImageIcon,
-  Undo2, Redo2, Minus,
+  Undo2, Redo2, Minus, Type,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const BRIEF_TEMPLATE = `<h2>Story / Concept</h2><p>เล่าเรื่องหรือแนวคิดหลักของคอนเทนต์...</p><h2>Scene</h2><p>Scene 1: ...</p><p>Scene 2: ...</p><p>Scene 3: ...</p>`
 
-// Extend TableCell and TableHeader to preserve inline style (for font-size)
+// Custom mark: wraps selected text with font-size inline style
+const FontSizeMark = Mark.create({
+  name: "textStyle",
+  addAttributes() {
+    return {
+      fontSize: {
+        default: null,
+        parseHTML: el => (el as HTMLElement).style.fontSize || null,
+        renderHTML: attrs => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
+      },
+    }
+  },
+  parseHTML() { return [{ tag: "span[style*=font-size]" }] },
+  renderHTML({ HTMLAttributes }) { return ["span", mergeAttributes(HTMLAttributes), 0] },
+})
+
+// Extend TableCell and TableHeader to preserve inline style
 const StyledTableCell = TableCell.extend({
   addAttributes() {
     return {
@@ -62,11 +79,13 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   const [tablePopover, setTablePopover] = useState(false)
   const [tableRows, setTableRows] = useState(3)
   const [tableCols, setTableCols] = useState(3)
-  const [tableFontSize, setTableFontSize] = useState(10)
+
+  const [toolbarFontSize, setToolbarFontSize] = useState(10)
 
   const editor = useEditor({
     extensions: [
       StarterKit,
+      FontSizeMark,
       Underline,
       Image.configure({ inline: false, allowBase64: true }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -96,46 +115,55 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
-  // Close popover on outside click
+  // Sync toolbar font size display from cursor position
+  useEffect(() => {
+    if (!editor) return
+    function update() {
+      const attrs = editor.getAttributes("textStyle")
+      if (attrs.fontSize) {
+        const num = parseFloat(attrs.fontSize)
+        if (!isNaN(num)) setToolbarFontSize(num)
+      }
+    }
+    editor.on("selectionUpdate", update)
+    return () => { editor.off("selectionUpdate", update) }
+  }, [editor])
+
+  // Close table popover on outside click
   useEffect(() => {
     if (!tablePopover) return
     function handler(e: MouseEvent) {
-      if (tableButtonRef.current && !tableButtonRef.current.closest("[data-table-popover]")?.contains(e.target as Node)) {
-        setTablePopover(false)
-      }
+      const panel = document.querySelector("[data-table-popover='container']")
+      if (panel && !panel.contains(e.target as Node)) setTablePopover(false)
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
   }, [tablePopover])
 
+  function applyFontSize(size: number) {
+    if (!editor) return
+    editor.chain().focus().setMark("textStyle", { fontSize: `${size}pt` }).run()
+  }
+
   function handleInsertTable() {
-    const fs = tableFontSize > 0 ? `font-size:${tableFontSize}pt` : ""
-    const thAttr = fs ? ` style="${fs}"` : ""
-    const tdAttr = fs ? ` style="${fs}"` : ""
     const numRows = Math.max(1, tableRows)
     const numCols = Math.max(1, tableCols)
-
-    const headerCells = Array(numCols).fill(`<th${thAttr}><p></p></th>`).join("")
+    const headerCells = Array(numCols).fill(`<th><p></p></th>`).join("")
     const bodyRows = Array(Math.max(1, numRows - 1))
-      .fill(`<tr>${Array(numCols).fill(`<td${tdAttr}><p></p></td>`).join("")}</tr>`)
+      .fill(`<tr>${Array(numCols).fill(`<td><p></p></td>`).join("")}</tr>`)
       .join("")
-
     const html = `<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table><p></p>`
     editor?.chain().focus().insertContent(html).run()
     setTablePopover(false)
   }
 
-  function insertImage() {
-    imageInputRef.current?.click()
-  }
+  function insertImage() { imageInputRef.current?.click() }
 
   function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !editor) return
     const reader = new FileReader()
-    reader.onload = () => {
-      editor.chain().focus().setImage({ src: reader.result as string }).run()
-    }
+    reader.onload = () => { editor.chain().focus().setImage({ src: reader.result as string }).run() }
     reader.readAsDataURL(file)
     e.target.value = ""
   }
@@ -143,18 +171,10 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   if (!editor) return null
 
   const ToolBtn = ({
-    onClick, active, title, children, btnRef, "data-table-popover": dataAttr,
-  }: {
-    onClick: () => void; active?: boolean; title: string; children: React.ReactNode
-    btnRef?: React.RefObject<HTMLButtonElement | null>
-    "data-table-popover"?: string
-  }) => (
+    onClick, active, title, children,
+  }: { onClick: () => void; active?: boolean; title: string; children: React.ReactNode }) => (
     <button
-      ref={btnRef}
-      type="button"
-      onClick={onClick}
-      title={title}
-      data-table-popover={dataAttr}
+      type="button" onClick={onClick} title={title}
       className={cn(
         "p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors",
         active ? "bg-[hsl(35,25%,88%)] text-[hsl(24,85%,50%)]" : "text-[hsl(25,20%,35%)]"
@@ -168,6 +188,21 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
     <div className="border border-[hsl(35,20%,88%)] rounded-xl overflow-hidden bg-white">
       {/* Toolbar */}
       <div className="flex items-center gap-0.5 px-3 py-2 border-b border-[hsl(35,20%,92%)] bg-[hsl(35,30%,98%)] flex-wrap">
+
+        {/* Font size — standalone outside any group */}
+        <div className="flex items-center gap-1 mr-1" title="ขนาด Text (กด Enter เพื่อใช้)">
+          <Type className="w-3.5 h-3.5 text-[hsl(25,20%,35%)]" />
+          <input
+            type="number" min={6} max={144} value={toolbarFontSize}
+            onChange={e => setToolbarFontSize(Number(e.target.value))}
+            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); applyFontSize(toolbarFontSize) } }}
+            className="w-11 px-1 py-0.5 text-xs text-center border border-[hsl(35,20%,83%)] rounded-md focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)] bg-white"
+          />
+          <span className="text-xs text-[hsl(25,10%,55%)]">pt</span>
+        </div>
+
+        <span className="w-px h-4 bg-[hsl(35,20%,85%)] mx-1" />
+
         <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="ตัวหนา">
           <Bold className="w-3.5 h-3.5" />
         </ToolBtn>
@@ -222,7 +257,6 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
             ref={tableButtonRef}
             type="button"
             title="แทรกตาราง"
-            data-table-popover="trigger"
             onClick={() => setTablePopover(v => !v)}
             className={cn(
               "p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors",
@@ -234,42 +268,28 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
 
           {tablePopover && (
             <div
-              data-table-popover="panel"
-              className="absolute left-0 top-full mt-1 z-50 bg-white border border-[hsl(35,20%,85%)] rounded-xl shadow-lg p-4 w-56"
+              className="absolute left-0 top-full mt-1 z-50 bg-white border border-[hsl(35,20%,85%)] rounded-xl shadow-lg p-4 w-44"
               onMouseDown={e => e.stopPropagation()}
             >
               <p className="text-xs font-semibold text-[hsl(25,20%,20%)] mb-3">ตั้งค่าตาราง</p>
-
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">จำนวนแถว</label>
+                  <label className="text-xs text-[hsl(25,10%,45%)] shrink-0">แถว</label>
                   <input
                     type="number" min={1} max={30} value={tableRows}
                     onChange={e => setTableRows(Math.max(1, Number(e.target.value)))}
-                    className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+                    className="w-16 rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
                   />
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">จำนวนคอลัมน์</label>
+                  <label className="text-xs text-[hsl(25,10%,45%)] shrink-0">คอลัมน์</label>
                   <input
                     type="number" min={1} max={10} value={tableCols}
                     onChange={e => setTableCols(Math.max(1, Number(e.target.value)))}
-                    className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+                    className="w-16 rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
                   />
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs text-[hsl(25,10%,45%)] w-20 shrink-0">ขนาด Text (pt)</label>
-                  <div className="relative w-full">
-                    <input
-                      type="number" min={6} max={72} value={tableFontSize}
-                      onChange={e => setTableFontSize(Math.max(6, Number(e.target.value)))}
-                      className="w-full rounded-md border border-[hsl(35,20%,85%)] px-2 py-1 pr-7 text-sm text-right focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
-                    />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[hsl(25,10%,55%)] pointer-events-none">pt</span>
-                  </div>
-                </div>
               </div>
-
               <button
                 type="button"
                 onClick={handleInsertTable}
