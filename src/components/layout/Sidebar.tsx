@@ -17,6 +17,7 @@ import {
   LogOut,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react"
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/documents", icon: FileText, label: "เอกสาร" },
   { href: "/settings/issuers", icon: User, label: "ผู้ออกเอกสาร" },
   { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },
+  { href: "/settings/line", icon: MessageSquare, label: "LINE Bot" },
 ]
 
 export function Sidebar() {
