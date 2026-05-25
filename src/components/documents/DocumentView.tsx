@@ -49,11 +49,34 @@ export function DocumentView({ document: doc }: { document: Document }) {
     const mm = String(d.getMonth() + 1).padStart(2, "0")
     const yy = String(d.getFullYear()).slice(-2)
     const customer = (doc.customer_name ?? "").replace(/\s+/g, "")
-    const filename = `${typeLabel[doc.doc_type] ?? doc.doc_type}${runNumber}_${customer}_${dd}${mm}${yy}`
-    const prev = window.document.title
-    window.document.title = filename
-    window.print()
-    window.document.title = prev
+    const filename = `${typeLabel[doc.doc_type] ?? doc.doc_type}${runNumber}_${customer}_${dd}${mm}${yy}.pdf`
+
+    const element = window.document.getElementById("doc-printarea")
+    if (!element) return
+
+    Promise.all([import("html2canvas"), import("jspdf")]).then(async ([{ default: html2canvas }, { jsPDF }]) => {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      })
+      const imgData = canvas.toDataURL("image/png")
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const margin = { top: 20, bottom: 20, left: 15, right: 15 }
+      const printW = pageW - margin.left - margin.right
+      const printH = pageH - margin.top - margin.bottom
+      const imgH = (canvas.height * printW) / canvas.width
+      let y = 0
+      while (y < imgH) {
+        if (y > 0) pdf.addPage()
+        pdf.addImage(imgData, "PNG", margin.left, margin.top - y, printW, imgH)
+        y += printH
+      }
+      pdf.save(filename)
+    })
   }
 
   const isQuotation = doc.doc_type === "quotation"
@@ -102,7 +125,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
       </div>
 
       {/* ===== A4 DOCUMENT ===== */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
+      <div id="doc-printarea" className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none print:m-0"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
         <div className="p-10 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
