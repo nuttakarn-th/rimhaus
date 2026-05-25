@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  webpack: (config) => {
+    // Required for @react-pdf/renderer (uses WASM-based Yoga layout engine)
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    }
+    return config
+  },
 };
 
 export default nextConfig;

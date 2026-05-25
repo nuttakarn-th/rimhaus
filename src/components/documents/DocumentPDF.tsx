@@ -53,7 +53,7 @@ function fmt(n: number) {
 
 const S = StyleSheet.create({
   page: {
-    fontFamily: "Sarabun",
+    fontFamily: "NotoSansThai",
     fontSize: 9,
     paddingTop: 36,
     paddingBottom: 36,
@@ -352,13 +352,13 @@ export function DocumentPDFContent({ doc }: { doc: Doc }) {
 
 // -------- Font registration (lazy, browser-only) --------
 let fontReady = false
-export function ensureSarabunFont() {
+export function ensureFont() {
   if (fontReady) return
   Font.register({
-    family: "Sarabun",
+    family: "NotoSansThai",
     fonts: [
-      { src: `${window.location.origin}/fonts/Sarabun-Regular.ttf` },
-      { src: `${window.location.origin}/fonts/Sarabun-Bold.ttf`, fontWeight: "bold" },
+      { src: `${window.location.origin}/fonts/NotoSansThai-Regular.ttf` },
+      { src: `${window.location.origin}/fonts/NotoSansThai-Bold.ttf`, fontWeight: "bold" },
     ],
   })
   fontReady = true
@@ -380,7 +380,7 @@ export function getDocFilename(doc: Doc): string {
 
 // -------- Core download function --------
 export async function downloadDocPDF(doc: Doc) {
-  ensureSarabunFont()
+  ensureFont()
   const blob = await pdf(<DocumentPDFContent doc={doc} />).toBlob()
   const url = URL.createObjectURL(blob)
   const a = window.document.createElement("a")
