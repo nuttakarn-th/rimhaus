@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2, TrendingUp } from "lucide-react"
+import { Plus, Trash2, TrendingUp, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
@@ -189,6 +189,15 @@ export function DocumentForm({
       return { ...item, unit_price: newUnitPrice, amount: newAmount }
     }))
     setWhtEnabled(true)
+  }
+
+  function handleGrossUpHidden() {
+    setItems(prev => prev.map(item => {
+      const newUnitPrice = Math.round(item.unit_price / 0.97 * 100) / 100
+      const newAmount = Math.round(newUnitPrice * item.quantity * 100) / 100
+      return { ...item, unit_price: newUnitPrice, amount: newAmount }
+    }))
+    setWhtEnabled(false)
   }
 
   const subtotal = items.reduce((s, i) => s + (i.amount || 0), 0)
@@ -521,7 +530,16 @@ export function DocumentForm({
                 <Checkbox checked={whtEnabled} onCheckedChange={v => setWhtEnabled(Boolean(v))} />
                 <span className="text-[hsl(25,10%,50%)]">หักภาษี ณ ที่จ่าย 3%</span>
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleGrossUpHidden}
+                  title="ปรับราคา ÷ 0.97 เพื่อให้ได้ราคาเต็ม — ไม่แสดงบรรทัดหัก WHT ในเอกสาร"
+                  className="flex items-center gap-1 text-xs text-emerald-600 border border-emerald-500 rounded-md px-2 py-1 hover:bg-emerald-50 transition-colors"
+                >
+                  <PlusCircle className="w-3 h-3" />
+                  เพิ่มราคา ก่อนหัก 3%
+                </button>
                 <button
                   type="button"
                   onClick={handleGrossUp}
