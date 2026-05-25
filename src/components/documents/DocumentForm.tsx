@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { upsertDocument, generateDocNumber, getDocument } from "@/actions/documents.actions"
@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, ChevronsUpDown, Check, Search } from "lucide-react"
 import { toast } from "sonner"
 import { formatCurrency } from "@/lib/utils"
 import { DOC_TYPE_LABELS } from "@/lib/constants"
@@ -81,6 +82,9 @@ export function DocumentForm({
   const [customerAddress, setCustomerAddress] = useState(document?.customer_address ?? "")
   const [customerTaxId, setCustomerTaxId] = useState(document?.customer_tax_id ?? "")
   const [customerContact, setCustomerContact] = useState(document?.customer_contact ?? "")
+  const [customerOpen, setCustomerOpen] = useState(false)
+  const [customerSearch, setCustomerSearch] = useState("")
+  const customerTriggerRef = useRef<HTMLButtonElement>(null)
 
   const [linkedQuotationId, setLinkedQuotationId] = useState(document?.linked_quotation_id ?? "")
   const [docPlatforms, setDocPlatforms] = useState<string[]>(document?.platforms ?? [])
@@ -410,12 +414,69 @@ export function DocumentForm({
             {customers.length > 0 && (
               <div className="space-y-1">
                 <Label className="text-xs">เลือกจากฐานข้อมูล (ไม่บังคับ)</Label>
-                <Select value={customerId} onValueChange={setCustomerId}>
-                  <SelectTrigger><SelectValue placeholder="เลือกลูกค้า..." /></SelectTrigger>
-                  <SelectContent>
-                    {customers.map(c => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-                  </SelectContent>
-                </Select>
+                <Popover open={customerOpen} onOpenChange={open => { setCustomerOpen(open); if (open) setCustomerSearch("") }}>
+                  <PopoverTrigger asChild>
+                    <button
+                      ref={customerTriggerRef}
+                      type="button"
+                      className="flex w-full items-center justify-between rounded-lg border border-[hsl(35,20%,88%)] bg-white px-3 py-2 text-sm text-left shadow-sm hover:border-[hsl(35,20%,70%)] focus:outline-none focus:ring-2 focus:ring-[hsl(24,85%,50%)] focus:ring-offset-0 transition-colors"
+                    >
+                      <span className={customerId ? "text-[hsl(25,20%,15%)]" : "text-[hsl(25,10%,60%)]"}>
+                        {customerId ? (customers.find(c => c.id === customerId)?.name ?? "เลือกลูกค้า...") : "เลือกลูกค้า..."}
+                      </span>
+                      <ChevronsUpDown className="w-4 h-4 text-[hsl(25,10%,55%)] shrink-0 ml-2" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="p-0"
+                    style={{ width: customerTriggerRef.current?.offsetWidth ?? 300 }}
+                  >
+                    {/* Search input */}
+                    <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[hsl(35,20%,88%)]">
+                      <Search className="w-3.5 h-3.5 text-[hsl(25,10%,55%)] shrink-0" />
+                      <input
+                        autoFocus
+                        value={customerSearch}
+                        onChange={e => setCustomerSearch(e.target.value)}
+                        placeholder="ค้นหาลูกค้า..."
+                        className="flex-1 text-sm bg-transparent outline-none placeholder:text-[hsl(25,10%,60%)]"
+                      />
+                    </div>
+                    {/* List */}
+                    <div className="max-h-56 overflow-y-auto py-1">
+                      {customerId && (
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[hsl(25,10%,50%)] hover:bg-[hsl(35,30%,97%)] transition-colors"
+                          onClick={() => { setCustomerId(""); setCustomerSearch(""); setCustomerOpen(false) }}
+                        >
+                          <span className="w-4" />
+                          <span className="italic">ล้างการเลือก</span>
+                        </button>
+                      )}
+                      {customers
+                        .filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()))
+                        .map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)] transition-colors"
+                            onClick={() => { setCustomerId(c.id); setCustomerOpen(false) }}
+                          >
+                            <Check className={`w-4 h-4 shrink-0 text-[hsl(24,85%,50%)] ${c.id === customerId ? "opacity-100" : "opacity-0"}`} />
+                            <div className="text-left min-w-0">
+                              <div className="font-medium truncate">{c.name}</div>
+                              {c.contact_name && <div className="text-xs text-[hsl(25,10%,50%)] truncate">{c.contact_name}</div>}
+                            </div>
+                          </button>
+                        ))}
+                      {customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).length === 0 && (
+                        <p className="px-3 py-4 text-sm text-center text-[hsl(25,10%,55%)]">ไม่พบลูกค้า</p>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
             <div className="space-y-1">
