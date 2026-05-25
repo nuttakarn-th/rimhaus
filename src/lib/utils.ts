@@ -32,6 +32,16 @@ export function formatDateThai(date: string | Date): string {
   }).format(d)
 }
 
+export function buildDocFilename(doc: { doc_type: string; doc_number: string; doc_date: string; customer_name: string | null }): string {
+  const label: Record<string, string> = { quotation: "ใบเสนอราคา", invoice: "ใบส่งมอบงาน", receipt: "ใบเสร็จ" }
+  const run = doc.doc_number.split("-").pop() ?? ""
+  const d = new Date(doc.doc_date)
+  const dd = String(d.getDate()).padStart(2, "0")
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const yy = String(d.getFullYear()).slice(-2)
+  return `${label[doc.doc_type] ?? doc.doc_type}${run}_${(doc.customer_name ?? "").replace(/\s+/g, "")}_${dd}${mm}${yy}`
+}
+
 const ONES_TH = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"]
 const PLACES_TH = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน"]
 

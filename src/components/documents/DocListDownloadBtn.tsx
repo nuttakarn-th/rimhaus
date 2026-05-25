@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button"
 
 export function DocListDownloadBtn({ docId }: { docId: string }) {
   return (
-    <a href={`/api/documents/${docId}/pdf`}>
-      <Button size="sm" variant="ghost" className="text-blue-500 hover:text-blue-700">
-        <Download className="w-3.5 h-3.5" />
-      </Button>
-    </a>
+    <Button
+      size="sm"
+      variant="ghost"
+      className="text-blue-500 hover:text-blue-700"
+      onClick={() => window.open(`/documents/${docId}?print=1`, "_blank", "noopener")}
+    >
+      <Download className="w-3.5 h-3.5" />
+    </Button>
   )
 }
