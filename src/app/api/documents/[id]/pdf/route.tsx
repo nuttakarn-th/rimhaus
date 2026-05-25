@@ -1,5 +1,5 @@
 import { PDFDocument, rgb } from "pdf-lib"
-import fontkit from "@pdf-lib/fontkit"
+import * as fontkit from "@pdf-lib/fontkit"
 import { getDocument } from "@/actions/documents.actions"
 import { buildDocFilename, bahtText } from "@/lib/utils"
 import { NOTO_SANS_THAI_REGULAR, NOTO_SANS_THAI_BOLD } from "@/lib/pdf-fonts"
