@@ -1,10 +1,11 @@
 import Link from "next/link"
 import { getDocumentsWithLinks } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
-import { Plus, FileText, Pencil, FileCheck, Receipt, Download } from "lucide-react"
+import { Plus, FileText, Pencil, FileCheck, Receipt } from "lucide-react"
 import { DOC_TYPE_LABELS, DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
 import { formatCurrency, cn } from "@/lib/utils"
 import { DeleteDocumentButton } from "@/components/documents/DeleteDocumentButton"
+import { DocListDownloadBtn } from "@/components/documents/DocListDownloadBtn"
 import type { DocType } from "@/lib/types"
 
 const DOC_TYPE_BADGE: Record<string, string> = {
@@ -150,11 +151,7 @@ export default async function DocumentsPage({
 
               {/* Actions */}
               <div className="flex items-center gap-0.5 shrink-0">
-                <Link href={`/documents/${doc.id}`}>
-                  <Button size="sm" variant="ghost" className="text-blue-500 hover:text-blue-700">
-                    <Download className="w-3.5 h-3.5" />
-                  </Button>
-                </Link>
+                <DocListDownloadBtn docId={doc.id} />
                 <Link href={`/documents/${doc.id}/edit`}>
                   <Button size="sm" variant="ghost" className="text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)]">
                     <Pencil className="w-3.5 h-3.5" />

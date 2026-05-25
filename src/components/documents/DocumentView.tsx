@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { updateDocumentStatus, deleteDocument } from "@/actions/documents.actions"
@@ -40,7 +40,10 @@ export function DocumentView({ document: doc }: { document: Document }) {
     router.push("/documents")
   }
 
-  function handleDownloadPDF() {
+  async function handleDownloadPDF() {
+    const element = window.document.getElementById("doc-printarea")
+    if (!element) return
+
     const typeLabel: Record<string, string> = { quotation: "ใบเสนอราคา", invoice: "ใบส่งมอบงาน", receipt: "ใบเสร็จ" }
     const parts = doc.doc_number.split("-")
     const runNumber = parts[parts.length - 1] ?? ""
@@ -51,36 +54,23 @@ export function DocumentView({ document: doc }: { document: Document }) {
     const customer = (doc.customer_name ?? "").replace(/\s+/g, "")
     const filename = `${typeLabel[doc.doc_type] ?? doc.doc_type}${runNumber}_${customer}_${dd}${mm}${yy}.pdf`
 
-    const element = window.document.getElementById("doc-printarea")
-    if (!element) return
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import("html2canvas"),
+      import("jspdf"),
+    ])
 
-    Promise.all([import("html2canvas"), import("jspdf")]).then(async ([{ default: html2canvas }, { jsPDF }]) => {
-      // Strip inner padding so jsPDF margins control whitespace exactly
-      const prevPadding = element.style.padding
-      const prevMaxWidth = element.style.maxWidth
-      const prevWidth = element.style.width
-      element.style.padding = "0"
-      element.style.maxWidth = "none"
-      element.style.width = "794px"
+    // Clone off-screen to avoid on-screen layout disruption
+    const clone = element.cloneNode(true) as HTMLElement
+    clone.style.cssText = `position:absolute;left:-9999px;top:0;padding:0;margin:0;width:794px;max-width:none;background:white;font-family:'Noto Sans Thai','Sarabun',sans-serif;`
+    document.body.appendChild(clone)
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-      })
-
-      element.style.padding = prevPadding
-      element.style.maxWidth = prevMaxWidth
-      element.style.width = prevWidth
-
+    try {
+      const canvas = await html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false })
       const imgData = canvas.toDataURL("image/png")
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-      const pageW = pdf.internal.pageSize.getWidth()   // 210mm
-      const pageH = pdf.internal.pageSize.getHeight()  // 297mm
-      const mTop = 20, mBottom = 20, mLeft = 15, mRight = 15
-      const printW = pageW - mLeft - mRight
-      const printH = pageH - mTop - mBottom
+      const mLeft = 15, mTop = 20, mRight = 15, mBottom = 20
+      const printW = 210 - mLeft - mRight
+      const printH = 297 - mTop - mBottom
       const imgH = (canvas.height * printW) / canvas.width
       let sliceY = 0
       while (sliceY < imgH) {
@@ -89,8 +79,17 @@ export function DocumentView({ document: doc }: { document: Document }) {
         sliceY += printH
       }
       pdf.save(filename)
-    })
+    } finally {
+      document.body.removeChild(clone)
+    }
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("download") === "1") {
+      const t = setTimeout(() => handleDownloadPDF(), 800)
+      return () => clearTimeout(t)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isQuotation = doc.doc_type === "quotation"
   const isInvoice = doc.doc_type === "invoice"

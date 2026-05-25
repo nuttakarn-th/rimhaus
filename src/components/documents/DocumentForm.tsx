@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { upsertDocument, generateDocNumber, getDocument } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -356,58 +357,35 @@ export function DocumentForm({
         )}
       </div>
 
-      {/* Issuer */}
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ผู้ออกเอกสาร</h3>
-          {linkedQuotationId && issuerName && (
-            <span className="text-xs text-[hsl(24,85%,50%)] bg-orange-50 px-2 py-0.5 rounded-full">ดึงจากใบเสนอราคา</span>
-          )}
+      {/* Issuer — compact, read-only; edit at /issuers */}
+      <div className="bg-[hsl(35,30%,97%)] rounded-xl border border-[hsl(35,20%,88%)] p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-[hsl(25,10%,50%)]">ผู้ออกเอกสาร</span>
+          <Link href="/issuers" className="text-xs text-[hsl(24,85%,50%)] hover:underline">แก้ไขข้อมูล →</Link>
         </div>
-        {/* When quotation is linked, show compact locked display; profile selector hidden */}
         {linkedQuotationId && issuerName ? (
-          <div className="text-sm text-[hsl(25,20%,25%)] bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2.5 space-y-0.5">
-            <p className="font-semibold">{issuerName}</p>
-            {issuerPhone && <p className="text-xs text-[hsl(25,10%,50%)]">{issuerPhone}</p>}
-            {issuerSignatureUrl && <p className="text-xs text-green-600">✓ มีลายเซ็น</p>}
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">{issuerName}</p>
+            <span className="text-xs text-[hsl(24,85%,50%)] bg-orange-50 px-2 py-0.5 rounded-full">ดึงจากใบเสนอราคา</span>
           </div>
         ) : (
           <>
-            {issuers.length > 0 && (
-              <div className="space-y-1">
-                <Label className="text-xs">เลือกจากโปรไฟล์</Label>
-                <Select value={issuerId} onValueChange={setIssuerId}>
-                  <SelectTrigger><SelectValue placeholder="เลือกผู้ออกเอกสาร..." /></SelectTrigger>
-                  <SelectContent>
-                    {issuers.map(i => (
-                      <SelectItem key={i.id} value={i.id}>{i.name}{i.is_default ? " ★" : ""}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {issuers.length > 1 && (
+              <Select value={issuerId} onValueChange={setIssuerId}>
+                <SelectTrigger className="h-8 text-xs mb-2"><SelectValue placeholder="เลือกผู้ออกเอกสาร..." /></SelectTrigger>
+                <SelectContent>
+                  {issuers.map(i => <SelectItem key={i.id} value={i.id}>{i.name}{i.is_default ? " ★" : ""}</SelectItem>)}
+                </SelectContent>
+              </Select>
             )}
-            <div className="space-y-1">
-              <Label className="text-xs">ชื่อ *</Label>
-              <Input value={issuerName} onChange={e => setIssuerName(e.target.value)} placeholder="ณัฐกานต์ ทาจันทร์" />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">ที่อยู่</Label>
-              <Textarea rows={2} value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">เบอร์โทร</Label>
-                <Input value={issuerPhone} onChange={e => setIssuerPhone(e.target.value)} />
+            {issuerName ? (
+              <div className="space-y-0.5">
+                <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">{issuerName}</p>
+                {issuerPhone && <p className="text-xs text-[hsl(25,10%,50%)]">{issuerPhone}</p>}
+                {issuerSignatureUrl && <p className="text-xs text-green-600">✓ มีลายเซ็น</p>}
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">อีเมล</Label>
-                <Input value={issuerEmail} onChange={e => setIssuerEmail(e.target.value)} />
-              </div>
-            </div>
-            {issuerSignatureUrl && (
-              <div className="flex items-center gap-2 text-xs text-green-600">
-                <span>✓ มีลายเซ็นแนบ</span>
-              </div>
+            ) : (
+              <p className="text-sm text-[hsl(25,10%,50%)]">ยังไม่มีข้อมูลผู้ออกเอกสาร — <Link href="/issuers" className="text-[hsl(24,85%,50%)] underline">เพิ่มได้ที่นี่</Link></p>
             )}
           </>
         )}
