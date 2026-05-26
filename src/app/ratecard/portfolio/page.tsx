@@ -79,10 +79,11 @@ function VideoCard({ item }: { item: PortfolioItem }) {
         // Facebook embeds require domain registration — show dark 9:16 play area instead
         <ReelPlaceholder url={item.url} />
       ) : platform === "instagram" && embedUrl ? (
-        // Clip Instagram profile header (top ~90px) and footer UI (bottom ~210px)
+        // Instagram embed structure at 280px: header ~70px, video ~350px (4:5), footer ~165px
+        // Clip container to 4:5 (350px) and offset iframe to hide header + footer
         <div
           className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
+          style={{ aspectRatio: "4/5", maxWidth: 280, margin: "0 auto" }}
         >
           <iframe
             src={embedUrl}
@@ -92,7 +93,7 @@ function VideoCard({ item }: { item: PortfolioItem }) {
             referrerPolicy="strict-origin-when-cross-origin"
             scrolling="no"
             className="absolute left-0 w-full border-0"
-            style={{ top: "-90px", height: "calc(100% + 310px)" }}
+            style={{ top: "-75px", height: "calc(100% + 245px)" }}
           />
         </div>
       ) : embedUrl ? (
