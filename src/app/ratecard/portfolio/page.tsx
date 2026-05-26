@@ -49,18 +49,23 @@ function getEmbedInfo(url: string): EmbedResult {
 const YT_ALLOW = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 const IG_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
 
-function ExternalLink({ url, label }: { url: string; label: string }) {
+function ReelPlaceholder({ url }: { url: string }) {
   return (
-    <div className="aspect-video flex flex-col items-center justify-center gap-3 bg-[hsl(35,20%,95%)]">
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[hsl(24,85%,50%)] text-white text-sm font-medium hover:bg-[hsl(24,85%,43%)] transition-colors"
-      >
-        {label} →
-      </a>
-    </div>
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+      style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
+    >
+      <div className="w-full h-full flex items-center justify-center bg-[hsl(25,15%,14%)] group">
+        <div className="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center group-hover:bg-white/25 transition-colors">
+          <svg className="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+    </a>
   )
 }
 
@@ -71,9 +76,10 @@ function VideoCard({ item }: { item: PortfolioItem }) {
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
       {isFacebook ? (
-        <ExternalLink url={item.url} label="ดูใน Facebook" />
+        // Facebook embeds require domain registration — show dark 9:16 play area instead
+        <ReelPlaceholder url={item.url} />
       ) : platform === "instagram" && embedUrl ? (
-        // Clip Instagram footer UI (likes/comments) — show video portion only
+        // Clip Instagram profile header (top ~90px) and footer UI (bottom ~210px)
         <div
           className="relative w-full overflow-hidden"
           style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
@@ -85,8 +91,8 @@ function VideoCard({ item }: { item: PortfolioItem }) {
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             scrolling="no"
-            className="absolute top-0 left-0 w-full border-0"
-            style={{ height: "calc(100% + 210px)" }}
+            className="absolute left-0 w-full border-0"
+            style={{ top: "-90px", height: "calc(100% + 310px)" }}
           />
         </div>
       ) : embedUrl ? (
@@ -101,7 +107,7 @@ function VideoCard({ item }: { item: PortfolioItem }) {
           />
         </div>
       ) : (
-        <ExternalLink url={item.url} label="ดูวิดีโอ" />
+        <ReelPlaceholder url={item.url} />
       )}
       {item.title && (
         <div className="px-4 py-2.5">
