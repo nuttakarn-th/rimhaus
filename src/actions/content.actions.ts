@@ -73,7 +73,7 @@ export async function deleteContentItem(id: string): Promise<ActionResult<void>>
   return { success: true, data: undefined }
 }
 
-export async function getContentItems(filters?: { status?: string }) {
+export async function getContentItems(filters?: { status?: string; review_job_id?: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
@@ -86,6 +86,9 @@ export async function getContentItems(filters?: { status?: string }) {
 
   if (filters?.status && filters.status !== "all") {
     query = query.eq("status", filters.status)
+  }
+  if (filters?.review_job_id) {
+    query = query.eq("review_job_id", filters.review_job_id)
   }
 
   const { data } = await query

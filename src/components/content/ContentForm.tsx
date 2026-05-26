@@ -20,11 +20,12 @@ interface ContentFormProps {
   item?: ContentItem
   jobs: ReviewJob[]
   platforms: Platform[]
+  prefill?: { review_job_id?: string }
 }
 
 const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 
-export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
+export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<ContentFormValues>(
@@ -59,7 +60,7 @@ export function ContentForm({ item, jobs, platforms }: ContentFormProps) {
           hashtags: "",
           status: "idea",
           is_sponsored: false,
-          review_job_id: null,
+          review_job_id: prefill?.review_job_id ?? null,
         }
   )
 

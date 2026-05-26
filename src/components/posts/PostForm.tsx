@@ -16,9 +16,10 @@ interface PostFormProps {
   jobs: ReviewJob[]
   contentItems: ContentItem[]
   platforms: Platform[]
+  prefill?: { review_job_id?: string }
 }
 
-export function PostForm({ post, jobs, contentItems, platforms }: PostFormProps) {
+export function PostForm({ post, jobs, contentItems, platforms, prefill }: PostFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState<PostFormValues>(
@@ -56,7 +57,7 @@ export function PostForm({ post, jobs, contentItems, platforms }: PostFormProps)
           saves: null,
           reach: null,
           notes: "",
-          review_job_id: null,
+          review_job_id: prefill?.review_job_id ?? null,
           content_item_id: null,
         }
   )

@@ -89,7 +89,7 @@ export async function getPost(id: string): Promise<SocialPost | null> {
   return (data as SocialPost) ?? null
 }
 
-export async function getPosts(filters?: { platform?: string; status?: string }) {
+export async function getPosts(filters?: { platform?: string; status?: string; review_job_id?: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
@@ -105,6 +105,9 @@ export async function getPosts(filters?: { platform?: string; status?: string })
   }
   if (filters?.status && filters.status !== "all") {
     query = query.eq("status", filters.status)
+  }
+  if (filters?.review_job_id) {
+    query = query.eq("review_job_id", filters.review_job_id)
   }
 
   const { data } = await query

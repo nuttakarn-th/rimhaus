@@ -9,7 +9,12 @@ async function getPlatforms(): Promise<Platform[]> {
   return (data as Platform[]) ?? []
 }
 
-export default async function NewContentPage() {
+export default async function NewContentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ job?: string }>
+}) {
+  const params = await searchParams
   const [jobs, platforms] = await Promise.all([getJobs(), getPlatforms()])
 
   return (
@@ -18,7 +23,7 @@ export default async function NewContentPage() {
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">สร้างคอนเทนต์ใหม่</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">วางแผนและจัดการคอนเทนต์</p>
       </div>
-      <ContentForm jobs={jobs} platforms={platforms} />
+      <ContentForm jobs={jobs} platforms={platforms} prefill={params.job ? { review_job_id: params.job } : undefined} />
     </div>
   )
 }

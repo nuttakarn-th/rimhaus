@@ -10,7 +10,12 @@ async function getPlatforms(): Promise<Platform[]> {
   return (data as Platform[]) ?? []
 }
 
-export default async function NewPostPage() {
+export default async function NewPostPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ job?: string }>
+}) {
+  const params = await searchParams
   const [jobs, contentItems, platforms] = await Promise.all([
     getJobs(),
     getContentItems(),
@@ -23,7 +28,12 @@ export default async function NewPostPage() {
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">บันทึกโพส</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">บันทึกโพสและสถิติ Social Media</p>
       </div>
-      <PostForm jobs={jobs} contentItems={contentItems} platforms={platforms} />
+      <PostForm
+        jobs={jobs}
+        contentItems={contentItems}
+        platforms={platforms}
+        prefill={params.job ? { review_job_id: params.job } : undefined}
+      />
     </div>
   )
 }
