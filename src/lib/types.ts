@@ -3,6 +3,7 @@ export type JobStatus = "accepted" | "in_progress" | "content_done" | "posted" |
 export type PaymentStatus = "pending" | "invoiced" | "received"
 export type DealType = "paid" | "barter_inbound" | "barter_outbound"
 export type ContentStatus = "idea" | "scripting" | "shooting" | "editing" | "ready" | "posted" | "cancelled"
+export type ContentPillar = "room_corner" | "product_review" | "organization_tips" | "home_humor"
 export type TransactionType = "income" | "expense"
 export type PostStatus = "draft" | "scheduled" | "posted" | "archived"
 
@@ -68,6 +69,7 @@ export interface ContentItem {
   images: string[]
   hashtags: string | null
   status: ContentStatus
+  content_pillar: ContentPillar | null
   is_sponsored: boolean
   created_at: string
   updated_at: string

@@ -2,7 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { ActionResult, ContentItem, ContentStatus } from "@/lib/types"
+import type { ActionResult, ContentItem, ContentStatus, ContentPillar } from "@/lib/types"
+import type { PillarStat } from "@/components/dashboard/TopPillarWidget"
 
 export interface ContentFormValues {
   title: string
@@ -17,6 +18,7 @@ export interface ContentFormValues {
   images?: string[]
   hashtags?: string
   status: ContentStatus
+  content_pillar?: ContentPillar | null
   is_sponsored: boolean
   review_job_id?: string | null
 }
@@ -108,4 +110,30 @@ export async function getContentItem(id: string): Promise<ContentItem | null> {
     .single()
 
   return data as ContentItem | null
+}
+
+export async function getPillarEngagement(): Promise<PillarStat[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await supabase
+    .from("social_posts")
+    .select("likes, comments, shares, content_items(content_pillar)")
+    .eq("user_id", user.id)
+    .not("content_item_id", "is", null)
+
+  if (!data) return []
+
+  const map = new Map<ContentPillar, { engagement: number; count: number }>()
+  for (const post of data) {
+    const item = post.content_items as unknown as { content_pillar: ContentPillar | null } | null
+    const pillar = item?.content_pillar
+    if (!pillar) continue
+    const eng = (post.likes ?? 0) + (post.comments ?? 0) + (post.shares ?? 0)
+    const existing = map.get(pillar) ?? { engagement: 0, count: 0 }
+    map.set(pillar, { engagement: existing.engagement + eng, count: existing.count + 1 })
+  }
+
+  return Array.from(map.entries()).map(([pillar, { engagement, count }]) => ({ pillar, engagement, count }))
 }

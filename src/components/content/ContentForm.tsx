@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CONTENT_TYPES, CONTENT_STATUS_LABELS } from "@/lib/constants"
-import type { ContentItem, ReviewJob, Platform } from "@/lib/types"
+import { CONTENT_TYPES, CONTENT_STATUS_LABELS, CONTENT_PILLAR_LABELS } from "@/lib/constants"
+import type { ContentItem, ReviewJob, Platform, ContentPillar } from "@/lib/types"
 import { toast } from "sonner"
 import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
@@ -43,6 +43,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           images: item.images ?? [],
           hashtags: item.hashtags ?? "",
           status: item.status,
+          content_pillar: item.content_pillar,
           is_sponsored: item.is_sponsored,
           review_job_id: item.review_job_id,
         }
@@ -59,6 +60,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           images: [],
           hashtags: "",
           status: "idea",
+          content_pillar: null,
           is_sponsored: false,
           review_job_id: prefill?.review_job_id ?? null,
         }
@@ -145,6 +147,22 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Content Pillar</Label>
+              <Select
+                value={form.content_pillar ?? "none"}
+                onValueChange={v => setForm(p => ({ ...p, content_pillar: v === "none" ? null : v as ContentPillar }))}
+              >
+                <SelectTrigger><SelectValue placeholder="เลือก pillar..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— ไม่ระบุ —</SelectItem>
+                  {(Object.entries(CONTENT_PILLAR_LABELS) as [ContentPillar, string][]).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

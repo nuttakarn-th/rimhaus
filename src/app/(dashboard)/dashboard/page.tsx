@@ -1,10 +1,11 @@
 import { KpiCard } from "@/components/dashboard/KpiCard"
 import { MonthlyIncomeChart } from "@/components/dashboard/MonthlyIncomeChart"
 import { PlatformSummary } from "@/components/dashboard/PlatformSummary"
+import { TopPillarWidget } from "@/components/dashboard/TopPillarWidget"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getJobs } from "@/actions/jobs.actions"
 import { getFinanceSummary, getMonthlyIncome } from "@/actions/transactions.actions"
-import { getContentItems } from "@/actions/content.actions"
+import { getContentItems, getPillarEngagement } from "@/actions/content.actions"
 import { getPlatformCounts } from "@/actions/posts.actions"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { JOB_STATUS_LABELS, JOB_STATUS_COLORS, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_COLORS } from "@/lib/constants"
@@ -17,12 +18,13 @@ export default async function DashboardPage() {
   const nextWeek = addDays(now, 7).toISOString().split("T")[0]
   const today = now.toISOString().split("T")[0]
 
-  const [jobs, summary, monthlyIncome, contentItems, platformCounts] = await Promise.all([
+  const [jobs, summary, monthlyIncome, contentItems, platformCounts, pillarStats] = await Promise.all([
     getJobs(),
     getFinanceSummary(currentMonth),
     getMonthlyIncome(),
     getContentItems(),
     getPlatformCounts(),
+    getPillarEngagement(),
   ])
 
   const activeJobs = jobs.filter(j => j.status === "accepted" || j.status === "in_progress")
@@ -86,6 +88,8 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <TopPillarWidget stats={pillarStats} />
 
       {/* Recent Jobs */}
       <Card className="border-[hsl(35,20%,88%)]">

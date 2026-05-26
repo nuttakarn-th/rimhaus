@@ -1,4 +1,4 @@
-import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, PostStatus, RateCardCategory, DocType, DocStatus } from "./types"
+import type { JobStatus, PaymentStatus, DealType, ReviewType, ContentStatus, ContentPillar, PostStatus, RateCardCategory, DocType, DocStatus } from "./types"
 
 export const RATE_CARD_CATEGORY_LABELS: Record<RateCardCategory, string> = {
   per_platform: "ต่อแพลตฟอร์ม",
@@ -71,6 +71,20 @@ export const CONTENT_STATUS_COLORS: Record<ContentStatus, string> = {
   ready: "bg-teal-100 text-teal-700",
   posted: "bg-green-100 text-green-700",
   cancelled: "bg-gray-100 text-gray-500",
+}
+
+export const CONTENT_PILLAR_LABELS: Record<ContentPillar, string> = {
+  room_corner: "🏠 มุมบ้าน",
+  product_review: "⭐ รีวิวสินค้า",
+  organization_tips: "📌 ทริคจัดบ้าน",
+  home_humor: "😅 มุขแต่งบ้าน",
+}
+
+export const CONTENT_PILLAR_COLORS: Record<ContentPillar, string> = {
+  room_corner: "bg-sky-100 text-sky-700",
+  product_review: "bg-amber-100 text-amber-700",
+  organization_tips: "bg-teal-100 text-teal-700",
+  home_humor: "bg-pink-100 text-pink-700",
 }
 
 export const POST_STATUS_LABELS: Record<PostStatus, string> = {
