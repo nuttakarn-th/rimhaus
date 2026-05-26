@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { getTransactions, getFinanceSummary } from "@/actions/transactions.actions"
 import { DeleteTransactionButton } from "@/components/finances/DeleteTransactionButton"
+import { MonthSelector } from "@/components/finances/MonthSelector"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil } from "lucide-react"
@@ -40,17 +41,7 @@ export default async function FinancesPage({
       {/* Month selector */}
       <div className="flex items-center gap-3">
         <label className="text-sm text-[hsl(25,10%,50%)]">เดือน:</label>
-        <input
-          type="month"
-          defaultValue={month}
-          onChange={e => {
-            const url = new URL(window.location.href)
-            url.searchParams.set("month", e.target.value)
-            window.location.href = url.toString()
-          }}
-          className="text-sm border border-[hsl(35,20%,88%)] rounded-lg px-3 py-1.5 bg-white"
-          suppressHydrationWarning
-        />
+        <MonthSelector month={month} type={params.type} />
       </div>
 
       {/* Summary Cards */}
