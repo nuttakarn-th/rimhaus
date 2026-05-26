@@ -69,18 +69,32 @@ function ReelPlaceholder({ url }: { url: string }) {
   )
 }
 
+const FB_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+
 function VideoCard({ item }: { item: PortfolioItem }) {
   const { platform, embedUrl } = getEmbedInfo(item.url)
-  const isFacebook = platform === "facebook_reel" || platform === "facebook_video"
 
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      {isFacebook ? (
-        // Facebook embeds require domain registration — show dark 9:16 play area instead
-        <ReelPlaceholder url={item.url} />
+      {(platform === "facebook_reel" || platform === "facebook_video") && embedUrl ? (
+        // Facebook Reel: 9:16 container, no extra clip (player controls overlay on video)
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
+        >
+          <iframe
+            src={embedUrl}
+            title={item.title ?? "video"}
+            allow={FB_ALLOW}
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            scrolling="no"
+            className="absolute inset-0 w-full h-full border-0"
+          />
+        </div>
       ) : platform === "instagram" && embedUrl ? (
-        // Instagram embed structure at 280px: header ~70px, video ~350px (4:5), footer ~165px
-        // Clip container to 4:5 (350px) and offset iframe to hide header + footer
+        // Instagram embed: header ~70px | video ~350px (4:5) | footer ~165px
+        // top: -70px hides header exactly; white 2px masks cover any ±2px edge bleed
         <div
           className="relative w-full overflow-hidden"
           style={{ aspectRatio: "4/5", maxWidth: 280, margin: "0 auto" }}
@@ -93,8 +107,10 @@ function VideoCard({ item }: { item: PortfolioItem }) {
             referrerPolicy="strict-origin-when-cross-origin"
             scrolling="no"
             className="absolute left-0 w-full border-0"
-            style={{ top: "-75px", height: "calc(100% + 245px)" }}
+            style={{ top: "-70px", height: "calc(100% + 238px)" }}
           />
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-white pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white pointer-events-none" />
         </div>
       ) : embedUrl ? (
         <div className={`relative w-full ${platform === "tiktok" ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
