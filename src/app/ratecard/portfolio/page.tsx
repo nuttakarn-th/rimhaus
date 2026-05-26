@@ -66,20 +66,35 @@ function ExternalLink({ url, label }: { url: string; label: string }) {
 
 function VideoCard({ item }: { item: PortfolioItem }) {
   const { platform, embedUrl } = getEmbedInfo(item.url)
-  const isPortrait = platform === "tiktok" || platform === "instagram"
   const isFacebook = platform === "facebook_reel" || platform === "facebook_video"
 
   return (
     <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
       {isFacebook ? (
-        // Facebook embeds require domain registration — show link instead
         <ExternalLink url={item.url} label="ดูใน Facebook" />
-      ) : embedUrl ? (
-        <div className={`relative w-full ${isPortrait ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
+      ) : platform === "instagram" && embedUrl ? (
+        // Clip Instagram footer UI (likes/comments) — show video portion only
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
+        >
           <iframe
             src={embedUrl}
             title={item.title ?? "video"}
-            allow={platform === "instagram" ? IG_ALLOW : YT_ALLOW}
+            allow={IG_ALLOW}
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            scrolling="no"
+            className="absolute top-0 left-0 w-full border-0"
+            style={{ height: "calc(100% + 210px)" }}
+          />
+        </div>
+      ) : embedUrl ? (
+        <div className={`relative w-full ${platform === "tiktok" ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
+          <iframe
+            src={embedUrl}
+            title={item.title ?? "video"}
+            allow={YT_ALLOW}
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             className="absolute inset-0 w-full h-full border-0"
@@ -159,7 +174,7 @@ export default async function PortfolioPage() {
           <h2 className="font-bold text-[hsl(25,20%,15%)] text-lg border-l-4 border-[hsl(24,85%,50%)] pl-3">
             Short VDO
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 items-start">
             {videos.map(item => <VideoCard key={item.id} item={item} />)}
           </div>
         </section>
