@@ -80,6 +80,7 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   const [tableRows, setTableRows] = useState(3)
   const [tableCols, setTableCols] = useState(3)
 
+  const FONT_SIZE_OPTIONS = [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 24, 36]
   const [toolbarFontSize, setToolbarFontSize] = useState(10)
 
   const editor = useEditor({
@@ -148,7 +149,7 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   function handleInsertTable() {
     const numRows = Math.max(1, tableRows)
     const numCols = Math.max(1, tableCols)
-    const headerCells = Array(numCols).fill(`<th><p></p></th>`).join("")
+    const headerCells = Array(numCols).fill(`<th style="font-size: 7pt"><p></p></th>`).join("")
     const bodyRows = Array(Math.max(1, numRows - 1))
       .fill(`<tr>${Array(numCols).fill(`<td><p></p></td>`).join("")}</tr>`)
       .join("")
@@ -189,16 +190,22 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
       {/* Toolbar */}
       <div className="flex items-center gap-0.5 px-3 py-2 border-b border-[hsl(35,20%,92%)] bg-[hsl(35,30%,98%)] flex-wrap">
 
-        {/* Font size — standalone outside any group */}
-        <div className="flex items-center gap-1 mr-1" title="ขนาด Text (กด Enter เพื่อใช้)">
+        {/* Font size — dropdown */}
+        <div className="flex items-center gap-1 mr-1" title="ขนาด Text">
           <Type className="w-3.5 h-3.5 text-[hsl(25,20%,35%)]" />
-          <input
-            type="number" min={6} max={144} value={toolbarFontSize}
-            onChange={e => setToolbarFontSize(Number(e.target.value))}
-            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); applyFontSize(toolbarFontSize) } }}
-            className="w-11 px-1 py-0.5 text-xs text-center border border-[hsl(35,20%,83%)] rounded-md focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)] bg-white"
-          />
-          <span className="text-xs text-[hsl(25,10%,55%)]">pt</span>
+          <select
+            value={toolbarFontSize}
+            onChange={e => {
+              const size = Number(e.target.value)
+              setToolbarFontSize(size)
+              applyFontSize(size)
+            }}
+            className="px-1 py-0.5 text-xs border border-[hsl(35,20%,83%)] rounded-md focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)] bg-white"
+          >
+            {FONT_SIZE_OPTIONS.map(s => (
+              <option key={s} value={s}>{s} pt</option>
+            ))}
+          </select>
         </div>
 
         <span className="w-px h-4 bg-[hsl(35,20%,85%)] mx-1" />

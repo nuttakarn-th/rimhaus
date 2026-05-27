@@ -21,7 +21,7 @@ const MARKER_SUFFIX = "-->"
 
 export function sceneRowsToHTML(rows: SceneRow[]): string {
   const marker = `${MARKER_PREFIX}${JSON.stringify(rows)}${MARKER_SUFFIX}`
-  const thead = `<thead><tr>${HEADERS.map(h => `<th>${h.label}</th>`).join("")}</tr></thead>`
+  const thead = `<thead><tr>${HEADERS.map(h => `<th style="font-size: 7pt">${h.label}</th>`).join("")}</tr></thead>`
   const tbody = `<tbody>${rows.map(r =>
     `<tr>${[r.scene, r.voiceover, r.text].map(v =>
       `<td>${v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</td>`
