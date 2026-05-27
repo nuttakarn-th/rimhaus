@@ -235,12 +235,6 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
             <Label>Hashtags</Label>
             <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
           </div>
-
-          {/* Submit */}
-          <div className="flex gap-3">
-            <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}</Button>
-            <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
-          </div>
         </div>
 
         {/* ── RIGHT PANEL: editor / media ─────────────────────────── */}
@@ -331,6 +325,12 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           )}
         </div>
 
+      </div>
+
+      {/* Submit — always at the very bottom */}
+      <div className="flex gap-3 mt-6">
+        <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}</Button>
+        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
       </div>
     </form>
   )
