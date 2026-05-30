@@ -179,6 +179,8 @@ export interface RateCardSettings {
   } | null
   platform_logos: Record<string, string> | null
   platform_urls: Record<string, string> | null
+  hero_heading: string | null
+  hero_subtitle: string | null
   updated_at: string
 }
 
@@ -280,6 +282,16 @@ export interface PortfolioItem {
   type: "video" | "photo"
   title: string | null
   url: string
+  image_url: string | null
+  sort_order: number
+  created_at: string
+}
+
+export interface GalleryItem {
+  id: string
+  user_id: string
+  image_url: string
+  caption: string | null
   sort_order: number
   created_at: string
 }

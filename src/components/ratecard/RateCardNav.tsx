@@ -7,14 +7,9 @@ interface Props {
   pageName: string
   hasPortfolio: boolean
   hasPartners: boolean
+  hasGallery: boolean
   contactLine: string | null
 }
-
-const NAV_ITEMS = [
-  { label: "Rate Card", href: "/ratecard" },
-  { label: "ตัวอย่าง Content", href: "/ratecard/portfolio" },
-  { label: "All Partner", href: "/ratecard/partners" },
-]
 
 const LINE_ICON = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -22,14 +17,17 @@ const LINE_ICON = (
   </svg>
 )
 
-export function RateCardNav({ pageName, hasPortfolio, hasPartners, contactLine }: Props) {
+export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, contactLine }: Props) {
   const pathname = usePathname()
 
-  const visibleItems = NAV_ITEMS.filter(item => {
-    if (item.href === "/ratecard/portfolio") return hasPortfolio
-    if (item.href === "/ratecard/partners") return hasPartners
-    return true
-  })
+  const navItems = [
+    { label: "Rate Card", href: "/ratecard", always: true },
+    { label: "ตัวอย่าง Content", href: "/ratecard/portfolio", show: hasPortfolio },
+    { label: "Gallery", href: "/ratecard/gallery", show: hasGallery },
+    { label: "All Partner", href: "/ratecard/partners", show: hasPartners },
+  ]
+
+  const visibleItems = navItems.filter(item => item.always || item.show)
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[hsl(35,20%,88%)] shadow-sm">

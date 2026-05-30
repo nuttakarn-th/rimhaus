@@ -30,6 +30,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     contact_phone: settings?.contact_phone ?? "",
     notes: (settings?.notes ?? []).join("\n"),
     image_url: settings?.image_url ?? "",
+    hero_heading: settings?.hero_heading ?? "",
+    hero_subtitle: settings?.hero_subtitle ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -112,6 +114,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       contact_phone: form.contact_phone,
       notes: form.notes.split("\n").map(s => s.trim()).filter(Boolean),
       image_url: form.image_url || null,
+      hero_heading: form.hero_heading || null,
+      hero_subtitle: form.hero_subtitle || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -208,6 +212,19 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         <Button size="sm" variant="outline" onClick={handleSavePlatformUrls} disabled={savingUrls}>
           {savingUrls ? "กำลังบันทึก..." : "บันทึก URL ทั้งหมด"}
         </Button>
+      </div>
+
+      {/* Hero heading */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+        <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">หัวข้อ Hero (หน้าแรก)</h3>
+        <div className="space-y-1">
+          <Label className="text-xs">หัวข้อหลัก</Label>
+          <Input value={form.hero_heading} onChange={e => setForm(p => ({ ...p, hero_heading: e.target.value }))} placeholder="คนติดบ้านที่บ้านไม่เคยเสร็จ 🏠" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">หัวข้อรอง</Label>
+          <Input value={form.hero_subtitle} onChange={e => setForm(p => ({ ...p, hero_subtitle: e.target.value }))} placeholder="Home & Living Creator · แต่งบ้านไม่มีวันพอ" />
+        </div>
       </div>
 
       {/* Page info */}
