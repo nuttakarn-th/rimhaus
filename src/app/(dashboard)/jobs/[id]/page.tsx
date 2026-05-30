@@ -11,18 +11,9 @@ import { DeleteJobButton } from "@/components/jobs/DeleteJobButton"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { REVIEW_TYPE_LABELS, DEAL_TYPE_LABELS, DEAL_TYPE_COLORS, CONTENT_STATUS_LABELS, CONTENT_STATUS_COLORS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { PlatformChip, PLATFORM_LABELS, PLATFORM_CI as PLATFORM_COLORS } from "@/components/ui/PlatformIcon"
 import { Pencil, Plus, ExternalLink, BarChart2 } from "lucide-react"
 import type { ContentStatus } from "@/lib/types"
-
-const PLATFORM_LABELS: Record<string, string> = {
-  facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok",
-  youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee",
-}
-
-const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#1877F2", instagram: "#E1306C", tiktok: "#000000",
-  youtube: "#FF0000", lemon8: "#D4A017", shopee: "#EE4D2D",
-}
 
 const POST_STATUS_COLORS: Record<string, string> = {
   draft: "bg-gray-100 text-gray-600",
@@ -179,13 +170,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   {item.platforms.slice(0, 3).map(p => (
-                    <span
-                      key={p}
-                      className="text-[9px] px-1.5 py-0.5 rounded font-bold text-white leading-none"
-                      style={{ backgroundColor: PLATFORM_COLORS[p] ?? "#6b7280" }}
-                    >
-                      {p.slice(0, 2).toUpperCase()}
-                    </span>
+                    <PlatformChip key={p} platform={p} size="xs" showLabel={false} />
                   ))}
                 </div>
               </Link>
@@ -222,12 +207,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span
-                          className="text-[9px] px-1.5 py-0.5 rounded font-bold text-white leading-none"
-                          style={{ backgroundColor: PLATFORM_COLORS[post.platform] ?? "#6b7280" }}
-                        >
-                          {post.platform.slice(0, 2).toUpperCase()}
-                        </span>
+                        <PlatformChip platform={post.platform} size="xs" showLabel={false} />
                         <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${POST_STATUS_COLORS[post.status]}`}>
                           {POST_STATUS_LABELS[post.status]}
                         </span>

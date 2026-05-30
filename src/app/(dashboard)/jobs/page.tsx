@@ -4,12 +4,8 @@ import { JobStatusBadge } from "@/components/jobs/JobStatusBadge"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { DEAL_TYPE_LABELS, DEAL_TYPE_COLORS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
-import { Plus, ChevronRight } from "lucide-react"
-
-const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#1877F2", instagram: "#E1306C", tiktok: "#000000",
-  youtube: "#FF0000", lemon8: "#D4A017", shopee: "#EE4D2D",
-}
+import { PlatformChip } from "@/components/ui/PlatformIcon"
+import { Plus } from "lucide-react"
 
 export default async function JobsPage({
   searchParams,
@@ -98,11 +94,7 @@ export default async function JobsPage({
                       {DEAL_TYPE_LABELS[dealType]}
                     </span>
                     {job.platforms.slice(0, 3).map(p => (
-                      <span key={p}
-                        className="text-[9px] px-1.5 py-0.5 rounded font-bold text-white leading-none"
-                        style={{ backgroundColor: PLATFORM_COLORS[p] ?? "#6b7280" }}>
-                        {p.slice(0, 2).toUpperCase()}
-                      </span>
+                      <PlatformChip key={p} platform={p} size="xs" showLabel={false} />
                     ))}
                   </div>
 
