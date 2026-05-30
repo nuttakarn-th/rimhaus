@@ -15,6 +15,7 @@ export default async function RateCardLayout({ children }: { children: React.Rea
         pageName={settings?.page_name ?? "Rimhaus"}
         hasPortfolio={portfolioItems.length > 0}
         hasPartners={partners.length > 0}
+        contactLine={settings?.contact_line ?? null}
       />
       {children}
     </div>

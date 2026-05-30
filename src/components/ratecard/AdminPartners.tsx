@@ -1,14 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { upsertPartner, deletePartner } from "@/actions/portfolio.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, Upload } from "lucide-react"
 import { toast } from "sonner"
 import type { Partner } from "@/lib/types"
+
+const MAX_LOGO_BYTES = 70 * 1024 // 70KB
 
 interface Props {
   partners: Partner[]
@@ -16,12 +19,40 @@ interface Props {
 
 export function AdminPartners({ partners }: Props) {
   const router = useRouter()
+  const fileRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({ name: "", logo_url: "" })
+  const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > MAX_LOGO_BYTES) {
+      toast.error(`ไฟล์ขนาด ${(file.size / 1024).toFixed(0)}KB เกิน 70KB — กรุณาบีบอัดภาพก่อนอัปโหลด`)
+      if (fileRef.current) fileRef.current.value = ""
+      return
+    }
+
+    setUploading(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploading(false); return }
+
+    const ext = file.name.split(".").pop() ?? "png"
+    const path = `${user.id}/partners/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: false })
+    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploading(false); return }
+
+    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+    setForm(f => ({ ...f, logo_url: publicUrl }))
+    toast.success("อัปโหลดโลโก้สำเร็จ")
+    setUploading(false)
+  }
+
   async function handleAdd() {
-    if (!form.logo_url.trim()) { toast.error("กรุณากรอก URL โลโก้"); return }
+    if (!form.logo_url.trim()) { toast.error("กรุณาอัปโหลดโลโก้ก่อน"); return }
     setSaving(true)
     const result = await upsertPartner({
       name: form.name.trim() || null,
@@ -32,6 +63,7 @@ export function AdminPartners({ partners }: Props) {
     if (!result.success) { toast.error(result.error); return }
     toast.success("เพิ่ม Partner สำเร็จ")
     setForm({ name: "", logo_url: "" })
+    if (fileRef.current) fileRef.current.value = ""
     router.refresh()
   }
 
@@ -72,32 +104,46 @@ export function AdminPartners({ partners }: Props) {
       {/* Add form */}
       <div className="border border-[hsl(35,20%,88%)] rounded-xl p-4 space-y-3 bg-white">
         <p className="text-xs font-semibold text-[hsl(25,20%,25%)]">เพิ่ม Partner ใหม่</p>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label className="text-xs">ชื่อแบรนด์ (optional)</Label>
-            <Input
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="ชื่อแบรนด์"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">URL โลโก้</Label>
-            <Input
-              value={form.logo_url}
-              onChange={e => setForm(f => ({ ...f, logo_url: e.target.value }))}
-              placeholder="https://..."
-            />
-          </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">ชื่อแบรนด์ (optional)</Label>
+          <Input
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="ชื่อแบรนด์"
+          />
         </div>
-        {form.logo_url && (
-          <div className="flex items-center gap-2 text-xs text-[hsl(25,10%,50%)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={form.logo_url} alt="preview" className="h-8 object-contain border rounded p-0.5" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
-            <span>Preview</span>
-          </div>
-        )}
-        <Button size="sm" onClick={handleAdd} disabled={saving}>
+
+        <div className="space-y-1">
+          <Label className="text-xs">โลโก้ <span className="text-[hsl(25,10%,55%)] font-normal">ไม่เกิน 70KB ต่อไฟล์</span></Label>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleLogoUpload}
+          />
+          {form.logo_url ? (
+            <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={form.logo_url} alt="preview" className="h-8 w-16 object-contain border rounded bg-white p-0.5" />
+              <span className="text-xs text-[hsl(25,10%,55%)] flex-1">อัปโหลดแล้ว</span>
+              <button
+                onClick={() => { setForm(f => ({ ...f, logo_url: "" })); if (fileRef.current) fileRef.current.value = "" }}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                ลบ
+              </button>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+              <Upload className="w-3.5 h-3.5 mr-1.5" />
+              {uploading ? "กำลังอัปโหลด..." : "อัปโหลดโลโก้"}
+            </Button>
+          )}
+        </div>
+
+        <Button size="sm" onClick={handleAdd} disabled={saving || !form.logo_url}>
           <Plus className="w-3.5 h-3.5 mr-1" />
           {saving ? "กำลังบันทึก..." : "เพิ่ม"}
         </Button>

@@ -8,15 +8,20 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload, ExternalLink } from "lucide-react"
+import { Upload } from "lucide-react"
 import { toast } from "sonner"
+import { PlatformBubble, PLATFORM_LABELS } from "@/components/ui/PlatformIcon"
 import type { RateCardSettings } from "@/lib/types"
+
+const PLATFORM_KEYS = ["facebook", "instagram", "tiktok", "lemon8", "youtube", "shopee"] as const
 
 export function AdminSettings({ settings }: { settings: RateCardSettings | null }) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const platformFileRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadingPlatform, setUploadingPlatform] = useState<string | null>(null)
   const [form, setForm] = useState({
     page_name: settings?.page_name ?? "",
     page_category: settings?.page_category ?? "",
@@ -26,6 +31,9 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     notes: (settings?.notes ?? []).join("\n"),
     image_url: settings?.image_url ?? "",
   })
+  const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
+    settings?.platform_logos ?? {}
+  )
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -43,6 +51,39 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     await upsertSettings({ image_url: publicUrl })
     toast.success("อัปโหลดรูปสำเร็จ")
     setUploading(false)
+    router.refresh()
+  }
+
+  async function handlePlatformLogoUpload(platform: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingPlatform(platform)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploadingPlatform(null); return }
+    const ext = file.name.split(".").pop() ?? "png"
+    const path = `${user.id}/platform-logos/${platform}.${ext}`
+    const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: true })
+    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploadingPlatform(null); return }
+    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+    const updated = { ...platformLogos, [platform]: publicUrl }
+    setPlatformLogos(updated)
+    await upsertSettings({ platform_logos: updated })
+    toast.success(`อัปโหลด ${PLATFORM_LABELS[platform] ?? platform} logo สำเร็จ`)
+    setUploadingPlatform(null)
+    router.refresh()
+    // Reset file input
+    if (platformFileRefs.current[platform]) {
+      platformFileRefs.current[platform]!.value = ""
+    }
+  }
+
+  async function handleRemovePlatformLogo(platform: string) {
+    const updated = { ...platformLogos }
+    delete updated[platform]
+    setPlatformLogos(updated)
+    await upsertSettings({ platform_logos: updated })
+    toast.success("ลบ logo แล้ว")
     router.refresh()
   }
 
@@ -87,6 +128,59 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         )}
       </div>
 
+      {/* Platform logos */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+        <div>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">โลโก้ Social Media</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">อัปโหลดรูปโลโก้แต่ละแพลตฟอร์ม (แสดงในหน้า Rate Card แทน icon ค่าเริ่มต้น)</p>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {PLATFORM_KEYS.map(p => {
+            const logoUrl = platformLogos[p]
+            const isUploading = uploadingPlatform === p
+            return (
+              <div key={p} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-[hsl(35,20%,90%)] bg-[hsl(35,30%,98%)]">
+                {logoUrl ? (
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-white border border-[hsl(35,20%,88%)] flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={logoUrl} alt={p} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <PlatformBubble platform={p} size={48} />
+                )}
+                <span className="text-[11px] font-medium text-[hsl(25,20%,35%)]">
+                  {PLATFORM_LABELS[p] ?? p}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={el => { platformFileRefs.current[p] = el }}
+                  onChange={e => handlePlatformLogoUpload(p, e)}
+                />
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => platformFileRefs.current[p]?.click()}
+                    disabled={isUploading}
+                    className="text-[10px] px-2 py-1 rounded bg-[hsl(24,85%,50%)] text-white font-medium hover:bg-[hsl(24,85%,45%)] disabled:opacity-50 transition-colors"
+                  >
+                    {isUploading ? "..." : logoUrl ? "เปลี่ยน" : "อัปโหลด"}
+                  </button>
+                  {logoUrl && (
+                    <button
+                      onClick={() => handleRemovePlatformLogo(p)}
+                      className="text-[10px] px-2 py-1 rounded bg-red-100 text-red-600 font-medium hover:bg-red-200 transition-colors"
+                    >
+                      ลบ
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
       {/* Page info */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ข้อมูลเพจ</h3>
@@ -105,8 +199,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ข้อมูลติดต่อ</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Line</Label>
-            <Input value={form.contact_line} onChange={e => setForm(p => ({ ...p, contact_line: e.target.value }))} placeholder="risa.rako" />
+            <Label className="text-xs">LINE ID</Label>
+            <Input value={form.contact_line} onChange={e => setForm(p => ({ ...p, contact_line: e.target.value }))} placeholder="rissa.rako" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">โทร</Label>

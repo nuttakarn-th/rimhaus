@@ -177,6 +177,7 @@ export interface RateCardSettings {
     ig_engagement_rate?: number | null
     updated_at?: string | null
   } | null
+  platform_logos: Record<string, string> | null
   updated_at: string
 }
 
