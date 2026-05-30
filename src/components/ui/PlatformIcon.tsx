@@ -13,7 +13,7 @@ const SVG_DATA: Record<string, string> = {
   shopee:
     "M12 0a12 12 0 1 0 0 24A12 12 0 0 0 12 0zm0 3.6a3.6 3.6 0 0 1 3.573 3.15H8.427A3.6 3.6 0 0 1 12 3.6zm5.4 14.4H6.6a1.2 1.2 0 0 1-1.2-1.2V8.4h13.2v8.4a1.2 1.2 0 0 1-1.2 1.2zm-5.4-7.2a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z",
   lemon8:
-    "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8zm-1-9a1 1 0 1 1 0-2 1 1 0 0 1 0 2z",
+    "M17.25.75H6.75C3.433.75.75 3.433.75 6.75v10.5c0 3.317 2.683 6 6 6h10.5c3.317 0 6-2.683 6-6V6.75c0-3.317-2.683-6-6-6zm-5.116 16.37a4.627 4.627 0 0 1-4.621-4.62c0-1.627.843-3.064 2.121-3.896A3.112 3.112 0 0 1 8.387 6.1a3.63 3.63 0 0 1 3.63-3.63 3.63 3.63 0 0 1 3.63 3.63 3.112 3.112 0 0 1-1.248 2.503 4.627 4.627 0 0 1 2.12 3.896 4.627 4.627 0 0 1-4.535 4.62z",
 }
 
 // Official brand CI colors
@@ -93,5 +93,26 @@ export function PlatformChip({ platform, size = "sm", showLabel = true, classNam
       <PlatformIcon platform={platform} size={11} color="white" />
       {showLabel && label}
     </span>
+  )
+}
+
+// Platform bubble — circle with icon only, no text
+interface PlatformBubbleProps {
+  platform: string
+  size?: number
+  className?: string
+}
+
+export function PlatformBubble({ platform, size = 40, className }: PlatformBubbleProps) {
+  const key = platform.toLowerCase()
+  const color = PLATFORM_CI[key] ?? "#6b7280"
+  const iconSize = Math.round(size * 0.45)
+  return (
+    <div
+      className={cn("rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform hover:scale-110", className)}
+      style={{ width: size, height: size, backgroundColor: color }}
+    >
+      <PlatformIcon platform={platform} size={iconSize} color="white" />
+    </div>
   )
 }

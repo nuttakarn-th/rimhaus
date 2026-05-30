@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "@/actions/auth.actions"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import {
   LayoutDashboard,
   ClipboardList,
@@ -64,19 +65,20 @@ export function Sidebar() {
       {/* Sidebar panel */}
       <aside className={cn(
         "fixed inset-y-0 left-0 w-60 bg-white border-r border-[hsl(35,20%,88%)] flex flex-col z-40",
+        "dark:bg-[hsl(25,15%,13%)] dark:border-[hsl(25,15%,20%)]",
         "transition-transform duration-200 ease-in-out",
         mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
         {/* Desktop logo */}
-        <div className="hidden md:flex h-16 items-center px-6 border-b border-[hsl(35,20%,88%)]">
+        <div className="hidden md:flex h-16 items-center px-6 border-b border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)]">
           <span className="text-xl mr-2">🏠</span>
-          <span className="font-bold text-lg text-[hsl(25,20%,15%)]">Rimhaus</span>
+          <span className="font-bold text-lg text-[hsl(25,20%,15%)] dark:text-[hsl(35,20%,88%)]">Rimhaus</span>
         </div>
         {/* Mobile logo + close */}
-        <div className="md:hidden h-14 flex items-center px-4 border-b border-[hsl(35,20%,88%)] justify-between">
+        <div className="md:hidden h-14 flex items-center px-4 border-b border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)] justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">🏠</span>
-            <span className="font-bold text-lg text-[hsl(25,20%,15%)]">Rimhaus</span>
+            <span className="font-bold text-lg text-[hsl(25,20%,15%)] dark:text-[hsl(35,20%,88%)]">Rimhaus</span>
           </div>
           <button
             onClick={() => setMobileOpen(false)}
@@ -100,7 +102,7 @@ export function Sidebar() {
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   active
                     ? "bg-[hsl(24,85%,50%)] text-white"
-                    : "text-[hsl(25,20%,35%)] hover:bg-[hsl(35,25%,92%)] hover:text-[hsl(25,20%,15%)]"
+                    : "text-[hsl(25,20%,35%)] hover:bg-[hsl(35,25%,92%)] hover:text-[hsl(25,20%,15%)] dark:text-[hsl(35,15%,65%)] dark:hover:bg-[hsl(25,12%,20%)] dark:hover:text-[hsl(35,20%,88%)]"
                 )}
               >
                 <item.icon className="w-4 h-4 shrink-0" />
@@ -110,12 +112,13 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Sign out */}
-        <div className="p-3 border-t border-[hsl(35,20%,88%)]">
+        {/* Bottom controls */}
+        <div className="p-3 border-t border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)] space-y-1">
+          <ThemeToggle />
           <form action={signOut}>
             <button
               type="submit"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[hsl(25,10%,50%)] hover:bg-red-50 hover:text-red-600 transition-colors w-full"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[hsl(25,10%,50%)] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 transition-colors w-full"
             >
               <LogOut className="w-4 h-4" />
               ออกจากระบบ

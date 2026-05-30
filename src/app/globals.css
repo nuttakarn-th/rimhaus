@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --background: 35 30% 97%;
@@ -22,6 +24,29 @@
     --input: 35 20% 88%;
     --ring: 24 85% 50%;
     --radius: 0.625rem;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --background: 25 18% 10%;
+    --foreground: 35 20% 88%;
+    --card: 25 15% 15%;
+    --card-foreground: 35 20% 88%;
+    --popover: 25 15% 15%;
+    --popover-foreground: 35 20% 88%;
+    --primary: 24 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 25 12% 20%;
+    --secondary-foreground: 35 15% 80%;
+    --muted: 25 12% 18%;
+    --muted-foreground: 35 10% 55%;
+    --accent: 25 12% 20%;
+    --accent-foreground: 35 15% 80%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 24 85% 55%;
   }
 }
 
@@ -57,6 +82,25 @@ body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-sans);
+}
+
+/* Dark mode structural overrides */
+.dark aside {
+  background-color: hsl(25 15% 13%);
+  border-color: hsl(25 15% 20%);
+}
+
+.dark [data-mobile-topbar] {
+  background-color: hsl(25 15% 13%);
+  border-color: hsl(25 15% 20%);
+}
+
+.dark .bg-white {
+  background-color: hsl(25 15% 15%);
+}
+
+.dark main {
+  background-color: hsl(var(--background));
 }
 
 @media print {
