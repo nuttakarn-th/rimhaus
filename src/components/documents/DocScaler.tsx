@@ -22,11 +22,14 @@ export function DocScaler({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    // overflow-x-clip clips the 600px child during SSR without creating a scroll container
-    <div ref={containerRef} className="w-full overflow-x-clip print:overflow-visible">
-      <div style={zoom < 1 ? { zoom } : undefined}>
-        {children}
+    <>
+      {/* Reset zoom when printing so PDF output is full A4 size */}
+      <style>{`@media print { .doc-scaler { zoom: 1 !important; } }`}</style>
+      <div ref={containerRef} className="w-full overflow-x-clip print:overflow-visible">
+        <div className="doc-scaler" style={zoom < 1 ? { zoom } : undefined}>
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

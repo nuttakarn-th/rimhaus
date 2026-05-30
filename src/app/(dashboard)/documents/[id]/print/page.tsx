@@ -2,8 +2,8 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getDocument } from "@/actions/documents.actions"
 import { PrintDocButton } from "@/components/documents/PrintDocButton"
+import { DocScaler } from "@/components/documents/DocScaler"
 import { bahtText, buildDocFilename } from "@/lib/utils"
-import { DOC_TYPE_LABELS } from "@/lib/constants"
 
 function formatThaiDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("th-TH", { year: "numeric", month: "numeric", day: "numeric" })
@@ -54,8 +54,9 @@ export default async function DocumentPrintPage({
 
       {/* Document */}
       <div className="p-4 md:p-8 print:p-0">
+        <DocScaler>
         <div
-          className="bg-white max-w-[794px] mx-auto shadow-sm print:shadow-none print:max-w-none print:m-0 rounded-lg overflow-hidden print:overflow-visible print:rounded-none"
+          className="min-w-[600px] bg-white max-w-[794px] mx-auto shadow-sm print:shadow-none print:max-w-none print:m-0 rounded-lg overflow-hidden print:overflow-visible print:rounded-none"
           style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}
         >
           <div className="p-8 print:p-0">
@@ -268,6 +269,7 @@ export default async function DocumentPrintPage({
 
           </div>
         </div>
+        </DocScaler>
       </div>
     </div>
   )
