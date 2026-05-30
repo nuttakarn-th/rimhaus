@@ -202,7 +202,7 @@ export function JobForm({ job, platforms, prefill }: JobFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>ค่าจ้าง (บาท) *</Label>
-              <Input type="number" min="0" value={form.payment_amount} onChange={e => setForm(p => ({ ...p, payment_amount: Number(e.target.value) }))} />
+              <Input type="number" min="0" step="any" value={form.payment_amount} onChange={e => setForm(p => ({ ...p, payment_amount: Number(e.target.value) }))} />
             </div>
             <div className="space-y-2">
               <Label>สถานะการรับเงิน</Label>
@@ -249,7 +249,7 @@ export function JobForm({ job, platforms, prefill }: JobFormProps) {
         <div className="space-y-2">
           <Label>{isBarter ? "มูลค่าสินค้า (บาท) *" : "มูลค่าสินค้า (บาท)"}</Label>
           <Input
-            type="number" min="0"
+            type="number" min="0" step="any"
             value={form.product_value ?? ""}
             onChange={e => setForm(p => ({ ...p, product_value: e.target.value ? Number(e.target.value) : null }))}
             placeholder={isBarter ? "ระบุมูลค่าของที่ได้รับ" : "กรณีได้รับสินค้าเพิ่ม"}
