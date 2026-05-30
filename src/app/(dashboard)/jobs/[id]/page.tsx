@@ -272,11 +272,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Bottom status advance CTA */}
       {job.status !== "closed" && (
-        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-5 py-4 flex items-center justify-between gap-4">
-          <div className="text-sm text-[hsl(25,10%,50%)]">
-            สถานะปัจจุบัน: <span className="font-semibold text-[hsl(25,20%,15%)]">
-              <JobStatusBadge status={job.status} />
-            </span>
+        <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-[hsl(25,10%,50%)]">
+            <span>สถานะปัจจุบัน:</span>
+            <JobStatusBadge status={job.status} />
           </div>
           <AdvanceStatusButton jobId={id} currentStatus={job.status} />
         </div>
