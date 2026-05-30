@@ -6,7 +6,8 @@ import Link from "next/link"
 import { updateDocumentStatus, deleteDocument } from "@/actions/documents.actions"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Pencil, Trash2 } from "lucide-react"
+import { ClipboardList, Pencil, Trash2 } from "lucide-react"
+import { DocScaler } from "@/components/documents/DocScaler"
 import { toast } from "sonner"
 import { bahtText, cn } from "@/lib/utils"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
@@ -65,7 +66,15 @@ export function DocumentView({ document: doc }: { document: Document }) {
     <div>
       {/* Controls — hidden on print */}
       <div className="print:hidden mb-4 space-y-2">
-        {/* Row 1: Status */}
+        {/* Quotation CTA row */}
+        {isQuotation && (
+          <Link href={`/jobs/new?from_quotation=${doc.id}`} className="block">
+            <Button variant="outline" className="w-full text-[hsl(24,85%,50%)] border-[hsl(24,85%,50%)] hover:bg-orange-50">
+              <ClipboardList className="w-4 h-4 mr-2" />สร้างงานรีวิวจาก QT นี้
+            </Button>
+          </Link>
+        )}
+        {/* Status row */}
         <div className="flex items-center gap-2">
           <Select value={status} onValueChange={v => handleStatusChange(v as DocStatus)} disabled={updating}>
             <SelectTrigger className="w-32 h-8 text-sm"><SelectValue /></SelectTrigger>
@@ -80,7 +89,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
             {DOC_STATUS_LABELS[status]}
           </span>
         </div>
-        {/* Row 2: Actions */}
+        {/* Actions row */}
         <div className="flex items-center gap-2">
           <DownloadPDFButton doc={doc} className="flex-1 sm:flex-none" />
           <Link href={`/documents/${doc.id}/edit`} className="flex-1 sm:flex-none">
@@ -94,9 +103,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
         </div>
       </div>
 
-      {/* ===== A4 DOCUMENT — horizontally scrollable on mobile ===== */}
-      <div className="overflow-x-auto -mx-4 sm:mx-0 print:mx-0">
-      <div className="min-w-[600px] bg-white rounded-none sm:rounded-xl border-y sm:border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
+      {/* ===== A4 DOCUMENT — scale-to-fit on mobile ===== */}
+      <DocScaler>
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
         <div id="doc-printarea" className="p-4 sm:p-8 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
@@ -367,7 +376,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
 
         </div>
       </div>
-      </div>
+      </DocScaler>
     </div>
   )
 }
