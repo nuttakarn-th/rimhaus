@@ -1,47 +1,43 @@
 "use client"
 
-import { useRef } from "react"
-import { ImagePlus, X } from "lucide-react"
+import { useRef, useState } from "react"
+import { ImagePlus, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 const MAX_KB = 100
 
 async function compressToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = reject
-    reader.onload = e => {
-      const img = new Image()
-      img.onerror = reject
-      img.onload = () => {
-        const tryEncode = (w: number, h: number, q: number) => {
-          const canvas = document.createElement("canvas")
-          canvas.width = w; canvas.height = h
-          canvas.getContext("2d")!.drawImage(img, 0, 0, w, h)
-          return canvas.toDataURL("image/jpeg", q)
-        }
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("load failed")) }
+    img.onload = () => {
+      URL.revokeObjectURL(url)
 
-        let w = img.naturalWidth, h = img.naturalHeight
-        if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200 }
-        if (h > 1200) { w = Math.round(w * 1200 / h); h = 1200 }
-
-        const sizeKB = (s: string) => (s.length * 3) / 4 / 1024
-
-        // Try quality reduction first
-        for (const q of [0.85, 0.7, 0.55, 0.4, 0.3, 0.2, 0.1]) {
-          const data = tryEncode(w, h, q)
-          if (sizeKB(data) <= MAX_KB) { resolve(data); return }
-        }
-        // Try dimension reduction
-        for (const s of [0.7, 0.5, 0.35, 0.25]) {
-          const data = tryEncode(Math.round(w * s), Math.round(h * s), 0.5)
-          if (sizeKB(data) <= MAX_KB) { resolve(data); return }
-        }
-        resolve(tryEncode(300, Math.round(300 * h / w), 0.3))
+      const tryEncode = (w: number, h: number, q: number) => {
+        const canvas = document.createElement("canvas")
+        canvas.width = w; canvas.height = h
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h)
+        return canvas.toDataURL("image/jpeg", q)
       }
-      img.src = e.target!.result as string
+
+      let w = img.naturalWidth, h = img.naturalHeight
+      if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200 }
+      if (h > 1200) { w = Math.round(w * 1200 / h); h = 1200 }
+
+      const sizeKB = (s: string) => (s.length * 3) / 4 / 1024
+
+      for (const q of [0.85, 0.7, 0.55, 0.4, 0.3, 0.2, 0.1]) {
+        const data = tryEncode(w, h, q)
+        if (sizeKB(data) <= MAX_KB) { resolve(data); return }
+      }
+      for (const s of [0.7, 0.5, 0.35, 0.25]) {
+        const data = tryEncode(Math.round(w * s), Math.round(h * s), 0.5)
+        if (sizeKB(data) <= MAX_KB) { resolve(data); return }
+      }
+      resolve(tryEncode(300, Math.round(300 * h / w), 0.3))
     }
-    reader.readAsDataURL(file)
+    img.src = url
   })
 }
 
@@ -52,6 +48,7 @@ type Props = {
 
 export function PhotoAlbumUpload({ images, onChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [compressing, setCompressing] = useState<{ done: number; total: number } | null>(null)
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -61,12 +58,18 @@ export function PhotoAlbumUpload({ images, onChange }: Props) {
       e.target.value = ""
       return
     }
+    setCompressing({ done: 0, total: files.length })
     try {
-      const compressed = await Promise.all(files.map(f => compressToBase64(f)))
+      const compressed: string[] = []
+      for (const f of files) {
+        compressed.push(await compressToBase64(f))
+        setCompressing(p => p ? { ...p, done: p.done + 1 } : null)
+      }
       onChange([...images, ...compressed])
     } catch {
       toast.error("เกิดข้อผิดพลาดในการประมวลผลภาพ")
     }
+    setCompressing(null)
     e.target.value = ""
   }
 
@@ -134,8 +137,16 @@ export function PhotoAlbumUpload({ images, onChange }: Props) {
         </div>
       )}
 
+      {/* Compression progress */}
+      {compressing && (
+        <div className="flex items-center gap-2 text-sm text-[hsl(25,10%,50%)] py-2">
+          <Loader2 className="w-4 h-4 animate-spin text-[hsl(24,85%,50%)]" />
+          <span>บีบอัดภาพ {compressing.done}/{compressing.total}...</span>
+        </div>
+      )}
+
       {/* Empty state upload area */}
-      {images.length === 0 && (
+      {images.length === 0 && !compressing && (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
