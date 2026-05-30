@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Pencil, FileDown } from "lucide-react"
 import { DeleteContentButton } from "@/components/content/DeleteContentButton"
+import { PlatformChip } from "@/components/ui/PlatformIcon"
 
 const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 
@@ -51,7 +52,7 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div><dt className="text-[hsl(25,10%,50%)]">วันที่วางแผนโพส</dt><dd className="font-medium mt-0.5">{item.planned_date ? formatDate(item.planned_date) : "-"}</dd></div>
           <div><dt className="text-[hsl(25,10%,50%)]">วันถ่าย/ผลิต</dt><dd className="font-medium mt-0.5">{item.shoot_date ? formatDate(item.shoot_date) : "-"}</dd></div>
-          <div><dt className="text-[hsl(25,10%,50%)]">แพลตฟอร์ม</dt><dd className="font-medium mt-0.5">{item.platforms.join(", ") || "-"}</dd></div>
+          <div><dt className="text-[hsl(25,10%,50%)]">แพลตฟอร์ม</dt><dd className="mt-1 flex flex-wrap gap-1">{item.platforms.length > 0 ? item.platforms.map(p => <PlatformChip key={p} platform={p} size="xs" />) : "-"}</dd></div>
           <div><dt className="text-[hsl(25,10%,50%)]">สร้างเมื่อ</dt><dd className="font-medium mt-0.5">{formatDate(item.created_at)}</dd></div>
         </dl>
         {item.hashtags && (

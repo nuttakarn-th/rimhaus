@@ -83,7 +83,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
           <div>
             <dt className="text-[hsl(25,10%,50%)]">แพลตฟอร์ม</dt>
-            <dd className="font-medium mt-0.5">{job.platforms.map(p => PLATFORM_LABELS[p] ?? p).join(", ")}</dd>
+            <dd className="mt-1 flex flex-wrap gap-1">
+              {job.platforms.map(p => <PlatformChip key={p} platform={p} size="xs" />)}
+            </dd>
           </div>
           <div>
             <dt className="text-[hsl(25,10%,50%)]">กำหนดส่งงาน</dt>

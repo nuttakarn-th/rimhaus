@@ -28,25 +28,25 @@
 
   .dark {
     color-scheme: dark;
-    --background: 25 18% 10%;
-    --foreground: 35 20% 88%;
-    --card: 25 15% 15%;
-    --card-foreground: 35 20% 88%;
-    --popover: 25 15% 15%;
-    --popover-foreground: 35 20% 88%;
-    --primary: 24 85% 55%;
+    --background: 220 15% 9%;
+    --foreground: 0 0% 92%;
+    --card: 220 13% 13%;
+    --card-foreground: 0 0% 92%;
+    --popover: 220 13% 13%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 24 90% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 25 12% 20%;
-    --secondary-foreground: 35 15% 80%;
-    --muted: 25 12% 18%;
-    --muted-foreground: 35 10% 55%;
-    --accent: 25 12% 20%;
-    --accent-foreground: 35 15% 80%;
+    --secondary: 220 13% 20%;
+    --secondary-foreground: 0 0% 82%;
+    --muted: 220 13% 17%;
+    --muted-foreground: 0 0% 58%;
+    --accent: 220 13% 20%;
+    --accent-foreground: 0 0% 82%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 25 15% 22%;
-    --input: 25 15% 22%;
-    --ring: 24 85% 55%;
+    --border: 220 13% 22%;
+    --input: 220 13% 22%;
+    --ring: 24 90% 58%;
   }
 }
 
@@ -84,24 +84,64 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Dark mode structural overrides */
+/* ── Dark mode structural overrides ────────────────────────────── */
 .dark aside {
-  background-color: hsl(25 15% 13%);
-  border-color: hsl(25 15% 20%);
+  background-color: hsl(220, 16%, 11%);
+  border-color: hsl(220, 13%, 19%);
 }
-
 .dark [data-mobile-topbar] {
-  background-color: hsl(25 15% 13%);
-  border-color: hsl(25 15% 20%);
+  background-color: hsl(220, 16%, 11%);
+  border-color: hsl(220, 13%, 19%);
 }
-
 .dark .bg-white {
-  background-color: hsl(25 15% 15%);
+  background-color: hsl(220, 13%, 13%);
 }
-
 .dark main {
   background-color: hsl(var(--background));
 }
+
+/* ── Dark mode: hardcoded warm-brown text → neutral light ──────── */
+/* Main headings / titles (near-black in light → near-white in dark) */
+.dark [class~='text-[hsl(25,20%,15%)]'],
+.dark [class~='text-[hsl(25,20%,12%)]'],
+.dark [class~='text-[hsl(25,20%,10%)]'] { color: hsl(0, 0%, 88%); }
+
+.dark [class~='text-[hsl(25,20%,25%)]'] { color: hsl(0, 0%, 80%); }
+
+/* Muted / secondary text */
+.dark [class~='text-[hsl(25,10%,35%)]'],
+.dark [class~='text-[hsl(25,10%,40%)]'],
+.dark [class~='text-[hsl(25,10%,45%)]'] { color: hsl(0, 0%, 68%); }
+
+.dark [class~='text-[hsl(25,10%,50%)]'],
+.dark [class~='text-[hsl(25,10%,52%)]'],
+.dark [class~='text-[hsl(25,10%,55%)]'] { color: hsl(0, 0%, 58%); }
+
+.dark [class~='text-[hsl(25,10%,60%)]'],
+.dark [class~='text-[hsl(25,10%,65%)]'] { color: hsl(0, 0%, 64%); }
+
+/* Hover text states */
+.dark [class~='hover:text-[hsl(25,20%,15%)]']:hover { color: hsl(0, 0%, 92%); }
+
+/* ── Dark mode: hardcoded warm-cream backgrounds → neutral dark ── */
+.dark [class~='bg-[hsl(35,30%,97%)]'] { background-color: hsl(220, 13%, 15%); }
+.dark [class~='bg-[hsl(35,30%,98%)]'] { background-color: hsl(220, 13%, 16%); }
+.dark [class~='bg-[hsl(35,20%,92%)]'],
+.dark [class~='bg-[hsl(35,25%,92%)]'] { background-color: hsl(220, 13%, 20%); }
+.dark [class~='bg-[hsl(35,25%,94%)]'] { background-color: hsl(220, 13%, 18%); }
+.dark [class~='bg-[hsl(35,25%,98%)]'],
+.dark [class~='bg-[hsl(35,20%,95%)]'] { background-color: hsl(220, 13%, 16%); }
+
+/* Hover backgrounds */
+.dark [class~='hover:bg-[hsl(35,30%,97%)]']:hover,
+.dark [class~='hover:bg-[hsl(35,30%,98%)]']:hover,
+.dark [class~='hover:bg-[hsl(35,25%,98%)]']:hover { background-color: hsl(220, 13%, 17%); }
+.dark [class~='hover:bg-[hsl(35,20%,92%)]']:hover { background-color: hsl(220, 13%, 22%); }
+
+/* ── Dark mode: hardcoded warm borders → neutral dark borders ─── */
+.dark [class~='border-[hsl(35,20%,88%)]'] { border-color: hsl(220, 13%, 22%); }
+.dark [class~='border-[hsl(35,20%,90%)]'] { border-color: hsl(220, 13%, 22%); }
+.dark [class~='border-[hsl(35,25%,92%)]'] { border-color: hsl(220, 13%, 22%); }
 
 @media print {
   @page {

@@ -6,6 +6,7 @@ import { DOC_TYPE_LABELS, DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/con
 import { formatCurrency, cn } from "@/lib/utils"
 import { DeleteDocumentButton } from "@/components/documents/DeleteDocumentButton"
 import { DocListDownloadBtn } from "@/components/documents/DocListDownloadBtn"
+import { PlatformChip } from "@/components/ui/PlatformIcon"
 import type { DocType } from "@/lib/types"
 
 const DOC_TYPE_BADGE: Record<string, string> = {
@@ -125,10 +126,11 @@ export default async function DocumentsPage({
                     {doc.platforms && doc.platforms.length > 0 && (
                       <>
                         <span>·</span>
-                        <span className="text-[hsl(24,85%,50%)]">{doc.platforms.map((p: string) => {
-                          const labels: Record<string, string> = { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee" }
-                          return labels[p] ?? p
-                        }).join(", ")}</span>
+                        <span className="inline-flex items-center gap-1">
+                          {doc.platforms.map((p: string) => (
+                            <PlatformChip key={p} platform={p} size="xs" showLabel={false} />
+                          ))}
+                        </span>
                       </>
                     )}
                     <span>·</span>

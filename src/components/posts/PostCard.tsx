@@ -3,6 +3,7 @@ import { formatDate } from "@/lib/utils"
 import type { SocialPost, Platform } from "@/lib/types"
 import { Eye, Heart, MessageCircle, Share2, Bookmark } from "lucide-react"
 import { DeletePostButton } from "./DeletePostButton"
+import { PlatformIcon, PLATFORM_CI } from "@/components/ui/PlatformIcon"
 
 interface PostCardProps {
   post: SocialPost
@@ -11,7 +12,7 @@ interface PostCardProps {
 
 export function PostCard({ post, platforms }: PostCardProps) {
   const platform = platforms.find(p => p.id === post.platform)
-  const color = platform?.color ?? "#6b7280"
+  const color = PLATFORM_CI[post.platform.toLowerCase()] ?? platform?.color ?? "#6b7280"
   const label = platform?.label ?? post.platform
 
   return (
@@ -19,7 +20,7 @@ export function PostCard({ post, platforms }: PostCardProps) {
       {/* Platform header */}
       <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: `${color}15`, borderBottom: `2px solid ${color}` }}>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+          <PlatformIcon platform={post.platform} size={16} />
           <span className="text-sm font-semibold" style={{ color }}>{label}</span>
         </div>
         <div className="flex items-center gap-1">

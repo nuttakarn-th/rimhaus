@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { bahtText, cn } from "@/lib/utils"
 import { DOC_STATUS_LABELS, DOC_STATUS_COLORS } from "@/lib/constants"
 import { DownloadPDFButton } from "@/components/documents/DownloadPDFButton"
+import { PlatformIcon, PLATFORM_LABELS } from "@/components/ui/PlatformIcon"
 import type { Document, DocStatus } from "@/lib/types"
 
 function formatThaiDate(dateStr: string) {
@@ -189,10 +190,14 @@ export function DocumentView({ document: doc }: { document: Document }) {
           {doc.platforms && doc.platforms.length > 0 && (
             <div className="mb-4 flex gap-4 text-sm">
               <span className="font-bold text-[hsl(25,20%,10%)] w-12 shrink-0">Platform</span>
-              <span className="text-[hsl(25,10%,35%)]">{doc.platforms.map(p => {
-                const labels: Record<string, string> = { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", lemon8: "Lemon8", shopee: "Shopee" }
-                return labels[p] ?? p
-              }).join(", ")}</span>
+              <span className="flex items-center gap-2 flex-wrap">
+                {doc.platforms.map(p => (
+                  <span key={p} className="inline-flex items-center gap-1 text-[hsl(25,10%,35%)]">
+                    <PlatformIcon platform={p} size={13} />
+                    <span>{PLATFORM_LABELS[p] ?? p}</span>
+                  </span>
+                ))}
+              </span>
             </div>
           )}
 

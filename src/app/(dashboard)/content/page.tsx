@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { CONTENT_STATUS_COLORS, CONTENT_STATUS_LABELS } from "@/lib/constants"
 import { formatDate, cn } from "@/lib/utils"
+import { PlatformChip } from "@/components/ui/PlatformIcon"
 import type { ContentItem, ContentStatus } from "@/lib/types"
 
 // ── Content type config ─────────────────────────────────────
@@ -28,14 +29,6 @@ const TYPE_CONFIG: Record<string, {
   blog:        { label: "บล็อก",     Icon: FileText,     iconBg: "bg-teal-100",   iconColor: "text-teal-600",   badgeBg: "bg-teal-50",   badgeText: "text-teal-600" },
 }
 
-const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "#1877F2", instagram: "#E1306C", tiktok: "#000000",
-  youtube: "#FF0000", lemon8: "#D4A017", shopee: "#EE4D2D",
-}
-const PLATFORM_LABELS: Record<string, string> = {
-  facebook: "FB", instagram: "IG", tiktok: "TT",
-  youtube: "YT", lemon8: "L8", shopee: "SP",
-}
 
 const STATUS_FILTERS = [
   { value: "all",       label: "ทั้งหมด" },
@@ -95,13 +88,7 @@ function ContentListRow({ item }: { item: ContentItem }) {
       <div className="hidden md:flex flex-col items-end gap-1 w-32 shrink-0">
         <div className="flex items-center gap-1 flex-wrap justify-end">
           {item.platforms.map(p => (
-            <span
-              key={p}
-              className="text-[9px] px-1.5 py-0.5 rounded font-bold text-white leading-none"
-              style={{ backgroundColor: PLATFORM_COLORS[p] ?? "#6b7280" }}
-            >
-              {PLATFORM_LABELS[p] ?? p}
-            </span>
+            <PlatformChip key={p} platform={p} size="xs" showLabel={false} />
           ))}
         </div>
         {item.planned_date && (
