@@ -6,11 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
+  const hasCents = Math.round(amount * 100) % 100 !== 0
   return new Intl.NumberFormat("th-TH", {
     style: "currency",
     currency: "THB",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: 2,
   }).format(amount)
 }
 
