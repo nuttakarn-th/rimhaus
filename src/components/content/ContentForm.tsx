@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { createContentItem, updateContentItem, type ContentFormValues } from "@/actions/content.actions"
+import { type ContentFormValues } from "@/actions/content.actions"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -116,13 +117,28 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
     setLoading(true)
     startTimer()
 
-    const result = item ? await updateContentItem(item.id, form) : await createContentItem(form)
-    stopTimer()
-    if (!result.success) { toast.error(result.error); setLoading(false); return }
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { toast.error("กรุณาเข้าสู่ระบบ"); stopTimer(); setLoading(false); return }
 
-    toast.success(item ? "แก้ไขคอนเทนต์สำเร็จ" : "สร้างคอนเทนต์สำเร็จ")
-    router.push(item ? `/content/${item.id}` : "/content")
-    router.refresh()
+      const payload = { ...form, user_id: user.id }
+      const { error } = item
+        ? await supabase.from("content_items").update(payload).eq("id", item.id).eq("user_id", user.id)
+        : await supabase.from("content_items").insert(payload)
+
+      stopTimer()
+      if (error) { toast.error(error.message); setLoading(false); return }
+
+      toast.success(item ? "แก้ไขคอนเทนต์สำเร็จ" : "สร้างคอนเทนต์สำเร็จ")
+      router.push(item ? `/content/${item.id}` : "/content")
+      router.refresh()
+    } catch (err) {
+      stopTimer()
+      setLoading(false)
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่")
+      console.error(err)
+    }
   }
 
   const statusOptions = Object.entries(CONTENT_STATUS_LABELS).map(([k, v]) => ({ value: k, label: v }))
