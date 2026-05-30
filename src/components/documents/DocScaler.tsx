@@ -6,18 +6,14 @@ const DOC_MIN_WIDTH = 600
 
 export function DocScaler({ children }: { children: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [zoom, setZoom] = useState(() => {
-    if (typeof window === "undefined") return 1
-    const available = window.innerWidth - 32 // account for page padding
-    return available < DOC_MIN_WIDTH ? available / DOC_MIN_WIDTH : 1
-  })
+  const [zoom, setZoom] = useState(1)
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     const update = () => {
-      const available = el.offsetWidth
-      setZoom(available < DOC_MIN_WIDTH ? available / DOC_MIN_WIDTH : 1)
+      const w = el.offsetWidth
+      setZoom(w < DOC_MIN_WIDTH ? w / DOC_MIN_WIDTH : 1)
     }
     update()
     const ro = new ResizeObserver(update)
@@ -26,8 +22,9 @@ export function DocScaler({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div ref={containerRef} className="w-full print:[zoom:1]">
-      <div style={{ zoom, minWidth: `${DOC_MIN_WIDTH}px` }}>
+    // overflow-x-clip clips the 600px child during SSR without creating a scroll container
+    <div ref={containerRef} className="w-full overflow-x-clip print:overflow-visible">
+      <div style={zoom < 1 ? { zoom } : undefined}>
         {children}
       </div>
     </div>

@@ -105,7 +105,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
 
       {/* ===== A4 DOCUMENT — scale-to-fit on mobile ===== */}
       <DocScaler>
-      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
+      <div className="min-w-[600px] bg-white rounded-xl border border-[hsl(35,20%,88%)] print:rounded-none print:border-none print:shadow-none"
         style={{ fontFamily: "'Noto Sans Thai', 'Sarabun', sans-serif" }}>
         <div id="doc-printarea" className="p-4 sm:p-8 print:p-0 max-w-[794px] mx-auto print:max-w-none">
 
