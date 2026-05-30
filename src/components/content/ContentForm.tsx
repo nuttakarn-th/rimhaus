@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createContentItem, updateContentItem, type ContentFormValues } from "@/actions/content.actions"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,8 @@ const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [form, setForm] = useState<ContentFormValues>(
     item
       ? {
@@ -98,12 +100,24 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
     }))
   }
 
+  function startTimer() {
+    setElapsed(0)
+    timerRef.current = setInterval(() => setElapsed(s => s + 1), 1000)
+  }
+
+  function stopTimer() {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+    setElapsed(0)
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title) { toast.error("กรุณากรอกชื่อคอนเทนต์"); return }
     setLoading(true)
+    startTimer()
 
     const result = item ? await updateContentItem(item.id, form) : await createContentItem(form)
+    stopTimer()
     if (!result.success) { toast.error(result.error); setLoading(false); return }
 
     toast.success(item ? "แก้ไขคอนเทนต์สำเร็จ" : "สร้างคอนเทนต์สำเร็จ")
@@ -329,7 +343,9 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
 
       {/* Submit — always at the very bottom */}
       <div className="flex gap-3 mt-6">
-        <Button type="submit" disabled={loading}>{loading ? "กำลังบันทึก..." : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? `กำลังบันทึก... ${elapsed}s` : item ? "บันทึกการแก้ไข" : "สร้างคอนเทนต์"}
+        </Button>
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>ยกเลิก</Button>
       </div>
     </form>
