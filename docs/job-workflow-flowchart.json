@@ -1,0 +1,608 @@
+{
+  "meta": {
+    "title": "กระบวนการรับงานรีวิว — เมื่อไหร่บ้านจะเสร็จ?",
+    "description": "Flowchart ครบทุกเส้นทางตั้งแต่แบรนด์ติดต่อมาจนปิดงานและรับเงิน",
+    "version": "1.0",
+    "deal_types": {
+      "paid_keep": "รับจ้าง (ของไม่คืน)",
+      "paid_return": "รับจ้าง (ของคืน)",
+      "barter": "Barter — ได้ของแทนเงิน",
+      "gifted_brand": "แบรนด์ส่งของมาให้รีวิว",
+      "gifted_self": "รับของมาเอง ไม่มีค่าจ้าง"
+    },
+    "paths": {
+      "A": { "label": "💵 งานรับจ้าง (Paid)", "deal_types": ["paid_keep", "paid_return"], "color": "#10b981" },
+      "B": { "label": "🔄 Barter", "deal_types": ["barter"], "color": "#8b5cf6" },
+      "C": { "label": "🎁 Gifted / รับของฟรี", "deal_types": ["gifted_brand", "gifted_self"], "color": "#06b6d4" }
+    }
+  },
+
+  "nodes": [
+
+    {
+      "id": "trigger_dm",
+      "type": "start",
+      "shape": "oval",
+      "label": "แบรนด์ติดต่อมา",
+      "description": "ได้รับ DM / Email / LINE / IG จากแบรนด์หรือเอเจนซี่",
+      "actor": "brand",
+      "paths": ["A", "B"],
+      "rimhaus": null
+    },
+    {
+      "id": "trigger_gifted",
+      "type": "start",
+      "shape": "oval",
+      "label": "ได้รับ/สั่งซื้อสินค้า",
+      "description": "แบรนด์ส่งของมาให้โดยตรง หรือเราซื้อ/ขอมาเองเพื่อรีวิว",
+      "actor": "creator",
+      "paths": ["C"],
+      "rimhaus": null
+    },
+
+    {
+      "id": "create_lead",
+      "type": "subprocess",
+      "shape": "rounded_rect",
+      "label": "สร้าง Lead ใน Rimhaus",
+      "description": "เปิด Job ใหม่ กรอกชื่อแบรนด์ / สินค้า / ช่องทางที่ติดต่อมา",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "createJob",
+        "status": "lead",
+        "fields": ["brand_name", "product_name", "contact_channel", "contact_handle", "deal_type"]
+      }
+    },
+
+    {
+      "id": "screen_offer",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "ข้อเสนอน่าสนใจมั้ย?",
+      "description": "ดูคร่าวๆ ว่าตรง niche ไหม งบสมเหตุสมผลไหม แบรนด์ผ่านเกณฑ์ไหม",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "options": {
+        "yes": "น่าสนใจ → ติดต่อกลับ",
+        "no": "ไม่สนใจ → ปฏิเสธ"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "reject_lead",
+      "type": "end",
+      "shape": "oval",
+      "label": "ปฏิเสธ / ไม่ตอบ",
+      "description": "ขอบคุณและปฏิเสธงาน หรือ ignore",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "closed",
+        "note": "บันทึกเหตุผลใน notes"
+      }
+    },
+
+    {
+      "id": "reply_contact",
+      "type": "process",
+      "shape": "rect",
+      "label": "ติดต่อกลับ + ขอ Brief",
+      "description": "ตอบรับการติดต่อ ขอรายละเอียด: scope, platform, timeline, budget เบื้องต้น",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "contacted"
+      }
+    },
+
+    {
+      "id": "negotiate",
+      "type": "process",
+      "shape": "rect",
+      "label": "คุย Scope + ต่อรอง",
+      "description": "ตกลงรายละเอียด: จำนวนคลิป, platform, ระยะเวลา, สิทธิ์การใช้ content, exclusive หรือเปล่า",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": null
+    },
+
+    {
+      "id": "decide_deal_type",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "รูปแบบงานคืออะไร?",
+      "description": "แบรนด์จ่ายเงิน? หรือแค่ได้ของ?",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "options": {
+        "paid": "มีค่าตอบแทนเป็นเงิน → Path A",
+        "barter": "ได้ของอย่างเดียว ไม่มีเงิน → Path B"
+      },
+      "rimhaus": {
+        "action": "updateJob",
+        "fields": ["deal_type"]
+      }
+    },
+
+    {
+      "id": "send_quote",
+      "type": "process",
+      "shape": "rect",
+      "label": "ส่งใบเสนอราคา (Quote)",
+      "description": "สร้าง Quotation ใน Rimhaus แล้วส่งให้ลูกค้า ระบุราคา, scope, เงื่อนไข",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": {
+        "action": "createDocument",
+        "doc_type": "quotation",
+        "status_update": "quoted",
+        "fields": ["quote_amount", "platforms", "deadline"]
+      }
+    },
+
+    {
+      "id": "decide_quote",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "ลูกค้าตอบรับ Quote?",
+      "description": "ลูกค้าอนุมัติราคาและเงื่อนไขที่เสนอหรือเปล่า",
+      "actor": "brand",
+      "paths": ["A"],
+      "options": {
+        "approved": "ตกลงราคา → รับงาน",
+        "counter": "ต่อรองราคา → กลับขั้นต่อรอง",
+        "rejected": "ปฏิเสธ → ปิดงาน"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "counter_offer",
+      "type": "process",
+      "shape": "rect",
+      "label": "ต่อรองราคาใหม่",
+      "description": "ปรับ scope หรือราคาแล้วส่ง Quote ใหม่ (วนกลับไปขั้น send_quote)",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": null
+    },
+
+    {
+      "id": "reject_quote",
+      "type": "end",
+      "shape": "oval",
+      "label": "ปิดงาน (ไม่ตกลงราคา)",
+      "description": "ราคาไม่ตรงกัน หรือลูกค้ายกเลิก",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "closed"
+      }
+    },
+
+    {
+      "id": "accept_barter",
+      "type": "process",
+      "shape": "rect",
+      "label": "ตกลงเงื่อนไข Barter",
+      "description": "ยืนยัน scope + ของที่จะได้รับ + วันส่งของ (ไม่มี Quote เป็นเงิน)",
+      "actor": "creator",
+      "paths": ["B"],
+      "rimhaus": {
+        "action": "updateJob",
+        "fields": ["product_value", "deadline"],
+        "status": "quoted"
+      }
+    },
+
+    {
+      "id": "decide_barter",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "ลูกค้ายืนยัน Barter?",
+      "description": "ยืนยันของที่จะส่งให้ตรงตามที่ตกลงกัน",
+      "actor": "brand",
+      "paths": ["B"],
+      "options": {
+        "confirmed": "ยืนยันแล้ว → รอรับของ",
+        "cancelled": "ยกเลิก → ปิดงาน"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "wait_product",
+      "type": "process",
+      "shape": "rect",
+      "label": "รอรับสินค้า",
+      "description": "รอแบรนด์ส่งของ (หรือไปรับเอง) ตรวจสอบสภาพสินค้า",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJob",
+        "fields": ["product_received"]
+      }
+    },
+
+    {
+      "id": "decide_gifted_review",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "จะทำรีวิวหรือเปล่า?",
+      "description": "ดูสินค้าจริงแล้ว ตัดสินใจว่าจะรีวิวให้ audience ดูไหม",
+      "actor": "creator",
+      "paths": ["C"],
+      "options": {
+        "yes": "ทำรีวิว → ผลิตคอนเทนต์",
+        "no": "ไม่ทำ → ปิดงาน"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "production",
+      "type": "subprocess",
+      "shape": "rounded_rect",
+      "label": "ผลิตคอนเทนต์",
+      "description": "เขียน Script → ถ่ายทำ → ตัดต่อ / เรียบเรียง Caption บันทึกใน Content Plan",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "createContentItem",
+        "status_update": "in_production",
+        "content_fields": ["title", "script", "caption", "hashtags", "images", "planned_date", "content_pillar"]
+      }
+    },
+
+    {
+      "id": "send_draft",
+      "type": "process",
+      "shape": "rect",
+      "label": "ส่ง Draft ให้ลูกค้าตรวจ",
+      "description": "ส่ง Draft คลิป/รูป/caption ให้ลูกค้าดูก่อนโพส ผ่านช่องทางที่ตกลงกัน",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "draft_sent"
+      }
+    },
+
+    {
+      "id": "decide_approved",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "ลูกค้าอนุมัติ Draft?",
+      "description": "ลูกค้าดู Draft แล้วโอเคไหม หรือมีอะไรให้แก้ไข",
+      "actor": "brand",
+      "paths": ["A", "B"],
+      "options": {
+        "approved": "อนุมัติ ✅ → กำหนดวันโพส",
+        "revision": "ขอแก้ไข 🔄 → แก้แล้วส่งใหม่",
+        "rejected": "ปฏิเสธทั้งหมด ❌ → เจรจาหรือปิดงาน"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "do_revision",
+      "type": "process",
+      "shape": "rect",
+      "label": "แก้ไขตาม Feedback",
+      "description": "รับ feedback ลูกค้า → แก้ script / ตัดต่อใหม่ / ปรับ caption ตามที่ขอ",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "revision",
+        "note": "นับจำนวนรอบแก้ใน notes"
+      }
+    },
+
+    {
+      "id": "reject_draft",
+      "type": "end",
+      "shape": "oval",
+      "label": "ยกเลิก / ปิดงาน (draft ไม่ผ่าน)",
+      "description": "ไม่สามารถหาจุดร่วมได้ ยุติการทำงาน",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "closed"
+      }
+    },
+
+    {
+      "id": "approved",
+      "type": "process",
+      "shape": "rect",
+      "label": "ลูกค้าอนุมัติแล้ว",
+      "description": "ได้รับการยืนยันเป็นลายลักษณ์อักษร (IG DM / Email / LINE)",
+      "actor": "brand",
+      "paths": ["A", "B"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "approved"
+      }
+    },
+
+    {
+      "id": "schedule_post",
+      "type": "process",
+      "shape": "rect",
+      "label": "กำหนดวันเวลาโพส",
+      "description": "ตกลงวันและเวลาโพสกับลูกค้า บันทึกลง Rimhaus และ Content Plan",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "updateJob",
+        "status": "scheduled",
+        "fields": ["scheduled_date", "post_date"],
+        "content_action": "updateContentItem",
+        "content_fields": ["planned_date", "status → ready"]
+      }
+    },
+
+    {
+      "id": "post_content",
+      "type": "process",
+      "shape": "rect",
+      "label": "โพสจริง",
+      "description": "อัปโหลดคอนเทนต์ขึ้น Platform ตามที่ตกลง ใส่ caption + hashtag + mention แบรนด์",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "posted",
+        "content_action": "updateContentItem",
+        "content_fields": ["status → posted"],
+        "next": "สร้าง Social Post record เพื่อติด track engagement"
+      }
+    },
+
+    {
+      "id": "notify_brand",
+      "type": "process",
+      "shape": "rect",
+      "label": "แจ้งลูกค้าว่าโพสแล้ว",
+      "description": "ส่ง link โพสให้ลูกค้า ส่ง screenshot stats (ถ้าขอ)",
+      "actor": "creator",
+      "paths": ["A", "B"],
+      "rimhaus": null
+    },
+
+    {
+      "id": "decide_payment_path",
+      "type": "decision",
+      "shape": "diamond",
+      "label": "ประเภทงาน?",
+      "description": "งานนี้เป็นแบบจ่ายเงิน หรือ Barter/Gifted",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "options": {
+        "paid": "รับจ้าง (paid_keep / paid_return) → ออก Invoice",
+        "barter_gifted": "Barter / Gifted → ปิดงานได้เลย"
+      },
+      "rimhaus": null
+    },
+
+    {
+      "id": "create_invoice",
+      "type": "subprocess",
+      "shape": "rounded_rect",
+      "label": "ออก Invoice",
+      "description": "สร้างใบแจ้งหนี้ใน Rimhaus อ้างอิงจาก Quotation ที่ approve แล้ว ส่งให้ลูกค้า",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": {
+        "action": "createDocument",
+        "doc_type": "invoice",
+        "status_update": "invoiced",
+        "fields": ["payment_amount", "due_date", "linked_quotation_id"]
+      }
+    },
+
+    {
+      "id": "wait_payment",
+      "type": "process",
+      "shape": "rect",
+      "label": "รอรับเงิน",
+      "description": "รอลูกค้าโอนเงิน ติดตามถ้าเกิน Due Date",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": null
+    },
+
+    {
+      "id": "receive_payment",
+      "type": "process",
+      "shape": "rect",
+      "label": "ได้รับเงินแล้ว",
+      "description": "ตรวจสลิป บันทึกรายรับใน Rimhaus ออกใบเสร็จถ้าลูกค้าขอ",
+      "actor": "creator",
+      "paths": ["A"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "paid",
+        "also": [
+          "createDocument (receipt ถ้าต้องการ)",
+          "createTransaction (บันทึกรายรับ)",
+          "updatePaymentStatus → received"
+        ]
+      }
+    },
+
+    {
+      "id": "return_product",
+      "type": "process",
+      "shape": "rect",
+      "label": "คืนสินค้า",
+      "description": "ส่งสินค้าคืนแบรนด์ตามที่ตกลง (เฉพาะ paid_return)",
+      "actor": "creator",
+      "paths": ["A"],
+      "condition": "deal_type === 'paid_return' เท่านั้น",
+      "rimhaus": null
+    },
+
+    {
+      "id": "record_stats",
+      "type": "subprocess",
+      "shape": "rounded_rect",
+      "label": "บันทึก Engagement Stats",
+      "description": "บันทึกยอด views / likes / comments / shares / reach หลังโพสผ่านไป 24-48 ชั่วโมง",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "updateSocialPost",
+        "fields": ["views", "likes", "comments", "shares", "reach", "saves"]
+      }
+    },
+
+    {
+      "id": "close_job",
+      "type": "end",
+      "shape": "oval",
+      "label": "ปิดงาน ✅",
+      "description": "งานเสร็จสมบูรณ์ ปิด Job ใน Rimhaus",
+      "actor": "creator",
+      "paths": ["A", "B", "C"],
+      "rimhaus": {
+        "action": "updateJobStatus",
+        "status": "closed"
+      }
+    }
+
+  ],
+
+  "edges": [
+
+    { "id": "e01", "from": "trigger_dm",          "to": "create_lead",        "label": "รับการติดต่อ",               "paths": ["A", "B"] },
+    { "id": "e02", "from": "trigger_gifted",       "to": "create_lead",        "label": "ได้รับ/สั่งของ",              "paths": ["C"] },
+    { "id": "e03", "from": "create_lead",          "to": "screen_offer",       "label": "",                            "paths": ["A", "B"] },
+    { "id": "e04", "from": "create_lead",          "to": "decide_gifted_review","label": "",                           "paths": ["C"] },
+
+    { "id": "e05", "from": "screen_offer",         "to": "reply_contact",      "label": "น่าสนใจ ✅",                  "paths": ["A", "B"] },
+    { "id": "e06", "from": "screen_offer",         "to": "reject_lead",        "label": "ไม่น่าสนใจ ❌",               "paths": ["A", "B"] },
+
+    { "id": "e07", "from": "reply_contact",        "to": "negotiate",          "label": "ได้รับ Brief",                "paths": ["A", "B"] },
+    { "id": "e08", "from": "negotiate",            "to": "decide_deal_type",   "label": "",                            "paths": ["A", "B"] },
+
+    { "id": "e09", "from": "decide_deal_type",     "to": "send_quote",         "label": "มีค่าตอบแทน 💵",              "paths": ["A"] },
+    { "id": "e10", "from": "decide_deal_type",     "to": "accept_barter",      "label": "ได้ของอย่างเดียว 🔄",          "paths": ["B"] },
+
+    { "id": "e11", "from": "send_quote",           "to": "decide_quote",       "label": "รอลูกค้าตอบกลับ",             "paths": ["A"] },
+    { "id": "e12", "from": "decide_quote",         "to": "wait_product",       "label": "ตกลงราคา ✅",                 "paths": ["A"] },
+    { "id": "e13", "from": "decide_quote",         "to": "counter_offer",      "label": "ต่อรองราคา 🔄",               "paths": ["A"] },
+    { "id": "e14", "from": "decide_quote",         "to": "reject_quote",       "label": "ปฏิเสธ ❌",                   "paths": ["A"] },
+    { "id": "e15", "from": "counter_offer",        "to": "send_quote",         "label": "ส่ง Quote ใหม่",              "paths": ["A"] },
+
+    { "id": "e16", "from": "accept_barter",        "to": "decide_barter",      "label": "รอลูกค้ายืนยัน",              "paths": ["B"] },
+    { "id": "e17", "from": "decide_barter",        "to": "wait_product",       "label": "ยืนยันแล้ว ✅",               "paths": ["B"] },
+    { "id": "e18", "from": "decide_barter",        "to": "reject_lead",        "label": "ยกเลิก ❌",                   "paths": ["B"] },
+
+    { "id": "e19", "from": "wait_product",         "to": "production",         "label": "ได้รับสินค้าแล้ว 📦",          "paths": ["A", "B"] },
+
+    { "id": "e20", "from": "decide_gifted_review", "to": "production",         "label": "ทำรีวิว ✅",                   "paths": ["C"] },
+    { "id": "e21", "from": "decide_gifted_review", "to": "close_job",          "label": "ไม่ทำรีวิว ❌",               "paths": ["C"] },
+
+    { "id": "e22", "from": "production",           "to": "send_draft",         "label": "Draft พร้อมแล้ว",              "paths": ["A", "B"] },
+    { "id": "e23", "from": "production",           "to": "schedule_post",      "label": "Gifted ไม่ต้องส่ง Draft",     "paths": ["C"] },
+
+    { "id": "e24", "from": "send_draft",           "to": "decide_approved",    "label": "รอ Feedback",                 "paths": ["A", "B"] },
+    { "id": "e25", "from": "decide_approved",      "to": "approved",           "label": "อนุมัติ ✅",                  "paths": ["A", "B"] },
+    { "id": "e26", "from": "decide_approved",      "to": "do_revision",        "label": "ขอแก้ 🔄",                    "paths": ["A", "B"] },
+    { "id": "e27", "from": "decide_approved",      "to": "reject_draft",       "label": "ปฏิเสธทั้งหมด ❌",            "paths": ["A", "B"] },
+    { "id": "e28", "from": "do_revision",          "to": "send_draft",         "label": "ส่ง Draft ใหม่",              "paths": ["A", "B"] },
+
+    { "id": "e29", "from": "approved",             "to": "schedule_post",      "label": "",                            "paths": ["A", "B"] },
+    { "id": "e30", "from": "schedule_post",        "to": "post_content",       "label": "ถึงวันโพส 📅",                "paths": ["A", "B", "C"] },
+
+    { "id": "e31", "from": "post_content",         "to": "notify_brand",       "label": "",                            "paths": ["A", "B"] },
+    { "id": "e32", "from": "post_content",         "to": "record_stats",       "label": "รอ 24-48 ชม.",               "paths": ["C"] },
+    { "id": "e33", "from": "notify_brand",         "to": "decide_payment_path","label": "",                            "paths": ["A", "B"] },
+
+    { "id": "e34", "from": "decide_payment_path",  "to": "create_invoice",     "label": "Paid 💵",                     "paths": ["A"] },
+    { "id": "e35", "from": "decide_payment_path",  "to": "record_stats",       "label": "Barter / Gifted 🎁",           "paths": ["B", "C"] },
+
+    { "id": "e36", "from": "create_invoice",       "to": "wait_payment",       "label": "ส่ง Invoice แล้ว",            "paths": ["A"] },
+    { "id": "e37", "from": "wait_payment",         "to": "receive_payment",    "label": "ได้รับเงิน 💰",               "paths": ["A"] },
+    { "id": "e38", "from": "receive_payment",      "to": "return_product",     "label": "paid_return เท่านั้น",        "paths": ["A"], "condition": "deal_type === 'paid_return'" },
+    { "id": "e39", "from": "receive_payment",      "to": "record_stats",       "label": "paid_keep",                  "paths": ["A"], "condition": "deal_type === 'paid_keep'" },
+    { "id": "e40", "from": "return_product",       "to": "record_stats",       "label": "",                            "paths": ["A"] },
+
+    { "id": "e41", "from": "record_stats",         "to": "close_job",          "label": "บันทึก Stats แล้ว",           "paths": ["A", "B", "C"] }
+
+  ],
+
+  "happy_paths": {
+    "paid_keep": [
+      "trigger_dm", "create_lead", "screen_offer(✅)", "reply_contact",
+      "negotiate", "decide_deal_type(paid)", "send_quote",
+      "decide_quote(✅)", "wait_product", "production",
+      "send_draft", "decide_approved(✅)", "approved",
+      "schedule_post", "post_content", "notify_brand",
+      "decide_payment_path(paid)", "create_invoice",
+      "wait_payment", "receive_payment(paid_keep)",
+      "record_stats", "close_job"
+    ],
+    "paid_return": [
+      "trigger_dm", "create_lead", "screen_offer(✅)", "reply_contact",
+      "negotiate", "decide_deal_type(paid)", "send_quote",
+      "decide_quote(✅)", "wait_product", "production",
+      "send_draft", "decide_approved(✅)", "approved",
+      "schedule_post", "post_content", "notify_brand",
+      "decide_payment_path(paid)", "create_invoice",
+      "wait_payment", "receive_payment", "return_product",
+      "record_stats", "close_job"
+    ],
+    "barter": [
+      "trigger_dm", "create_lead", "screen_offer(✅)", "reply_contact",
+      "negotiate", "decide_deal_type(barter)", "accept_barter",
+      "decide_barter(✅)", "wait_product", "production",
+      "send_draft", "decide_approved(✅)", "approved",
+      "schedule_post", "post_content", "notify_brand",
+      "decide_payment_path(barter)", "record_stats", "close_job"
+    ],
+    "gifted_brand": [
+      "trigger_gifted", "create_lead",
+      "decide_gifted_review(✅)", "production",
+      "schedule_post", "post_content",
+      "record_stats", "close_job"
+    ],
+    "gifted_self": [
+      "trigger_gifted", "create_lead",
+      "decide_gifted_review(✅)", "production",
+      "schedule_post", "post_content",
+      "record_stats", "close_job"
+    ]
+  },
+
+  "rejection_paths": {
+    "ไม่สนใจข้อเสนอ":     ["trigger_dm", "create_lead", "screen_offer(❌)", "reject_lead"],
+    "Quote ไม่ตรงกัน":    ["...", "send_quote", "decide_quote(❌)", "reject_quote"],
+    "Barter ยกเลิก":      ["...", "accept_barter", "decide_barter(❌)", "reject_lead"],
+    "Draft ไม่ผ่าน":      ["...", "send_draft", "decide_approved(❌)", "reject_draft"],
+    "Gifted ไม่ทำรีวิว":  ["trigger_gifted", "create_lead", "decide_gifted_review(❌)", "close_job"]
+  },
+
+  "rimhaus_status_map": {
+    "lead":          { "trigger": "สร้าง Job ใหม่",                       "actor": "creator" },
+    "contacted":     { "trigger": "ติดต่อกลับลูกค้าแล้ว",                 "actor": "creator" },
+    "quoted":        { "trigger": "ส่ง Quote / ตกลงเงื่อนไข Barter",     "actor": "creator" },
+    "in_production": { "trigger": "เริ่มผลิตคอนเทนต์",                    "actor": "creator" },
+    "draft_sent":    { "trigger": "ส่ง Draft ให้ลูกค้าตรวจ",               "actor": "creator" },
+    "revision":      { "trigger": "ลูกค้าขอแก้ไข",                        "actor": "brand"   },
+    "approved":      { "trigger": "ลูกค้าอนุมัติ Draft",                  "actor": "brand"   },
+    "scheduled":     { "trigger": "กำหนดวันโพสแล้ว",                      "actor": "creator" },
+    "posted":        { "trigger": "โพสจริงบน Platform แล้ว",              "actor": "creator" },
+    "invoiced":      { "trigger": "ส่ง Invoice ให้ลูกค้า",                 "actor": "creator" },
+    "paid":          { "trigger": "ได้รับเงินครบแล้ว",                     "actor": "brand"   },
+    "closed":        { "trigger": "ปิดงานเรียบร้อย",                       "actor": "creator" }
+  }
+}
