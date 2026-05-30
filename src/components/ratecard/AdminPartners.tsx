@@ -59,49 +59,104 @@ export function AdminPartners({ partners }: Props) {
   const [uploadLabel, setUploadLabel] = useState("")
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-
-  // keep in sync with server refreshes
-  useEffect(() => { setItems(partners) }, [partners])
-
-  // ── Drag state ─────────────────────────────────────────────────
-  const dragIdRef = useRef<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
 
-  function onDragStart(id: string) {
+  useEffect(() => { setItems(partners) }, [partners])
+
+  // ── Pointer drag (mouse + touch + stylus) ─────────────────────
+  const itemsRef = useRef(items)
+  useEffect(() => { itemsRef.current = items }, [items])
+
+  const dragIdRef = useRef<string | null>(null)
+  const ghostRef = useRef<HTMLDivElement | null>(null)
+  const offsetRef = useRef({ x: 0, y: 0 })
+
+  function startDrag(e: React.PointerEvent, id: string) {
+    e.preventDefault()
     dragIdRef.current = id
+
+    const card = document.querySelector<HTMLElement>(`[data-partner-id="${id}"]`)
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    offsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+
+    // Clone card into a floating ghost
+    const ghost = card.cloneNode(true) as HTMLDivElement
+    Object.assign(ghost.style, {
+      position: "fixed",
+      left: `${rect.left}px`,
+      top: `${rect.top}px`,
+      width: `${rect.width}px`,
+      opacity: "0.92",
+      pointerEvents: "none",
+      zIndex: "9999",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.22)",
+      transform: "scale(1.07)",
+      borderRadius: "12px",
+      transition: "none",
+      cursor: "grabbing",
+    })
+    document.body.appendChild(ghost)
+    ghostRef.current = ghost
   }
 
-  function onDragOver(e: React.DragEvent, id: string) {
-    e.preventDefault()
-    if (dragIdRef.current !== id) setDragOverId(id)
-  }
+  useEffect(() => {
+    function onMove(e: PointerEvent) {
+      if (!dragIdRef.current) return
 
-  function onDragLeave() {
-    setDragOverId(null)
-  }
+      // Move ghost
+      if (ghostRef.current) {
+        ghostRef.current.style.left = `${e.clientX - offsetRef.current.x}px`
+        ghostRef.current.style.top = `${e.clientY - offsetRef.current.y}px`
+      }
 
-  async function onDrop(e: React.DragEvent, targetId: string) {
-    e.preventDefault()
-    setDragOverId(null)
-    const fromId = dragIdRef.current
-    dragIdRef.current = null
-    if (!fromId || fromId === targetId) return
+      // Detect card under pointer (hide ghost temporarily so it doesn't block hit test)
+      if (ghostRef.current) ghostRef.current.style.visibility = "hidden"
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null
+      if (ghostRef.current) ghostRef.current.style.visibility = ""
 
-    const fromIdx = items.findIndex(p => p.id === fromId)
-    const toIdx = items.findIndex(p => p.id === targetId)
-    const next = [...items]
-    const [moved] = next.splice(fromIdx, 1)
-    next.splice(toIdx, 0, moved)
-    setItems(next)
+      const card = el?.closest<HTMLElement>("[data-partner-id]")
+      const overId = card?.dataset.partnerId ?? null
+      setDragOverId(overId && overId !== dragIdRef.current ? overId : null)
+    }
 
-    const result = await reorderPartners(next.map(p => p.id))
-    if (!result.success) toast.error("บันทึกลำดับไม่สำเร็จ")
-  }
+    async function onUp(e: PointerEvent) {
+      const fromId = dragIdRef.current
+      dragIdRef.current = null
 
-  function onDragEnd() {
-    dragIdRef.current = null
-    setDragOverId(null)
-  }
+      if (ghostRef.current) {
+        document.body.removeChild(ghostRef.current)
+        ghostRef.current = null
+      }
+
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null
+      const card = el?.closest<HTMLElement>("[data-partner-id]")
+      const toId = card?.dataset.partnerId ?? null
+      setDragOverId(null)
+
+      if (!fromId || !toId || fromId === toId) return
+
+      const cur = itemsRef.current
+      const fromIdx = cur.findIndex(p => p.id === fromId)
+      const toIdx = cur.findIndex(p => p.id === toId)
+      if (fromIdx < 0 || toIdx < 0) return
+
+      const next = [...cur]
+      const [moved] = next.splice(fromIdx, 1)
+      next.splice(toIdx, 0, moved)
+      setItems(next)
+
+      const result = await reorderPartners(next.map(p => p.id))
+      if (!result.success) toast.error("บันทึกลำดับไม่สำเร็จ")
+    }
+
+    document.addEventListener("pointermove", onMove)
+    document.addEventListener("pointerup", onUp)
+    return () => {
+      document.removeEventListener("pointermove", onMove)
+      document.removeEventListener("pointerup", onUp)
+    }
+  }, []) // refs keep values current — no deps needed
 
   // ── Upload ─────────────────────────────────────────────────────
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -132,7 +187,7 @@ export function AdminPartners({ partners }: Props) {
     setUploadLabel("")
   }
 
-  // ── Add ────────────────────────────────────────────────────────
+  // ── Add / Delete ───────────────────────────────────────────────
   async function handleAdd() {
     if (!form.logo_url.trim()) { toast.error("กรุณาอัปโหลดโลโก้ก่อน"); return }
     setSaving(true)
@@ -149,7 +204,6 @@ export function AdminPartners({ partners }: Props) {
     router.refresh()
   }
 
-  // ── Delete ─────────────────────────────────────────────────────
   async function handleDelete(id: string) {
     setDeletingId(id)
     const result = await deletePartner(id)
@@ -164,7 +218,7 @@ export function AdminPartners({ partners }: Props) {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">All Partner</h3>
         {items.length > 0 && (
-          <span className="text-xs text-[hsl(25,10%,55%)]">ลากเพื่อจัดเรียง</span>
+          <span className="text-xs text-[hsl(25,10%,55%)]">จับที่ ⠿ เพื่อจัดเรียง</span>
         )}
       </div>
 
@@ -173,29 +227,29 @@ export function AdminPartners({ partners }: Props) {
           {items.map(p => (
             <div
               key={p.id}
-              draggable
-              onDragStart={() => onDragStart(p.id)}
-              onDragOver={e => onDragOver(e, p.id)}
-              onDragLeave={onDragLeave}
-              onDrop={e => onDrop(e, p.id)}
-              onDragEnd={onDragEnd}
+              data-partner-id={p.id}
               className={[
-                "relative rounded-xl border bg-[hsl(35,30%,97%)] p-2.5 flex flex-col items-center gap-1.5 cursor-grab active:cursor-grabbing select-none transition-all",
-                dragIdRef.current === p.id ? "opacity-40 scale-95" : "",
+                "relative rounded-xl border bg-[hsl(35,30%,97%)] p-2.5 flex flex-col items-center gap-1.5 select-none transition-all duration-150",
+                dragIdRef.current === p.id ? "opacity-30 scale-95" : "",
                 dragOverId === p.id
-                  ? "border-[hsl(24,85%,50%)] bg-orange-50 ring-2 ring-[hsl(24,85%,50%)] ring-offset-1"
+                  ? "border-[hsl(24,85%,50%)] bg-orange-50 ring-2 ring-[hsl(24,85%,50%)] ring-offset-1 scale-[1.03]"
                   : "border-[hsl(35,20%,88%)]",
               ].join(" ")}
             >
-              {/* Grip handle */}
-              <GripVertical className="w-3 h-3 text-[hsl(25,10%,60%)] absolute top-1.5 left-1.5" />
+              {/* Grip handle — touch-action:none prevents page scroll while dragging */}
+              <div
+                onPointerDown={e => startDrag(e, p.id)}
+                style={{ touchAction: "none" }}
+                className="absolute top-1.5 left-1.5 p-0.5 cursor-grab active:cursor-grabbing text-[hsl(25,10%,65%)] hover:text-[hsl(25,10%,35%)]"
+              >
+                <GripVertical className="w-3.5 h-3.5" />
+              </div>
 
-              {/* Logo */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={p.logo_url}
                 alt={p.name ?? ""}
-                className="h-9 w-full object-contain pointer-events-none"
+                className="h-9 w-full object-contain pointer-events-none mt-1"
               />
 
               {p.name && (
@@ -204,11 +258,10 @@ export function AdminPartners({ partners }: Props) {
                 </p>
               )}
 
-              {/* Delete — always visible */}
               <button
                 onClick={() => handleDelete(p.id)}
                 disabled={deletingId === p.id}
-                className="mt-0.5 flex items-center gap-1 text-[10px] text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
+                className="flex items-center gap-1 text-[10px] text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
                 {deletingId === p.id ? "..." : "ลบ"}
@@ -223,7 +276,6 @@ export function AdminPartners({ partners }: Props) {
       {/* Add form */}
       <div className="border border-[hsl(35,20%,88%)] rounded-xl p-4 space-y-3 bg-white">
         <p className="text-xs font-semibold text-[hsl(25,20%,25%)]">เพิ่ม Partner ใหม่</p>
-
         <div className="space-y-1">
           <Label className="text-xs">ชื่อแบรนด์ (optional)</Label>
           <Input
@@ -232,7 +284,6 @@ export function AdminPartners({ partners }: Props) {
             placeholder="ชื่อแบรนด์"
           />
         </div>
-
         <div className="space-y-1">
           <Label className="text-xs">
             โลโก้{" "}
@@ -258,7 +309,6 @@ export function AdminPartners({ partners }: Props) {
             </Button>
           )}
         </div>
-
         <Button size="sm" onClick={handleAdd} disabled={saving || !form.logo_url}>
           <Plus className="w-3.5 h-3.5 mr-1" />
           {saving ? "กำลังบันทึก..." : "เพิ่ม"}
