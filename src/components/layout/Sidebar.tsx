@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   MessageSquare,
+  BarChart2,
 } from "lucide-react"
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { href: "/documents", icon: FileText, label: "เอกสาร" },
   { href: "/settings/issuers", icon: User, label: "ผู้ออกเอกสาร" },
   { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },
+  { href: "/settings/instagram", icon: BarChart2, label: "Instagram Insights" },
   { href: "/settings/line", icon: MessageSquare, label: "LINE Bot" },
 ]
 

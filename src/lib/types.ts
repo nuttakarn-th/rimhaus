@@ -170,6 +170,13 @@ export interface RateCardSettings {
   contact_email: string | null
   contact_phone: string | null
   notes: string[] | null
+  social_stats: {
+    ig_followers?: number | null
+    ig_username?: string | null
+    ig_avg_reach?: number | null
+    ig_engagement_rate?: number | null
+    updated_at?: string | null
+  } | null
   updated_at: string
 }
 

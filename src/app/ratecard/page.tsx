@@ -78,6 +78,57 @@ export default async function RateCardPage() {
           </div>
         </div>
 
+        {/* Social stats bar */}
+        {settings?.social_stats && (settings.social_stats.ig_followers || settings.social_stats.ig_engagement_rate) && (
+          <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 border border-pink-100 rounded-2xl p-5">
+            <div className="flex items-center justify-center gap-8 flex-wrap">
+              {settings.social_stats.ig_followers != null && (
+                <div className="text-center">
+                  <p className="text-2xl font-black text-[hsl(25,20%,15%)]">
+                    {settings.social_stats.ig_followers >= 1000
+                      ? `${(settings.social_stats.ig_followers / 1000).toFixed(1)}K`
+                      : settings.social_stats.ig_followers.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">Followers</p>
+                </div>
+              )}
+              {settings.social_stats.ig_engagement_rate != null && (
+                <>
+                  <div className="w-px h-10 bg-pink-200" />
+                  <div className="text-center">
+                    <p className="text-2xl font-black text-[hsl(25,20%,15%)]">
+                      {settings.social_stats.ig_engagement_rate}%
+                    </p>
+                    <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">Engagement Rate</p>
+                  </div>
+                </>
+              )}
+              {settings.social_stats.ig_avg_reach != null && (
+                <>
+                  <div className="w-px h-10 bg-pink-200" />
+                  <div className="text-center">
+                    <p className="text-2xl font-black text-[hsl(25,20%,15%)]">
+                      {settings.social_stats.ig_avg_reach >= 1000
+                        ? `${(settings.social_stats.ig_avg_reach / 1000).toFixed(1)}K`
+                        : settings.social_stats.ig_avg_reach.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">Avg. Reach / วัน</p>
+                  </div>
+                </>
+              )}
+              {settings.social_stats.ig_username && (
+                <>
+                  <div className="w-px h-10 bg-pink-200" />
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-pink-600">@{settings.social_stats.ig_username}</p>
+                    <p className="text-xs text-[hsl(25,10%,50%)] mt-0.5">Instagram</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Rate card image */}
         {settings?.image_url && (
           <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
