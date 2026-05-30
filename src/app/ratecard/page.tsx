@@ -100,15 +100,14 @@ export default async function RateCardPage() {
   const previewGallery = galleryItems.slice(0, 6)
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-10">
-
-      {/* ── Hero ──────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] px-6 py-10 text-white text-center">
+    <>
+      {/* ── Full-screen Hero ──────────────────────────────── */}
+      <section className="relative overflow-hidden w-full min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white">
         {/* Decorative circles */}
-        <div className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[hsl(24,85%,50%)]/10" />
-        <div className="pointer-events-none absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-white/5" />
+        <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-[hsl(24,85%,50%)]/10 -translate-y-1/2 translate-x-1/2" />
+        <div className="pointer-events-none absolute bottom-0 left-0 w-72 h-72 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative space-y-4">
+        <div className="relative max-w-3xl mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center py-24 space-y-4">
           {settings?.image_url && (
             <div className="flex justify-center mb-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -217,8 +216,19 @@ export default async function RateCardPage() {
               </a>
             </div>
           )}
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 animate-bounce">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
         </div>
       </section>
+
+      {/* ── Below-hero content ────────────────────────────── */}
+      <div className="bg-[hsl(35,30%,97%)]">
+      <div className="max-w-3xl mx-auto px-4 py-10 space-y-14">
 
       {/* ── Partner Strip ─────────────────────────────────── */}
       {partners.length > 0 && (
@@ -401,6 +411,17 @@ export default async function RateCardPage() {
         </section>
       )}
 
+      {/* ── Rate Card Image (before packages) ───────────── */}
+      {settings?.image_url && (
+        <section>
+          <SectionHeader title="Rate Card" />
+          <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
+          </div>
+        </section>
+      )}
+
       {/* ── Packages ─────────────────────────────────────── */}
       {grouped.per_platform.length > 0 && (
         <section>
@@ -436,17 +457,6 @@ export default async function RateCardPage() {
             {grouped.barter[0].description && (
               <p className="text-sm text-violet-700 leading-relaxed">{grouped.barter[0].description}</p>
             )}
-          </div>
-        </section>
-      )}
-
-      {/* ── Rate Card Image ───────────────────────────────── */}
-      {settings?.image_url && (
-        <section>
-          <SectionHeader title="Rate Card" />
-          <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
           </div>
         </section>
       )}
@@ -522,6 +532,9 @@ export default async function RateCardPage() {
       <p className="text-center text-xs text-[hsl(25,10%,65%)] pb-4">
         {settings?.page_name} · un.finished.house
       </p>
-    </div>
+
+      </div>
+      </div>
+    </>
   )
 }

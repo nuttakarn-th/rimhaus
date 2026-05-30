@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -19,22 +20,41 @@ const LINE_ICON = (
 
 export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, contactLine }: Props) {
   const pathname = usePathname()
+  const isHome = pathname === "/ratecard"
+
+  // Start opaque on non-home pages, start transparent on home
+  const [scrolled, setScrolled] = useState(!isHome)
+
+  useEffect(() => {
+    if (!isHome) { setScrolled(true); return }
+    const check = () => setScrolled(window.scrollY > 60)
+    check()
+    window.addEventListener("scroll", check, { passive: true })
+    return () => window.removeEventListener("scroll", check)
+  }, [isHome])
+
+  const ghost = isHome && !scrolled
 
   const navItems = [
-    { label: "Rate Card", href: "/ratecard", always: true },
+    { label: "Rate Card",        href: "/ratecard",           always: true },
     { label: "ตัวอย่าง Content", href: "/ratecard/portfolio", show: hasPortfolio },
-    { label: "Gallery", href: "/ratecard/gallery", show: hasGallery },
-    { label: "All Partner", href: "/ratecard/partners", show: hasPartners },
+    { label: "Gallery",          href: "/ratecard/gallery",   show: hasGallery },
+    { label: "All Partner",      href: "/ratecard/partners",  show: hasPartners },
   ]
-
   const visibleItems = navItems.filter(item => item.always || item.show)
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-[hsl(35,20%,88%)] shadow-sm">
-      <div className="max-w-3xl mx-auto px-4">
+    <header className={`sticky top-0 z-50 transition-all duration-500 ${
+      ghost
+        ? "bg-transparent border-b border-white/10"
+        : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
+    }`}>
+      <div className="max-w-4xl mx-auto px-4">
         {/* Top row */}
-        <div className="h-12 flex items-center justify-between gap-2">
-          <span className="font-black text-[hsl(25,20%,15%)] text-base truncate shrink-0">🏠 {pageName}</span>
+        <div className="h-14 flex items-center justify-between gap-2">
+          <span className={`font-black text-base truncate shrink-0 transition-colors duration-300 ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}>
+            🏠 {pageName}
+          </span>
 
           {/* Desktop nav (center) */}
           <nav className="hidden sm:flex items-center gap-1 flex-1 justify-center">
@@ -44,10 +64,14 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
                     isActive
-                      ? "bg-[hsl(24,85%,50%)] text-white"
-                      : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                      ? ghost
+                        ? "bg-white/20 text-white"
+                        : "bg-[hsl(24,85%,50%)] text-white"
+                      : ghost
+                        ? "text-white/75 hover:text-white hover:bg-white/10"
+                        : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
                   }`}
                 >
                   {item.label}
@@ -71,7 +95,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
             )}
             <Link
               href="/dashboard"
-              className="text-xs text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors"
+              className={`text-xs transition-colors duration-300 ${ghost ? "text-white/70 hover:text-white" : "text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)]"}`}
             >
               Admin →
             </Link>
@@ -79,17 +103,21 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
         </div>
 
         {/* Mobile: nav + LINE on second row */}
-        <div className="flex sm:hidden items-center gap-1.5 pb-2 overflow-x-auto">
+        <div className={`flex sm:hidden items-center gap-1.5 pb-2 overflow-x-auto ${ghost ? "border-t border-white/10" : ""}`}>
           {visibleItems.map(item => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
                   isActive
-                    ? "bg-[hsl(24,85%,50%)] text-white"
-                    : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                    ? ghost
+                      ? "bg-white/20 text-white"
+                      : "bg-[hsl(24,85%,50%)] text-white"
+                    : ghost
+                      ? "text-white/75 hover:text-white hover:bg-white/10"
+                      : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
                 }`}
               >
                 {item.label}

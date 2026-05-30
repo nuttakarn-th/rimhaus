@@ -12,7 +12,7 @@ export default async function RateCardLayout({ children }: { children: React.Rea
   ])
 
   return (
-    <div className="min-h-screen bg-[hsl(35,30%,97%)]">
+    <div className="min-h-screen">
       <RateCardNav
         pageName={settings?.page_name ?? "Rimhaus"}
         hasPortfolio={portfolioItems.length > 0}
