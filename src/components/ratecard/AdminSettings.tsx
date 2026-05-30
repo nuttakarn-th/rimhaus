@@ -34,6 +34,10 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
   )
+  const [platformUrls, setPlatformUrls] = useState<Record<string, string>>(
+    settings?.platform_urls ?? {}
+  )
+  const [savingUrls, setSavingUrls] = useState(false)
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -87,6 +91,17 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     router.refresh()
   }
 
+  async function handleSavePlatformUrls() {
+    setSavingUrls(true)
+    const cleaned = Object.fromEntries(
+      Object.entries(platformUrls).filter(([, v]) => v.trim())
+    )
+    await upsertSettings({ platform_urls: cleaned })
+    setSavingUrls(false)
+    toast.success("บันทึก URL สำเร็จ")
+    router.refresh()
+  }
+
   async function handleSave() {
     setSaving(true)
     const result = await upsertSettings({
@@ -128,57 +143,71 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         )}
       </div>
 
-      {/* Platform logos */}
+      {/* Platform logos + URLs */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
         <div>
-          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">โลโก้ Social Media</h3>
-          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">อัปโหลดรูปโลโก้แต่ละแพลตฟอร์ม (แสดงในหน้า Rate Card แทน icon ค่าเริ่มต้น)</p>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">โลโก้ & ลิงก์ Social Media</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">อัปโหลดโลโก้และใส่ URL เพื่อให้ลูกค้ากดเข้าหน้าเพจได้จากหน้า Rate Card</p>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-2">
           {PLATFORM_KEYS.map(p => {
             const logoUrl = platformLogos[p]
             const isUploading = uploadingPlatform === p
             return (
-              <div key={p} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-[hsl(35,20%,90%)] bg-[hsl(35,30%,98%)]">
+              <div key={p} className="flex items-center gap-3 p-3 rounded-xl border border-[hsl(35,20%,90%)] bg-[hsl(35,30%,98%)]">
+                {/* Logo preview */}
                 {logoUrl ? (
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-white border border-[hsl(35,20%,88%)] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-[hsl(35,20%,88%)] flex items-center justify-center shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={logoUrl} alt={p} className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <PlatformBubble platform={p} size={48} />
+                  <PlatformBubble platform={p} size={40} className="shrink-0" />
                 )}
-                <span className="text-[11px] font-medium text-[hsl(25,20%,35%)]">
-                  {PLATFORM_LABELS[p] ?? p}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  ref={el => { platformFileRefs.current[p] = el }}
-                  onChange={e => handlePlatformLogoUpload(p, e)}
-                />
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => platformFileRefs.current[p]?.click()}
-                    disabled={isUploading}
-                    className="text-[10px] px-2 py-1 rounded bg-[hsl(24,85%,50%)] text-white font-medium hover:bg-[hsl(24,85%,45%)] disabled:opacity-50 transition-colors"
-                  >
-                    {isUploading ? "..." : logoUrl ? "เปลี่ยน" : "อัปโหลด"}
-                  </button>
-                  {logoUrl && (
-                    <button
-                      onClick={() => handleRemovePlatformLogo(p)}
-                      className="text-[10px] px-2 py-1 rounded bg-red-100 text-red-600 font-medium hover:bg-red-200 transition-colors"
-                    >
-                      ลบ
-                    </button>
-                  )}
+
+                {/* Fields */}
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-[hsl(25,20%,25%)]">{PLATFORM_LABELS[p] ?? p}</span>
+                    <div className="flex gap-1 shrink-0">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        ref={el => { platformFileRefs.current[p] = el }}
+                        onChange={e => handlePlatformLogoUpload(p, e)}
+                      />
+                      <button
+                        onClick={() => platformFileRefs.current[p]?.click()}
+                        disabled={isUploading}
+                        className="text-[10px] px-2 py-1 rounded bg-[hsl(24,85%,50%)] text-white font-medium hover:bg-[hsl(24,85%,45%)] disabled:opacity-50 transition-colors"
+                      >
+                        {isUploading ? "..." : logoUrl ? "เปลี่ยนโลโก้" : "อัปโหลดโลโก้"}
+                      </button>
+                      {logoUrl && (
+                        <button
+                          onClick={() => handleRemovePlatformLogo(p)}
+                          className="text-[10px] px-2 py-1 rounded bg-red-100 text-red-600 font-medium hover:bg-red-200 transition-colors"
+                        >
+                          ลบ
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <Input
+                    value={platformUrls[p] ?? ""}
+                    onChange={e => setPlatformUrls(prev => ({ ...prev, [p]: e.target.value }))}
+                    placeholder={`https://www.${p === "tiktok" ? "tiktok.com/@" : p === "lemon8" ? "lemon8-app.com/@" : `${p}.com/`}...`}
+                    className="h-7 text-xs"
+                  />
                 </div>
               </div>
             )
           })}
         </div>
+        <Button size="sm" variant="outline" onClick={handleSavePlatformUrls} disabled={savingUrls}>
+          {savingUrls ? "กำลังบันทึก..." : "บันทึก URL ทั้งหมด"}
+        </Button>
       </div>
 
       {/* Page info */}

@@ -108,17 +108,34 @@ export default async function RateCardPage() {
           )}
         </div>
 
-        {/* Platform circles — uploaded logo or SVG fallback */}
+        {/* Platform circles — clickable if URL set, uploaded logo or SVG fallback */}
         <div className="flex justify-center gap-3 flex-wrap pt-1">
           {PLATFORMS.map(p => {
             const logoUrl = settings?.platform_logos?.[p]
-            return logoUrl ? (
-              <div key={p} className="w-11 h-11 rounded-full overflow-hidden bg-white shadow-sm border border-[hsl(35,20%,88%)] transition-transform hover:scale-110 flex items-center justify-center">
+            const platformUrl = settings?.platform_urls?.[p]
+
+            const bubble = logoUrl ? (
+              <div className="w-11 h-11 rounded-full overflow-hidden bg-white shadow-sm border border-[hsl(35,20%,88%)] transition-transform hover:scale-110 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={logoUrl} alt={p} className="w-full h-full object-cover" />
               </div>
             ) : (
-              <PlatformBubble key={p} platform={p} size={44} />
+              <PlatformBubble platform={p} size={44} noHover={!!platformUrl} />
+            )
+
+            return platformUrl ? (
+              <a
+                key={p}
+                href={platformUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={p}
+                className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[hsl(24,85%,50%)] focus:ring-offset-2 rounded-full"
+              >
+                {bubble}
+              </a>
+            ) : (
+              <span key={p}>{bubble}</span>
             )
           })}
         </div>

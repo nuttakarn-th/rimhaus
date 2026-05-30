@@ -178,6 +178,7 @@ export interface RateCardSettings {
     updated_at?: string | null
   } | null
   platform_logos: Record<string, string> | null
+  platform_urls: Record<string, string> | null
   updated_at: string
 }
 

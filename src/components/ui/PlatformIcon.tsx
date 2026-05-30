@@ -100,16 +100,21 @@ export function PlatformChip({ platform, size = "sm", showLabel = true, classNam
 interface PlatformBubbleProps {
   platform: string
   size?: number
+  noHover?: boolean
   className?: string
 }
 
-export function PlatformBubble({ platform, size = 40, className }: PlatformBubbleProps) {
+export function PlatformBubble({ platform, size = 40, noHover = false, className }: PlatformBubbleProps) {
   const key = platform.toLowerCase()
   const color = PLATFORM_CI[key] ?? "#6b7280"
   const iconSize = Math.round(size * 0.45)
   return (
     <div
-      className={cn("rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform hover:scale-110", className)}
+      className={cn(
+        "rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform",
+        !noHover && "hover:scale-110",
+        className
+      )}
       style={{ width: size, height: size, backgroundColor: color }}
     >
       <PlatformIcon platform={platform} size={iconSize} color="white" />
