@@ -64,27 +64,31 @@ export function DocumentView({ document: doc }: { document: Document }) {
   return (
     <div>
       {/* Controls — hidden on print */}
-      <div className="print:hidden flex flex-wrap items-center gap-2 mb-4">
-        <Select value={status} onValueChange={v => handleStatusChange(v as DocStatus)} disabled={updating}>
-          <SelectTrigger className="w-32 h-8 text-sm"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="draft">ร่าง</SelectItem>
-            <SelectItem value="sent">ส่งแล้ว</SelectItem>
-            <SelectItem value="paid">ชำระแล้ว</SelectItem>
-            <SelectItem value="cancelled">ยกเลิก</SelectItem>
-          </SelectContent>
-        </Select>
-        <span className={cn("text-xs px-2.5 py-1 rounded-full font-medium", DOC_STATUS_COLORS[status])}>
-          {DOC_STATUS_LABELS[status]}
-        </span>
-        <div className="flex items-center gap-2 ml-auto">
-          <DownloadPDFButton doc={doc} />
-          <Link href={`/documents/${doc.id}/edit`}>
-            <Button size="sm" variant="outline">
+      <div className="print:hidden mb-4 space-y-2">
+        {/* Row 1: Status */}
+        <div className="flex items-center gap-2">
+          <Select value={status} onValueChange={v => handleStatusChange(v as DocStatus)} disabled={updating}>
+            <SelectTrigger className="w-32 h-8 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">ร่าง</SelectItem>
+              <SelectItem value="sent">ส่งแล้ว</SelectItem>
+              <SelectItem value="paid">ชำระแล้ว</SelectItem>
+              <SelectItem value="cancelled">ยกเลิก</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className={cn("text-xs px-2.5 py-1 rounded-full font-medium", DOC_STATUS_COLORS[status])}>
+            {DOC_STATUS_LABELS[status]}
+          </span>
+        </div>
+        {/* Row 2: Actions */}
+        <div className="flex items-center gap-2">
+          <DownloadPDFButton doc={doc} className="flex-1 sm:flex-none" />
+          <Link href={`/documents/${doc.id}/edit`} className="flex-1 sm:flex-none">
+            <Button size="sm" variant="outline" className="w-full">
               <Pencil className="w-3.5 h-3.5 mr-1.5" />แก้ไข
             </Button>
           </Link>
-          <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-600" onClick={handleDelete}>
+          <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-600 shrink-0" onClick={handleDelete}>
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
