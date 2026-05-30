@@ -33,10 +33,15 @@ export function AdvanceStatusButton({ jobId, currentStatus }: { jobId: string; c
     <button
       onClick={handleAdvance}
       disabled={loading}
-      className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(24,85%,50%)] text-white rounded-xl hover:bg-[hsl(24,85%,42%)] active:scale-95 transition-all font-medium text-sm disabled:opacity-60 shadow-sm"
+      className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[hsl(24,85%,50%)] text-white rounded-xl hover:bg-[hsl(24,85%,42%)] active:scale-95 transition-all font-medium text-sm disabled:opacity-60 shadow-sm whitespace-nowrap"
     >
-      <ChevronRight className="w-4 h-4" />
-      {loading ? "กำลังอัปเดต..." : `ก้าวไปขั้นถัดไป: ${JOB_STATUS_LABELS[nextStatus]}`}
+      <ChevronRight className="w-4 h-4 shrink-0" />
+      {loading ? "กำลังอัปเดต..." : (
+        <>
+          <span className="sm:hidden">→ {JOB_STATUS_LABELS[nextStatus]}</span>
+          <span className="hidden sm:inline">ก้าวไปขั้นถัดไป: {JOB_STATUS_LABELS[nextStatus]}</span>
+        </>
+      )}
     </button>
   )
 }
