@@ -1,17 +1,17 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { upsertPartner, deletePartner } from "@/actions/portfolio.actions"
+import { upsertPartner, deletePartner, reorderPartners } from "@/actions/portfolio.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus, Upload } from "lucide-react"
+import { Trash2, Plus, Upload, GripVertical } from "lucide-react"
 import { toast } from "sonner"
 import type { Partner } from "@/lib/types"
 
-const MAX_LOGO_BYTES = 70 * 1024 // 70KB target
+const MAX_LOGO_BYTES = 70 * 1024
 
 async function compressToTarget(file: File, maxBytes: number): Promise<Blob> {
   if (file.size <= maxBytes) return file
@@ -21,7 +21,6 @@ async function compressToTarget(file: File, maxBytes: number): Promise<Blob> {
     img.onload = () => {
       URL.revokeObjectURL(url)
       const canvas = document.createElement("canvas")
-      // Scale down to max 600px on longest side — enough for logos
       const maxDim = 600
       let w = img.naturalWidth, h = img.naturalHeight
       if (w > maxDim || h > maxDim) {
@@ -30,10 +29,9 @@ async function compressToTarget(file: File, maxBytes: number): Promise<Blob> {
       }
       canvas.width = w; canvas.height = h
       const ctx = canvas.getContext("2d")!
-      ctx.fillStyle = "#ffffff" // white bg for PNG→JPEG
+      ctx.fillStyle = "#ffffff"
       ctx.fillRect(0, 0, w, h)
       ctx.drawImage(img, 0, 0, w, h)
-      // Try JPEG at decreasing quality until under maxBytes
       let quality = 0.85
       const attempt = () => {
         canvas.toBlob(blob => {
@@ -50,23 +48,65 @@ async function compressToTarget(file: File, maxBytes: number): Promise<Blob> {
   })
 }
 
-interface Props {
-  partners: Partner[]
-}
+interface Props { partners: Partner[] }
 
 export function AdminPartners({ partners }: Props) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [items, setItems] = useState<Partner[]>(partners)
   const [form, setForm] = useState({ name: "", logo_url: "" })
   const [uploading, setUploading] = useState(false)
   const [uploadLabel, setUploadLabel] = useState("")
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  // keep in sync with server refreshes
+  useEffect(() => { setItems(partners) }, [partners])
+
+  // ── Drag state ─────────────────────────────────────────────────
+  const dragIdRef = useRef<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+
+  function onDragStart(id: string) {
+    dragIdRef.current = id
+  }
+
+  function onDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault()
+    if (dragIdRef.current !== id) setDragOverId(id)
+  }
+
+  function onDragLeave() {
+    setDragOverId(null)
+  }
+
+  async function onDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault()
+    setDragOverId(null)
+    const fromId = dragIdRef.current
+    dragIdRef.current = null
+    if (!fromId || fromId === targetId) return
+
+    const fromIdx = items.findIndex(p => p.id === fromId)
+    const toIdx = items.findIndex(p => p.id === targetId)
+    const next = [...items]
+    const [moved] = next.splice(fromIdx, 1)
+    next.splice(toIdx, 0, moved)
+    setItems(next)
+
+    const result = await reorderPartners(next.map(p => p.id))
+    if (!result.success) toast.error("บันทึกลำดับไม่สำเร็จ")
+  }
+
+  function onDragEnd() {
+    dragIdRef.current = null
+    setDragOverId(null)
+  }
+
+  // ── Upload ─────────────────────────────────────────────────────
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-
     setUploading(true)
     setUploadLabel(file.size > MAX_LOGO_BYTES ? "กำลังบีบอัดภาพ..." : "กำลังอัปโหลด...")
 
@@ -92,13 +132,14 @@ export function AdminPartners({ partners }: Props) {
     setUploadLabel("")
   }
 
+  // ── Add ────────────────────────────────────────────────────────
   async function handleAdd() {
     if (!form.logo_url.trim()) { toast.error("กรุณาอัปโหลดโลโก้ก่อน"); return }
     setSaving(true)
     const result = await upsertPartner({
       name: form.name.trim() || null,
       logo_url: form.logo_url.trim(),
-      sort_order: partners.length,
+      sort_order: items.length,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -108,6 +149,7 @@ export function AdminPartners({ partners }: Props) {
     router.refresh()
   }
 
+  // ── Delete ─────────────────────────────────────────────────────
   async function handleDelete(id: string) {
     setDeletingId(id)
     const result = await deletePartner(id)
@@ -119,21 +161,57 @@ export function AdminPartners({ partners }: Props) {
 
   return (
     <div className="space-y-5">
-      <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">All Partner</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">All Partner</h3>
+        {items.length > 0 && (
+          <span className="text-xs text-[hsl(25,10%,55%)]">ลากเพื่อจัดเรียง</span>
+        )}
+      </div>
 
-      {partners.length > 0 ? (
-        <div className="grid grid-cols-4 gap-3">
-          {partners.map(p => (
-            <div key={p.id} className="relative group rounded-xl border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)] p-3 flex flex-col items-center gap-2">
+      {items.length > 0 ? (
+        <div className="grid grid-cols-4 gap-2">
+          {items.map(p => (
+            <div
+              key={p.id}
+              draggable
+              onDragStart={() => onDragStart(p.id)}
+              onDragOver={e => onDragOver(e, p.id)}
+              onDragLeave={onDragLeave}
+              onDrop={e => onDrop(e, p.id)}
+              onDragEnd={onDragEnd}
+              className={[
+                "relative rounded-xl border bg-[hsl(35,30%,97%)] p-2.5 flex flex-col items-center gap-1.5 cursor-grab active:cursor-grabbing select-none transition-all",
+                dragIdRef.current === p.id ? "opacity-40 scale-95" : "",
+                dragOverId === p.id
+                  ? "border-[hsl(24,85%,50%)] bg-orange-50 ring-2 ring-[hsl(24,85%,50%)] ring-offset-1"
+                  : "border-[hsl(35,20%,88%)]",
+              ].join(" ")}
+            >
+              {/* Grip handle */}
+              <GripVertical className="w-3 h-3 text-[hsl(25,10%,60%)] absolute top-1.5 left-1.5" />
+
+              {/* Logo */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.logo_url} alt={p.name ?? ""} className="h-10 w-full object-contain" />
-              {p.name && <p className="text-xs text-[hsl(25,10%,50%)] text-center truncate w-full">{p.name}</p>}
+              <img
+                src={p.logo_url}
+                alt={p.name ?? ""}
+                className="h-9 w-full object-contain pointer-events-none"
+              />
+
+              {p.name && (
+                <p className="text-[10px] text-[hsl(25,10%,50%)] text-center truncate w-full leading-tight">
+                  {p.name}
+                </p>
+              )}
+
+              {/* Delete — always visible */}
               <button
                 onClick={() => handleDelete(p.id)}
                 disabled={deletingId === p.id}
-                className="absolute top-1.5 right-1.5 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-40"
+                className="mt-0.5 flex items-center gap-1 text-[10px] text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3 h-3" />
+                {deletingId === p.id ? "..." : "ลบ"}
               </button>
             </div>
           ))}
@@ -156,14 +234,11 @@ export function AdminPartners({ partners }: Props) {
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs">โลโก้ <span className="text-[hsl(25,10%,55%)] font-normal">— ระบบจะบีบอัดให้ ≤70KB อัตโนมัติ</span></Label>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleLogoUpload}
-          />
+          <Label className="text-xs">
+            โลโก้{" "}
+            <span className="text-[hsl(25,10%,55%)] font-normal">— บีบอัดให้ ≤70KB อัตโนมัติ</span>
+          </Label>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
           {form.logo_url ? (
             <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -179,7 +254,7 @@ export function AdminPartners({ partners }: Props) {
           ) : (
             <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
               <Upload className="w-3.5 h-3.5 mr-1.5" />
-              {uploading ? uploadLabel || "กำลังอัปโหลด..." : "อัปโหลดโลโก้"}
+              {uploading ? (uploadLabel || "กำลังอัปโหลด...") : "อัปโหลดโลโก้"}
             </Button>
           )}
         </div>

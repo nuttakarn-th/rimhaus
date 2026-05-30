@@ -82,3 +82,20 @@ export async function deletePartner(id: string): Promise<ActionResult<void>> {
   revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
 }
+
+export async function reorderPartners(orderedIds: string[]): Promise<ActionResult<void>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+
+  const updates = orderedIds.map((id, index) =>
+    supabase.from("partners").update({ sort_order: index }).eq("id", id).eq("user_id", user.id)
+  )
+  const results = await Promise.all(updates)
+  const failed = results.find(r => r.error)
+  if (failed?.error) return { success: false, error: failed.error.message }
+
+  revalidatePath("/ratecard/partners")
+  revalidatePath("/settings/ratecard")
+  return { success: true, data: undefined }
+}
