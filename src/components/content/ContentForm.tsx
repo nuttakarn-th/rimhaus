@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
 import { SceneTableEditor, sceneRowsToHTML, parseSceneRows, type SceneRow } from "@/components/content/SceneTableEditor"
+import { JobCombobox } from "@/components/content/JobCombobox"
 
 interface ContentFormProps {
   item?: ContentItem
@@ -226,13 +227,11 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
             {jobs.length > 0 && (
               <div className="space-y-2">
                 <Label>เชื่อมงานรีวิว</Label>
-                <Select value={form.review_job_id ?? "none"} onValueChange={v => setForm(p => ({ ...p, review_job_id: v === "none" ? null : v }))}>
-                  <SelectTrigger><SelectValue placeholder="เลือกงาน..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">ไม่เชื่อมกับงานไหน</SelectItem>
-                    {jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.brand_name} — {j.product_name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <JobCombobox
+                  jobs={jobs}
+                  value={form.review_job_id ?? null}
+                  onChange={id => setForm(p => ({ ...p, review_job_id: id }))}
+                />
               </div>
             )}
           </div>
