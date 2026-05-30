@@ -26,19 +26,21 @@ const defaultValues: JobFormValues = {
   review_type: "short_video",
   platforms: [],
   deadline: null,
-  deal_type: "paid",
+  deal_type: "paid_keep",
   payment_amount: 0,
   payment_status: "pending",
-  status: "accepted",
+  status: "lead",
   product_received: false,
   product_value: null,
   notes: "",
 }
 
 const DEAL_TYPE_DESCRIPTIONS: Record<DealType, string> = {
-  paid: "ลูกค้า/เอเจนซี่จ่ายค่าจ้าง",
-  barter_inbound: "ลูกค้า/เอเจนซี่เสนอ Barter ให้ของแทนเงิน",
-  barter_outbound: "เราขอ Barter เอง ได้แค่ของ",
+  paid_keep:    "แบรนด์จ่ายค่าจ้าง + ของไม่ต้องคืน",
+  paid_return:  "แบรนด์จ่ายค่าจ้าง + ของต้องส่งคืนหลังรีวิว",
+  barter:       "ได้ของแทนเงิน (แบรนด์เสนอมา)",
+  gifted_self:  "รับของโดยไม่ได้ค่าจ้าง (ขอเอง)",
+  gifted_brand: "แบรนด์ส่งของมาให้รีวิวเอง ไม่ได้ค่าจ้าง",
 }
 
 export function JobForm({ job, platforms, prefill }: JobFormProps) {
@@ -53,7 +55,7 @@ export function JobForm({ job, platforms, prefill }: JobFormProps) {
           review_type: job.review_type,
           platforms: job.platforms,
           deadline: job.deadline,
-          deal_type: job.deal_type ?? "paid",
+          deal_type: job.deal_type ?? "paid_keep",
           payment_amount: job.payment_amount,
           payment_status: job.payment_status,
           status: job.status,
@@ -64,14 +66,16 @@ export function JobForm({ job, platforms, prefill }: JobFormProps) {
       : { ...defaultValues, ...prefill }
   )
 
-  const isBarter = form.deal_type === "barter_inbound" || form.deal_type === "barter_outbound"
+  const isCash = form.deal_type === "paid_keep" || form.deal_type === "paid_return"
+  const isBarter = !isCash
 
   function handleDealTypeChange(v: DealType) {
+    const isNewCash = v === "paid_keep" || v === "paid_return"
     setForm(p => ({
       ...p,
       deal_type: v,
-      payment_amount: v !== "paid" ? 0 : p.payment_amount,
-      payment_status: v !== "paid" ? "received" : p.payment_status,
+      payment_amount: !isNewCash ? 0 : p.payment_amount,
+      payment_status: !isNewCash ? "received" : p.payment_status,
     }))
   }
 
@@ -114,26 +118,30 @@ export function JobForm({ job, platforms, prefill }: JobFormProps) {
       {/* Deal Type — ต้องเลือกก่อนเสมอ */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6 space-y-3">
         <h3 className="font-semibold text-[hsl(25,20%,15%)]">ประเภทงาน *</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {(Object.entries(DEAL_TYPE_LABELS) as [DealType, string][]).map(([k, label]) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => handleDealTypeChange(k)}
-              className={`p-3 rounded-lg border-2 text-left transition-all ${
-                form.deal_type === k
-                  ? k === "paid"
-                    ? "border-emerald-500 bg-emerald-50"
-                    : k === "barter_inbound"
-                    ? "border-violet-500 bg-violet-50"
-                    : "border-sky-500 bg-sky-50"
-                  : "border-[hsl(35,20%,88%)] hover:border-[hsl(35,20%,70%)]"
-              }`}
-            >
-              <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">{label}</p>
-              <p className="text-xs text-[hsl(25,10%,50%)] mt-1 leading-snug">{DEAL_TYPE_DESCRIPTIONS[k]}</p>
-            </button>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          {(Object.entries(DEAL_TYPE_LABELS) as [DealType, string][]).map(([k, label]) => {
+            const isCashType = k === "paid_keep" || k === "paid_return"
+            const active = form.deal_type === k
+            return (
+              <button
+                key={k}
+                type="button"
+                onClick={() => handleDealTypeChange(k)}
+                className={`p-3 rounded-lg border-2 text-left transition-all ${
+                  active
+                    ? isCashType
+                      ? "border-emerald-500 bg-emerald-50"
+                      : k === "barter"
+                      ? "border-violet-500 bg-violet-50"
+                      : "border-sky-500 bg-sky-50"
+                    : "border-[hsl(35,20%,88%)] hover:border-[hsl(35,20%,70%)]"
+                }`}
+              >
+                <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">{label}</p>
+                <p className="text-xs text-[hsl(25,10%,50%)] mt-1 leading-snug">{DEAL_TYPE_DESCRIPTIONS[k]}</p>
+              </button>
+            )
+          })}
         </div>
       </div>
 

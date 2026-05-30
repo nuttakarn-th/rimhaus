@@ -1,7 +1,11 @@
 export type ReviewType = "short_video" | "photo" | "long_video"
-export type JobStatus = "accepted" | "in_progress" | "content_done" | "posted" | "closed"
+export type JobStatus =
+  | "lead" | "contacted" | "quoted"
+  | "in_production" | "draft_sent" | "revision"
+  | "approved" | "scheduled" | "posted"
+  | "invoiced" | "paid" | "closed"
 export type PaymentStatus = "pending" | "invoiced" | "received"
-export type DealType = "paid" | "barter_inbound" | "barter_outbound"
+export type DealType = "paid_keep" | "paid_return" | "barter" | "gifted_self" | "gifted_brand"
 export type ContentStatus = "idea" | "scripting" | "shooting" | "editing" | "ready" | "posted" | "cancelled"
 export type ContentPillar = "room_corner" | "product_review" | "organization_tips" | "home_humor"
 export type TransactionType = "income" | "expense"
@@ -26,15 +30,55 @@ export interface ReviewJob {
   platforms: string[]
   deadline: string | null
   post_date: string | null
+  scheduled_date: string | null
   deal_type: DealType
   payment_amount: number
+  quote_amount: number | null
   payment_status: PaymentStatus
   status: JobStatus
   notes: string | null
   product_received: boolean
   product_value: number | null
+  contact_channel: string | null
+  contact_handle: string | null
+  invoice_date: string | null
   created_at: string
   updated_at: string
+}
+
+export interface SocialToken {
+  id: string
+  user_id: string
+  platform: "instagram" | "facebook"
+  access_token: string
+  token_type: string
+  expires_at: string | null
+  page_id: string | null
+  page_name: string | null
+  ig_user_id: string | null
+  ig_username: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SocialInsight {
+  id: string
+  user_id: string
+  platform: "instagram" | "facebook"
+  followers: number | null
+  follows: number | null
+  media_count: number | null
+  avg_reach: number | null
+  avg_impressions: number | null
+  engagement_rate: number | null
+  profile_views: number | null
+  website_clicks: number | null
+  audience_gender_age: Record<string, number> | null
+  audience_city: Record<string, number> | null
+  audience_country: Record<string, number> | null
+  top_posts: Array<{ url: string; likes: number; comments: number; reach: number }> | null
+  fetched_at: string
+  created_at: string
 }
 
 export interface Transaction {

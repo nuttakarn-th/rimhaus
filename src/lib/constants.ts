@@ -8,19 +8,33 @@ export const RATE_CARD_CATEGORY_LABELS: Record<RateCardCategory, string> = {
 }
 
 export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
-  accepted: "รับงาน",
-  in_progress: "กำลังทำ",
-  content_done: "ทำคอนเทนต์เสร็จ",
-  posted: "โพสแล้ว",
-  closed: "ปิดงาน",
+  lead:          "Lead",
+  contacted:     "ติดต่อแล้ว",
+  quoted:        "ส่ง Quote",
+  in_production: "ผลิตคอนเทนต์",
+  draft_sent:    "ส่ง Draft",
+  revision:      "แก้ไข",
+  approved:      "อนุมัติแล้ว",
+  scheduled:     "กำหนดโพส",
+  posted:        "โพสแล้ว",
+  invoiced:      "ออกบิลแล้ว",
+  paid:          "รับเงินแล้ว",
+  closed:        "ปิดงาน",
 }
 
 export const JOB_STATUS_COLORS: Record<JobStatus, string> = {
-  accepted: "bg-blue-100 text-blue-800",
-  in_progress: "bg-amber-100 text-amber-800",
-  content_done: "bg-purple-100 text-purple-800",
-  posted: "bg-green-100 text-green-800",
-  closed: "bg-gray-100 text-gray-600",
+  lead:          "bg-slate-100 text-slate-700",
+  contacted:     "bg-sky-100 text-sky-700",
+  quoted:        "bg-blue-100 text-blue-700",
+  in_production: "bg-amber-100 text-amber-800",
+  draft_sent:    "bg-violet-100 text-violet-800",
+  revision:      "bg-orange-100 text-orange-700",
+  approved:      "bg-teal-100 text-teal-700",
+  scheduled:     "bg-cyan-100 text-cyan-700",
+  posted:        "bg-green-100 text-green-800",
+  invoiced:      "bg-yellow-100 text-yellow-700",
+  paid:          "bg-emerald-100 text-emerald-800",
+  closed:        "bg-gray-100 text-gray-600",
 }
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
@@ -36,15 +50,19 @@ export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
 }
 
 export const DEAL_TYPE_LABELS: Record<DealType, string> = {
-  paid: "รับจ้าง (มีค่าตอบแทน)",
-  barter_inbound: "Barter — ลูกค้าเสนอ",
-  barter_outbound: "Barter — ขอเอง",
+  paid_keep:    "รับจ้าง (ของไม่คืน)",
+  paid_return:  "รับจ้าง (ของคืน)",
+  barter:       "Barter",
+  gifted_self:  "ได้รับของ (ไม่มีค่าจ้าง)",
+  gifted_brand: "แบรนด์ส่งมาให้รีวิว",
 }
 
 export const DEAL_TYPE_COLORS: Record<DealType, string> = {
-  paid: "bg-emerald-100 text-emerald-800",
-  barter_inbound: "bg-violet-100 text-violet-800",
-  barter_outbound: "bg-sky-100 text-sky-800",
+  paid_keep:    "bg-emerald-100 text-emerald-800",
+  paid_return:  "bg-green-100 text-green-700",
+  barter:       "bg-violet-100 text-violet-800",
+  gifted_self:  "bg-sky-100 text-sky-800",
+  gifted_brand: "bg-pink-100 text-pink-700",
 }
 
 export const REVIEW_TYPE_LABELS: Record<ReviewType, string> = {
@@ -160,10 +178,17 @@ export const DOC_STATUS_COLORS: Record<DocStatus, string> = {
   cancelled: "bg-red-100 text-red-600",
 }
 
+// Ordered pipeline (excludes 'revision' which is a side-loop, not a forward step)
 export const JOB_STATUSES: JobStatus[] = [
-  "accepted",
-  "in_progress",
-  "content_done",
+  "lead",
+  "contacted",
+  "quoted",
+  "in_production",
+  "draft_sent",
+  "approved",
+  "scheduled",
   "posted",
+  "invoiced",
+  "paid",
   "closed",
 ]

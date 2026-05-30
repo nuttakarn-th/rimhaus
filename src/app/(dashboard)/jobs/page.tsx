@@ -15,12 +15,14 @@ export default async function JobsPage({
   const jobs = await getJobs({ status: params.status, search: params.search })
 
   const statuses = [
-    { value: "all", label: "ทั้งหมด" },
-    { value: "accepted", label: "รับงาน" },
-    { value: "in_progress", label: "กำลังทำ" },
-    { value: "content_done", label: "เนื้อหาเสร็จ" },
-    { value: "posted", label: "โพสแล้ว" },
-    { value: "closed", label: "ปิดงาน" },
+    { value: "all",          label: "ทั้งหมด" },
+    { value: "lead",         label: "Lead" },
+    { value: "contacted",    label: "ติดต่อแล้ว" },
+    { value: "in_production",label: "ผลิตอยู่" },
+    { value: "draft_sent",   label: "ส่ง Draft" },
+    { value: "approved",     label: "อนุมัติแล้ว" },
+    { value: "posted",       label: "โพสแล้ว" },
+    { value: "closed",       label: "ปิดงาน" },
   ]
 
   return (

@@ -44,8 +44,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   ])
   if (!job) notFound()
 
-  const isBarter = job.deal_type === "barter_inbound" || job.deal_type === "barter_outbound"
-  const dealType = job.deal_type ?? "paid"
+  const isCash = job.deal_type === "paid_keep" || job.deal_type === "paid_return"
+  const isBarter = !isCash
+  const dealType = job.deal_type ?? "paid_keep"
 
   return (
     <div className="space-y-6 max-w-3xl">

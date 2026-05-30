@@ -27,7 +27,7 @@ export default async function DashboardPage() {
     getPillarEngagement(),
   ])
 
-  const activeJobs = jobs.filter(j => j.status === "accepted" || j.status === "in_progress")
+  const activeJobs = jobs.filter(j => !["lead", "closed", "paid"].includes(j.status))
   const pendingPayment = jobs.filter(j => j.payment_status === "pending" && j.status !== "closed")
   const upcomingContent = contentItems.filter(c =>
     c.planned_date && c.planned_date >= today && c.planned_date <= nextWeek && c.status !== "posted"
