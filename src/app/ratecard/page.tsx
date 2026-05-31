@@ -248,7 +248,7 @@ export default async function RateCardPage() {
                 <img
                   src={p.logo_url}
                   alt={p.name ?? ""}
-                  className="h-10 w-20 object-contain grayscale hover:grayscale-0 transition-all duration-200"
+                  className="h-10 w-20 object-contain"
                 />
                 {p.name && (
                   <span className="text-[9px] text-[hsl(25,10%,60%)] whitespace-nowrap">{p.name}</span>
