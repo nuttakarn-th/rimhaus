@@ -18,9 +18,11 @@ const PLATFORM_KEYS = ["facebook", "instagram", "tiktok", "lemon8", "youtube", "
 export function AdminSettings({ settings }: { settings: RateCardSettings | null }) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const heroBgRef = useRef<HTMLInputElement>(null)
   const platformFileRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadingHeroBg, setUploadingHeroBg] = useState(false)
   const [uploadingPlatform, setUploadingPlatform] = useState<string | null>(null)
   const [form, setForm] = useState({
     page_name: settings?.page_name ?? "",
@@ -32,6 +34,7 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     image_url: settings?.image_url ?? "",
     hero_heading: settings?.hero_heading ?? "",
     hero_subtitle: settings?.hero_subtitle ?? "",
+    hero_bg_image_url: settings?.hero_bg_image_url ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -57,6 +60,25 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     await upsertSettings({ image_url: publicUrl })
     toast.success("อัปโหลดรูปสำเร็จ")
     setUploading(false)
+    router.refresh()
+  }
+
+  async function handleHeroBgUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingHeroBg(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploadingHeroBg(false); return }
+    const ext = file.name.split(".").pop() ?? "jpg"
+    const path = `${user.id}/hero-bg.${ext}`
+    const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: true })
+    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploadingHeroBg(false); return }
+    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+    setForm(p => ({ ...p, hero_bg_image_url: publicUrl }))
+    await upsertSettings({ hero_bg_image_url: publicUrl })
+    toast.success("อัปโหลดภาพ Banner สำเร็จ")
+    setUploadingHeroBg(false)
     router.refresh()
   }
 
@@ -116,6 +138,7 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       image_url: form.image_url || null,
       hero_heading: form.hero_heading || null,
       hero_subtitle: form.hero_subtitle || null,
+      hero_bg_image_url: form.hero_bg_image_url || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -212,6 +235,32 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         <Button size="sm" variant="outline" onClick={handleSavePlatformUrls} disabled={savingUrls}>
           {savingUrls ? "กำลังบันทึก..." : "บันทึก URL ทั้งหมด"}
         </Button>
+      </div>
+
+      {/* Banner background image */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+        <div>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ภาพพื้นหลัง Banner</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">แสดงเป็นพื้นหลังของ Banner หน้าแรก (แนะนำ: สัดส่วน 1:1 หรือ 16:9)</p>
+        </div>
+        {form.hero_bg_image_url && (
+          <div className="rounded-xl overflow-hidden border border-[hsl(35,20%,88%)] aspect-square bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={form.hero_bg_image_url} alt="Banner BG" className="w-full h-full object-cover" />
+          </div>
+        )}
+        <input ref={heroBgRef} type="file" accept="image/*" className="hidden" onChange={handleHeroBgUpload} />
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => heroBgRef.current?.click()} disabled={uploadingHeroBg}>
+            <Upload className="w-3.5 h-3.5 mr-1.5" />
+            {uploadingHeroBg ? "กำลังอัปโหลด..." : form.hero_bg_image_url ? "เปลี่ยนภาพ" : "อัปโหลดภาพ"}
+          </Button>
+          {form.hero_bg_image_url && (
+            <Button size="sm" variant="outline" className="text-red-500 border-red-200" onClick={() => setForm(p => ({ ...p, hero_bg_image_url: "" }))}>
+              ลบภาพ
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Hero heading */}

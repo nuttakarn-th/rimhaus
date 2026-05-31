@@ -181,6 +181,7 @@ export interface RateCardSettings {
   platform_urls: Record<string, string> | null
   hero_heading: string | null
   hero_subtitle: string | null
+  hero_bg_image_url: string | null
   updated_at: string
 }
 

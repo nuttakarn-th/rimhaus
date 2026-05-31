@@ -102,60 +102,57 @@ export default async function RateCardPage() {
   return (
     <>
       {/* ── Full-screen Hero ──────────────────────────────── */}
-      {/* -mt-24 sm:-mt-14: pull hero up behind the sticky nav (mobile nav ~96px, desktop ~56px) */}
-      <section className="relative overflow-hidden w-full min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white -mt-24 sm:-mt-14">
-        {/* Decorative circles */}
-        <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-[hsl(24,85%,50%)]/10 -translate-y-1/2 translate-x-1/2" />
-        <div className="pointer-events-none absolute bottom-0 left-0 w-72 h-72 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
+      {/* -mt-14: pull hero up behind sticky nav (single-row hamburger nav = 56px) */}
+      <section
+        className="relative overflow-hidden w-full -mt-14 aspect-square sm:aspect-auto sm:min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white"
+        style={settings?.hero_bg_image_url ? { backgroundImage: `url(${settings.hero_bg_image_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+      >
+        {/* Dark overlay when bg image set */}
+        {settings?.hero_bg_image_url && (
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/65" />
+        )}
+        {/* Decorative circles (no bg image) */}
+        {!settings?.hero_bg_image_url && (
+          <>
+            <div className="pointer-events-none absolute top-0 right-0 w-80 h-80 rounded-full bg-[hsl(24,85%,50%)]/10 -translate-y-1/2 translate-x-1/2" />
+            <div className="pointer-events-none absolute bottom-0 left-0 w-60 h-60 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
+          </>
+        )}
 
-        {/* pt-28 sm:pt-20: push content clear of the nav overlay */}
-        <div className="relative max-w-3xl mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center pt-28 sm:pt-20 pb-24 space-y-4">
-          {settings?.image_url && (
-            <div className="flex justify-center mb-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={settings.image_url}
-                alt={settings.page_name ?? ""}
-                className="w-20 h-20 rounded-full object-cover border-2 border-white/30 shadow-lg"
-              />
-            </div>
-          )}
+        {/* Content: absolute-fill so it works with aspect-square */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 pt-14 pb-6 space-y-3">
 
+          {/* Heading */}
           <div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+            <h1
+              className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+            >
               {settings?.hero_heading ?? settings?.page_name ?? "Rate Card"}
             </h1>
             {(settings?.hero_subtitle ?? settings?.page_category) && (
-              <p className="mt-2 text-sm text-white/70 font-medium">
+              <p className="mt-2 text-sm text-white/65 font-medium">
                 {settings?.hero_subtitle ?? settings?.page_category}
               </p>
             )}
           </div>
 
-          {/* Platform circles */}
-          <div className="flex justify-center gap-3 flex-wrap pt-1">
+          {/* Platform circles — smaller */}
+          <div className="flex justify-center gap-2 flex-wrap">
             {PLATFORMS.map(p => {
               const logoUrl = settings?.platform_logos?.[p]
               const platformUrl = settings?.platform_urls?.[p]
-
               const bubble = logoUrl ? (
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-white shadow border-2 border-white/30 transition-transform hover:scale-110 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={logoUrl} alt={p} className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <PlatformBubble platform={p} size={40} noHover={!!platformUrl} />
+                <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
               )
-
               return platformUrl ? (
-                <a
-                  key={p}
-                  href={platformUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={p}
-                  className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent rounded-full"
-                >
+                <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
+                   className="transition-transform hover:scale-110 rounded-full">
                   {bubble}
                 </a>
               ) : (
@@ -164,9 +161,9 @@ export default async function RateCardPage() {
             })}
           </div>
 
-          {/* Social stats inline */}
+          {/* Social stats */}
           {settings?.social_stats && (settings.social_stats.ig_followers || settings.social_stats.ig_engagement_rate) && (
-            <div className="flex justify-center gap-6 flex-wrap pt-2">
+            <div className="flex justify-center gap-6 flex-wrap">
               {settings.social_stats.ig_followers != null && (
                 <div className="text-center">
                   <p className="text-xl font-black">
@@ -202,26 +199,9 @@ export default async function RateCardPage() {
             </div>
           )}
 
-          {/* LINE CTA button */}
-          {settings?.contact_line && (
-            <div className="flex justify-center pt-1">
-              <a
-                href={`https://line.me/ti/p/~${settings.contact_line}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#06C755] text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-md hover:bg-[#05b34c] hover:shadow-lg transition-all"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-                </svg>
-                ติดต่อผ่าน LINE
-              </a>
-            </div>
-          )}
-
           {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 animate-bounce">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </div>
@@ -410,6 +390,23 @@ export default async function RateCardPage() {
               </Link>
             </div>
           )}
+        </section>
+      )}
+
+      {/* ── LINE CTA (big button before Rate Card) ──────── */}
+      {settings?.contact_line && (
+        <section>
+          <a
+            href={`https://line.me/ti/p/~${settings.contact_line}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 w-full py-4 px-6 bg-[#06C755] text-white text-base font-bold rounded-2xl shadow-lg hover:bg-[#05b34c] hover:shadow-xl transition-all active:scale-[0.98]"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+            </svg>
+            ติดต่อผ่าน LINE: {settings.contact_line}
+          </a>
         </section>
       )}
 
