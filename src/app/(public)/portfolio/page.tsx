@@ -3,175 +3,110 @@ export const dynamic = "force-dynamic"
 import { getPortfolioItems } from "@/actions/portfolio.actions"
 import type { PortfolioItem } from "@/lib/types"
 
-type EmbedPlatform = "youtube" | "tiktok" | "instagram" | "facebook_reel" | "facebook_video" | "facebook_photo" | "other"
-type EmbedResult = { platform: EmbedPlatform; embedUrl: string | null }
+// ─── Video Card — 9:16 thumbnail with play button + title overlay ────────────
 
-function getEmbedInfo(url: string): EmbedResult {
-  // YouTube
-  const ytMatch = url.match(/(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/))([a-zA-Z0-9_-]{11})/)
-  if (ytMatch) return { platform: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0` }
-
-  // TikTok
-  const ttMatch = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/)
-  if (ttMatch) return { platform: "tiktok", embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}` }
-
-  // Instagram Reel / Post
-  const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/)
-  if (igMatch) return { platform: "instagram", embedUrl: `https://www.instagram.com/reel/${igMatch[1]}/embed/` }
-
-  // Facebook Reel (portrait) — reel/ or share/r/
-  if (/facebook\.com\/(reel\/|share\/r\/)/.test(url)) {
-    return {
-      platform: "facebook_reel",
-      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=280`,
-    }
-  }
-
-  // Facebook regular video — watch, /videos/, share/v/, fb.watch
-  if (/facebook\.com\/(watch|share\/v\/|.*\/videos\/)|fb\.watch/.test(url)) {
-    return {
-      platform: "facebook_video",
-      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`,
-    }
-  }
-
-  // Facebook photo / album — photo, media/set, share/p/
-  if (/facebook\.com\/(photo|media\/set|share\/p\/)/.test(url)) {
-    return {
-      platform: "facebook_photo",
-      embedUrl: `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&width=500&show_text=true`,
-    }
-  }
-
-  return { platform: "other", embedUrl: null }
-}
-
-const YT_ALLOW = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-const IG_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-
-function ReelPlaceholder({ url }: { url: string }) {
+function VideoCard({ item }: { item: PortfolioItem }) {
   return (
     <a
-      href={url}
+      href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block"
-      style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
+      className="group block relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      style={{ aspectRatio: "9/16" }}
     >
-      <div className="w-full h-full flex items-center justify-center bg-[hsl(25,15%,14%)] group">
-        <div className="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center group-hover:bg-white/25 transition-colors">
+      {/* Thumbnail */}
+      {item.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.image_url}
+          alt={item.title ?? ""}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[hsl(25,15%,14%)]" />
+      )}
+
+      {/* Bottom gradient */}
+      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 to-transparent" />
+
+      {/* Play button */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/35 transition-colors border border-white/30">
           <svg className="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
       </div>
+
+      {/* Title */}
+      {item.title && (
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-6">
+          <p className="text-white text-[13px] font-semibold leading-snug drop-shadow-sm line-clamp-2">
+            {item.title}
+          </p>
+        </div>
+      )}
     </a>
   )
 }
 
-const FB_ALLOW = "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-
-function VideoCard({ item }: { item: PortfolioItem }) {
-  const { platform, embedUrl } = getEmbedInfo(item.url)
-
-  return (
-    <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      {(platform === "facebook_reel" || platform === "facebook_video") && embedUrl ? (
-        // Facebook Reel: 9:16 container, no extra clip (player controls overlay on video)
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "9/16", maxWidth: 280, margin: "0 auto" }}
-        >
-          <iframe
-            src={embedUrl}
-            title={item.title ?? "video"}
-            allow={FB_ALLOW}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            scrolling="no"
-            className="absolute inset-0 w-full h-full border-0"
-          />
-        </div>
-      ) : platform === "instagram" && embedUrl ? (
-        // Instagram embed: header ~70px | video ~350px (4:5) | footer ~165px
-        // top: -70px hides header exactly; white 2px masks cover any ±2px edge bleed
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "4/5", maxWidth: 280, margin: "0 auto" }}
-        >
-          <iframe
-            src={embedUrl}
-            title={item.title ?? "video"}
-            allow={IG_ALLOW}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            scrolling="no"
-            className="absolute left-0 w-full border-0"
-            style={{ top: "-70px", height: "calc(100% + 238px)" }}
-          />
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-white pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white pointer-events-none" />
-        </div>
-      ) : embedUrl ? (
-        <div className={`relative w-full ${platform === "tiktok" ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"}`}>
-          <iframe
-            src={embedUrl}
-            title={item.title ?? "video"}
-            allow={YT_ALLOW}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="absolute inset-0 w-full h-full border-0"
-          />
-        </div>
-      ) : (
-        <ReelPlaceholder url={item.url} />
-      )}
-      {item.title && (
-        <div className="px-4 py-2.5">
-          <p className="text-sm font-medium text-[hsl(25,20%,15%)]">{item.title}</p>
-        </div>
-      )}
-    </div>
-  )
-}
+// ─── Photo Card — 4:5 thumbnail with link icon top-right ────────────────────
 
 function PhotoCard({ item }: { item: PortfolioItem }) {
-  const { platform } = getEmbedInfo(item.url)
-
-  if (platform === "facebook_photo") {
-    return (
-      <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-        <div className="aspect-square flex flex-col items-center justify-center gap-3 bg-[hsl(35,20%,95%)]">
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[hsl(24,85%,50%)] text-white text-sm font-medium hover:bg-[hsl(24,85%,43%)] transition-colors"
-          >
-            ดูรูปใน Facebook →
-          </a>
-        </div>
-        {item.title && (
-          <div className="px-4 py-2.5">
-            <p className="text-sm font-medium text-[hsl(25,20%,15%)]">{item.title}</p>
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.url} alt={item.title ?? ""} className="w-full object-cover" />
-      {item.title && (
-        <div className="px-4 py-2.5">
-          <p className="text-sm font-medium text-[hsl(25,20%,15%)]">{item.title}</p>
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      style={{ aspectRatio: "4/5" }}
+    >
+      {/* Thumbnail */}
+      {item.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.image_url}
+          alt={item.title ?? ""}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[hsl(35,20%,90%)] flex items-center justify-center">
+          <svg className="w-10 h-10 text-[hsl(35,20%,75%)]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+          </svg>
         </div>
       )}
-    </div>
+
+      {/* Top gradient for icon readability */}
+      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/30 to-transparent" />
+
+      {/* Bottom gradient + title */}
+      {item.title && (
+        <>
+          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-6">
+            <p className="text-white text-[13px] font-semibold leading-snug drop-shadow-sm line-clamp-2">
+              {item.title}
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* External link icon — top right */}
+      <div className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/35 transition-colors border border-white/20">
+        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+      </div>
+    </a>
   )
 }
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function PortfolioPage() {
   const items = await getPortfolioItems()
@@ -197,7 +132,8 @@ export default async function PortfolioPage() {
           <h2 className="font-bold text-[hsl(25,20%,15%)] text-lg border-l-4 border-[hsl(24,85%,50%)] pl-3">
             Short VDO
           </h2>
-          <div className="grid grid-cols-2 gap-4 items-start">
+          {/* 9:16 → narrow cards, 3 per row on desktop / 2 on mobile */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {videos.map(item => <VideoCard key={item.id} item={item} />)}
           </div>
         </section>
@@ -208,12 +144,9 @@ export default async function PortfolioPage() {
           <h2 className="font-bold text-[hsl(25,20%,15%)] text-lg border-l-4 border-[hsl(24,85%,50%)] pl-3">
             Photo Album
           </h2>
-          <div className="columns-2 gap-4">
-            {photos.map(item => (
-              <div key={item.id} className="mb-4 break-inside-avoid">
-                <PhotoCard item={item} />
-              </div>
-            ))}
+          {/* 4:5 → slightly wider, 2 per row on mobile / 3 on desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {photos.map(item => <PhotoCard key={item.id} item={item} />)}
           </div>
         </section>
       )}
