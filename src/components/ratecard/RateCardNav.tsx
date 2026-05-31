@@ -18,12 +18,27 @@ const LINE_ICON = (
   </svg>
 )
 
+const MenuIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+)
+
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
 export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, contactLine }: Props) {
   const pathname = usePathname()
   const isHome = pathname === "/ratecard"
 
-  // Start opaque on non-home pages, start transparent on home
   const [scrolled, setScrolled] = useState(!isHome)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (!isHome) { setScrolled(true); return }
@@ -32,6 +47,9 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
     window.addEventListener("scroll", check, { passive: true })
     return () => window.removeEventListener("scroll", check)
   }, [isHome])
+
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   const ghost = isHome && !scrolled
 
@@ -44,99 +62,136 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
   const visibleItems = navItems.filter(item => item.always || item.show)
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-500 ${
-      ghost
-        ? "bg-transparent border-b border-white/10"
-        : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
-    }`}>
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Top row */}
-        <div className="h-14 flex items-center justify-between gap-2">
-          <span className={`font-black text-base truncate shrink-0 transition-colors duration-300 ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}>
-            🏠 {pageName}
-          </span>
+    <>
+      <header className={`sticky top-0 z-50 transition-all duration-500 ${
+        ghost
+          ? "bg-transparent border-b border-white/10"
+          : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
+      }`}>
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="h-14 flex items-center justify-between gap-2">
 
-          {/* Desktop nav (center) */}
-          <nav className="hidden sm:flex items-center gap-1 flex-1 justify-center">
+            {/* Page name */}
+            <span className={`font-black text-base truncate shrink-0 transition-colors duration-300 ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}>
+              🏠 {pageName}
+            </span>
+
+            {/* Desktop nav (center) */}
+            <nav className="hidden sm:flex items-center gap-1 flex-1 justify-center">
+              {visibleItems.map(item => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                      isActive
+                        ? ghost ? "bg-white/20 text-white" : "bg-[hsl(24,85%,50%)] text-white"
+                        : ghost ? "text-white/75 hover:text-white hover:bg-white/10" : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {/* Right side */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* LINE - desktop only */}
+              {contactLine && (
+                <a
+                  href={`https://line.me/ti/p/~${contactLine}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 bg-[#06C755] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hover:bg-[#05b34c] transition-all whitespace-nowrap"
+                >
+                  {LINE_ICON}
+                  LINE: {contactLine}
+                </a>
+              )}
+              {/* Admin - desktop only */}
+              <Link
+                href="/dashboard"
+                className={`hidden sm:block text-xs transition-colors duration-300 ${ghost ? "text-white/70 hover:text-white" : "text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)]"}`}
+              >
+                Admin →
+              </Link>
+
+              {/* Hamburger - mobile only */}
+              <button
+                onClick={() => setMenuOpen(o => !o)}
+                aria-label="เมนู"
+                className={`sm:hidden p-1.5 rounded-lg transition-colors duration-300 ${
+                  ghost
+                    ? "text-white hover:bg-white/10"
+                    : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,30%,94%)]"
+                }`}
+              >
+                {menuOpen ? <CloseIcon /> : <MenuIcon />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <div className={`sm:hidden px-4 pb-4 pt-2 space-y-1 ${
+            ghost
+              ? "bg-black/75 backdrop-blur-md border-t border-white/10"
+              : "bg-white border-t border-[hsl(35,20%,90%)]"
+          }`}>
             {visibleItems.map(item => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                     isActive
-                      ? ghost
-                        ? "bg-white/20 text-white"
-                        : "bg-[hsl(24,85%,50%)] text-white"
-                      : ghost
-                        ? "text-white/75 hover:text-white hover:bg-white/10"
-                        : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                      ? ghost ? "bg-white/20 text-white" : "bg-[hsl(24,85%,50%)] text-white"
+                      : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,95%)] hover:text-[hsl(25,20%,15%)]"
                   }`}
                 >
                   {item.label}
                 </Link>
               )
             })}
-          </nav>
 
-          {/* Right: LINE CTA + Admin */}
-          <div className="flex items-center gap-2 shrink-0">
-            {contactLine && (
-              <a
-                href={`https://line.me/ti/p/~${contactLine}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-1.5 bg-[#06C755] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hover:bg-[#05b34c] hover:shadow-md transition-all whitespace-nowrap"
-              >
-                {LINE_ICON}
-                LINE: {contactLine}
-              </a>
-            )}
-            <Link
-              href="/dashboard"
-              className={`text-xs transition-colors duration-300 ${ghost ? "text-white/70 hover:text-white" : "text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)]"}`}
-            >
-              Admin →
-            </Link>
-          </div>
-        </div>
-
-        {/* Mobile: nav + LINE on second row */}
-        <div className={`flex sm:hidden items-center gap-1.5 pb-2 overflow-x-auto ${ghost ? "border-t border-white/10" : ""}`}>
-          {visibleItems.map(item => {
-            const isActive = pathname === item.href
-            return (
+            <div className="pt-2 flex items-center gap-2 border-t border-white/10">
+              {contactLine && (
+                <a
+                  href={`https://line.me/ti/p/~${contactLine}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#06C755] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#05b34c] transition-colors"
+                >
+                  {LINE_ICON}
+                  LINE: {contactLine}
+                </a>
+              )}
               <Link
-                key={item.href}
-                href={item.href}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                  isActive
-                    ? ghost
-                      ? "bg-white/20 text-white"
-                      : "bg-[hsl(24,85%,50%)] text-white"
-                    : ghost
-                      ? "text-white/75 hover:text-white hover:bg-white/10"
-                      : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className={`px-4 py-2.5 rounded-xl text-sm transition-colors ${
+                  ghost ? "text-white/60 hover:text-white hover:bg-white/10" : "text-[hsl(25,10%,55%)] hover:text-[hsl(24,85%,50%)] hover:bg-[hsl(35,25%,95%)]"
                 }`}
               >
-                {item.label}
+                Admin →
               </Link>
-            )
-          })}
-          {contactLine && (
-            <a
-              href={`https://line.me/ti/p/~${contactLine}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 bg-[#06C755] text-white text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto shrink-0"
-            >
-              {LINE_ICON}
-              LINE
-            </a>
-          )}
-        </div>
-      </div>
-    </header>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Backdrop to close menu when clicking outside */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 sm:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+    </>
   )
 }
