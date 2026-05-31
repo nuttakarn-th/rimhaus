@@ -7,7 +7,7 @@ import { upsertPortfolioItem, deletePortfolioItem } from "@/actions/portfolio.ac
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus, Video, Image as ImageIcon, Upload } from "lucide-react"
+import { Trash2, Plus, Video, Image as ImageIcon, Upload, Pencil, X, Check } from "lucide-react"
 import { toast } from "sonner"
 import type { PortfolioItem } from "@/lib/types"
 
@@ -48,6 +48,82 @@ async function compressToTarget(file: File, maxBytes: number): Promise<Blob> {
   })
 }
 
+type EditForm = { title: string; url: string; image_url: string; type: "video" | "photo" }
+
+interface ItemEditFormProps {
+  item: PortfolioItem
+  form: EditForm
+  setForm: React.Dispatch<React.SetStateAction<EditForm>>
+  saving: boolean
+  onSave: () => void
+  onCancel: () => void
+}
+
+function ItemEditForm({ item, form, setForm, saving, onSave, onCancel }: ItemEditFormProps) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  async function handleThumbUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const blob = await compressToTarget(file, MAX_BYTES)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploading(false); return }
+    const path = `${user.id}/portfolio-thumbs/${Date.now()}.jpg`
+    const { error } = await supabase.storage.from("rate-card").upload(path, blob, { upsert: false, contentType: "image/jpeg" })
+    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploading(false); return }
+    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+    setForm(f => ({ ...f, image_url: publicUrl }))
+    toast.success(`อัปโหลด thumbnail สำเร็จ (${(blob.size / 1024).toFixed(0)}KB)`)
+    setUploading(false)
+  }
+
+  return (
+    <div className="border-2 border-[hsl(24,85%,50%)] rounded-xl p-4 space-y-3 bg-orange-50">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <Label className="text-xs">ชื่อ</Label>
+          <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="ชื่อคลิป / อัลบั้ม" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">URL</Label>
+          <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder="https://..." />
+        </div>
+      </div>
+
+      {/* Thumbnail */}
+      <div className="space-y-1">
+        <Label className="text-xs">Thumbnail</Label>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbUpload} />
+        {form.image_url ? (
+          <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={form.image_url} alt="" className={`object-cover border rounded ${item.type === "video" ? "w-7 h-12" : "w-9 h-12"}`} />
+            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading} className="text-xs h-7">
+              <Upload className="w-3 h-3 mr-1" />{uploading ? "กำลังอัปโหลด..." : "เปลี่ยนภาพ"}
+            </Button>
+            <button onClick={() => { setForm(f => ({ ...f, image_url: "" })); if (fileRef.current) fileRef.current.value = "" }} className="text-xs text-red-500 hover:text-red-700 ml-auto">ลบภาพ</button>
+          </div>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            <Upload className="w-3.5 h-3.5 mr-1.5" />
+            {uploading ? "กำลังอัปโหลด..." : "อัปโหลด Thumbnail"}
+          </Button>
+        )}
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <Button size="sm" variant="outline" onClick={onCancel}><X className="w-3.5 h-3.5 mr-1" />ยกเลิก</Button>
+        <Button size="sm" onClick={onSave} disabled={!form.url.trim() || saving}>
+          <Check className="w-3.5 h-3.5 mr-1" />{saving ? "บันทึก..." : "บันทึก"}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 interface Props {
   items: PortfolioItem[]
 }
@@ -61,9 +137,35 @@ export function AdminPortfolio({ items }: Props) {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<EditForm>({ type: "video", title: "", url: "", image_url: "" })
+  const [editSaving, setEditSaving] = useState(false)
 
   const videos = items.filter(i => i.type === "video")
   const photos = items.filter(i => i.type === "photo")
+
+  function startEdit(item: PortfolioItem) {
+    setEditId(item.id)
+    setEditForm({ type: item.type, title: item.title ?? "", url: item.url, image_url: item.image_url ?? "" })
+  }
+
+  async function handleSaveEdit() {
+    if (!editId || !editForm.url.trim()) return
+    setEditSaving(true)
+    const result = await upsertPortfolioItem({
+      id: editId,
+      type: editForm.type,
+      title: editForm.title.trim() || null,
+      url: editForm.url.trim(),
+      image_url: editForm.image_url || null,
+      sort_order: items.find(i => i.id === editId)?.sort_order ?? 99,
+    })
+    setEditSaving(false)
+    if (!result.success) { toast.error(result.error); return }
+    toast.success("แก้ไขสำเร็จ")
+    setEditId(null)
+    router.refresh()
+  }
 
   async function handleThumbUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -74,10 +176,7 @@ export function AdminPortfolio({ items }: Props) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setUploading(false); return }
     const path = `${user.id}/portfolio-thumbs/${Date.now()}.jpg`
-    const { error } = await supabase.storage.from("rate-card").upload(path, blob, {
-      upsert: false,
-      contentType: "image/jpeg",
-    })
+    const { error } = await supabase.storage.from("rate-card").upload(path, blob, { upsert: false, contentType: "image/jpeg" })
     if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
     setForm(f => ({ ...f, image_url: publicUrl }))
@@ -112,6 +211,51 @@ export function AdminPortfolio({ items }: Props) {
     router.refresh()
   }
 
+  function renderItem(item: PortfolioItem) {
+    if (editId === item.id) {
+      return (
+        <ItemEditForm
+          key={item.id}
+          item={item}
+          form={editForm}
+          setForm={setEditForm}
+          saving={editSaving}
+          onSave={handleSaveEdit}
+          onCancel={() => setEditId(null)}
+        />
+      )
+    }
+    return (
+      <div key={item.id} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm">
+        {item.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.image_url} alt="" className={`object-cover rounded shrink-0 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`} />
+        ) : (
+          item.type === "video"
+            ? <Video className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
+            : <ImageIcon className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
+        )}
+        <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
+          {item.title ? <><span className="font-medium">{item.title}</span> · </> : null}
+          <span className="text-[hsl(25,10%,60%)]">{item.url}</span>
+        </span>
+        <button
+          onClick={() => startEdit(item)}
+          className="text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,15%)] transition-colors shrink-0"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => handleDelete(item.id)}
+          disabled={deletingId === item.id}
+          className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-5">
       <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ตัวอย่าง Content</h3>
@@ -121,27 +265,7 @@ export function AdminPortfolio({ items }: Props) {
         <p className="text-xs font-medium text-[hsl(25,10%,50%)] flex items-center gap-1.5">
           <Video className="w-3.5 h-3.5" /> Short VDO ({videos.length})
         </p>
-        {videos.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm">
-            {item.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.image_url} alt="" className="w-8 h-14 object-cover rounded shrink-0" />
-            ) : (
-              <Video className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
-            )}
-            <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
-              {item.title ? <><span className="font-medium">{item.title}</span> · </> : null}
-              <span className="text-[hsl(25,10%,60%)]">{item.url}</span>
-            </span>
-            <button
-              onClick={() => handleDelete(item.id)}
-              disabled={deletingId === item.id}
-              className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
+        {videos.map(renderItem)}
       </div>
 
       {/* Photo list */}
@@ -149,27 +273,7 @@ export function AdminPortfolio({ items }: Props) {
         <p className="text-xs font-medium text-[hsl(25,10%,50%)] flex items-center gap-1.5">
           <ImageIcon className="w-3.5 h-3.5" /> Photo Album ({photos.length})
         </p>
-        {photos.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm">
-            {item.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.image_url} alt="" className="w-10 h-[52px] object-cover rounded shrink-0" />
-            ) : (
-              <ImageIcon className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
-            )}
-            <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
-              {item.title ? <><span className="font-medium">{item.title}</span> · </> : null}
-              <span className="text-[hsl(25,10%,60%)]">{item.url}</span>
-            </span>
-            <button
-              onClick={() => handleDelete(item.id)}
-              disabled={deletingId === item.id}
-              className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
+        {photos.map(renderItem)}
       </div>
 
       {/* Add form */}
@@ -192,23 +296,14 @@ export function AdminPortfolio({ items }: Props) {
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">ชื่อ (optional)</Label>
-            <Input
-              value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-              placeholder="ชื่อคลิป / อัลบั้ม"
-            />
+            <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="ชื่อคลิป / อัลบั้ม" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">URL {form.type === "video" ? "(YouTube / Instagram / Facebook Reel)" : "(Facebook Album / รูปภาพ)"}</Label>
-            <Input
-              value={form.url}
-              onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-              placeholder={form.type === "video" ? "https://www.instagram.com/reel/..." : "https://www.facebook.com/share/p/..."}
-            />
+            <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder={form.type === "video" ? "https://www.instagram.com/reel/..." : "https://www.facebook.com/share/p/..."} />
           </div>
         </div>
 
-        {/* Thumbnail upload */}
         <div className="space-y-1">
           <Label className="text-xs">
             Thumbnail{" "}
@@ -220,18 +315,9 @@ export function AdminPortfolio({ items }: Props) {
           {form.image_url ? (
             <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={form.image_url}
-                alt="thumbnail"
-                className={`object-cover border rounded ${form.type === "video" ? "w-7 h-12" : "w-9 h-12"}`}
-              />
+              <img src={form.image_url} alt="thumbnail" className={`object-cover border rounded ${form.type === "video" ? "w-7 h-12" : "w-9 h-12"}`} />
               <span className="text-xs text-[hsl(25,10%,55%)] flex-1">อัปโหลดแล้ว</span>
-              <button
-                onClick={() => { setForm(f => ({ ...f, image_url: "" })); if (fileRef.current) fileRef.current.value = "" }}
-                className="text-xs text-red-500 hover:text-red-700"
-              >
-                ลบ
-              </button>
+              <button onClick={() => { setForm(f => ({ ...f, image_url: "" })); if (fileRef.current) fileRef.current.value = "" }} className="text-xs text-red-500 hover:text-red-700">ลบ</button>
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
