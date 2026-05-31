@@ -477,7 +477,7 @@ export default async function RateCardPage() {
 
       {grouped.barter.length > 0 && (
         <section>
-          <SectionHeader title="ระบบ Barter" />
+          <SectionHeader title="Barter" />
           <div className="rounded-2xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5">
             {grouped.barter[0].description && (
               <p className="text-sm text-violet-700 leading-relaxed">{grouped.barter[0].description}</p>
