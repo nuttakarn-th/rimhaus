@@ -36,7 +36,7 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
       )}
       {isPerPlatform && (
         <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 flex items-center justify-between">
-          <span className="text-xs font-black text-white tracking-wide">📦 ต่อ Platform</span>
+          <span className="text-xs font-black text-white tracking-wide">📦 Single Platform</span>
           {saving && (
             <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
               ประหยัด {formatCurrency(saving)}
@@ -450,7 +450,7 @@ export default async function RateCardPage() {
       {/* ── Packages ─────────────────────────────────────── */}
       {grouped.per_platform.length > 0 && (
         <section>
-          <SectionHeader title="ต่อแพลตฟอร์ม" />
+          <SectionHeader title="Single Platform" />
           <div className="grid grid-cols-2 gap-3">
             {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} />)}
           </div>
@@ -459,7 +459,7 @@ export default async function RateCardPage() {
 
       {grouped.bundle.length > 0 && (
         <section>
-          <SectionHeader title="เหมาทุกแพลตฟอร์ม" tag="ประหยัดกว่า" />
+          <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
           <div className="grid grid-cols-2 gap-3">
             {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} />)}
           </div>
@@ -468,7 +468,7 @@ export default async function RateCardPage() {
 
       {grouped.addon.length > 0 && (
         <section>
-          <SectionHeader title="เพิ่มเติม" />
+          <SectionHeader title="Additional Services" />
           <div className="grid grid-cols-2 gap-3">
             {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} />)}
           </div>
