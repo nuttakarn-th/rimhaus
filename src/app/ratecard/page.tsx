@@ -102,12 +102,14 @@ export default async function RateCardPage() {
   return (
     <>
       {/* ── Full-screen Hero ──────────────────────────────── */}
-      <section className="relative overflow-hidden w-full min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white">
+      {/* -mt-24 sm:-mt-14: pull hero up behind the sticky nav (mobile nav ~96px, desktop ~56px) */}
+      <section className="relative overflow-hidden w-full min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white -mt-24 sm:-mt-14">
         {/* Decorative circles */}
         <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 rounded-full bg-[hsl(24,85%,50%)]/10 -translate-y-1/2 translate-x-1/2" />
         <div className="pointer-events-none absolute bottom-0 left-0 w-72 h-72 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative max-w-3xl mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center py-24 space-y-4">
+        {/* pt-28 sm:pt-20: push content clear of the nav overlay */}
+        <div className="relative max-w-3xl mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center pt-28 sm:pt-20 pb-24 space-y-4">
           {settings?.image_url && (
             <div className="flex justify-center mb-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
