@@ -25,7 +25,7 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
           : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
-        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 py-2 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 py-2 flex items-center justify-center gap-2">
           <span className="text-xs font-black text-white tracking-wide">⭐ เหมาทุกอย่าง</span>
           {saving && (
             <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
@@ -35,7 +35,7 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
         </div>
       )}
       {isPerPlatform && (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 flex items-center justify-center gap-2">
           <span className="text-xs font-black text-white tracking-wide">📦 Single Platform</span>
           {saving && (
             <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
