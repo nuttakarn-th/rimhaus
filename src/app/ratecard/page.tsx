@@ -410,23 +410,23 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Rate Card Image (before packages) ───────────── */}
-      {settings?.image_url && (
-        <section>
-          <div className="flex flex-col items-center mb-6 text-center">
-            <h2
-              className="text-3xl sm:text-4xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
-              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
-            >
-              Rate Card
-            </h2>
-          </div>
+      {/* ── Rate Card heading + image ────────────────────── */}
+      <section>
+        <div className="flex flex-col items-center mb-6 text-center">
+          <h2
+            className="text-5xl sm:text-6xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+          >
+            Rate Card
+          </h2>
+        </div>
+        {settings?.image_url && (
           <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* ── Packages ─────────────────────────────────────── */}
       {grouped.per_platform.length > 0 && (
