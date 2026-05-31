@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { formatCurrency } from "@/lib/utils"
 import type { RateCardPackage } from "@/lib/types"
 
@@ -22,10 +22,23 @@ interface Props {
   pageName: string | null
 }
 
+function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
 export function PackageCalculator({ packages, contactLine, pageName }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
-  const summaryRef = useRef<HTMLDivElement>(null)
 
   const selectablePkgs = packages.filter(
     p => p.is_active && p.category !== "barter" && p.price != null
@@ -47,32 +60,143 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
   const selectedPkgs = selectablePkgs.filter(p => selected.has(p.id))
   const total = selectedPkgs.reduce((s, p) => s + (p.price ?? 0), 0)
 
-  async function handleSaveImage() {
-    if (!summaryRef.current || selectedPkgs.length === 0) return
+  function handleSaveImage() {
+    if (selectedPkgs.length === 0) return
     setSaving(true)
     try {
-      const html2canvas = (await import("html2canvas")).default
-      const canvas = await html2canvas(summaryRef.current, {
-        backgroundColor: "#1f1509",
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        onclone: (doc) => {
-          const el = doc.querySelector("[data-summary-card]") as HTMLElement | null
-          if (el) el.style.borderRadius = "0"
-        },
-      })
-      const url = canvas.toDataURL("image/png")
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "rate-card-quote.png"
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+      const DPR = 2
+      const W = 640
+      const PAD = 44
+      const FONT = "system-ui, -apple-system, sans-serif"
+
+      // Calculate total height
+      let contentH = 0
+      contentH += 110  // header
+      contentH += selectedPkgs.length * 44  // items
+      contentH += 20   // gap before total
+      contentH += 64   // total box
+      contentH += 28   // WHT note
+      if (contactLine) contentH += 36  // LINE footer
+      contentH += PAD  // bottom padding
+
+      const H = PAD + contentH
+
+      const canvas = document.createElement("canvas")
+      canvas.width = W * DPR
+      canvas.height = H * DPR
+      const ctx = canvas.getContext("2d")!
+      ctx.scale(DPR, DPR)
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, W, H)
+      bg.addColorStop(0, "#1f1509")
+      bg.addColorStop(1, "#1a1810")
+      ctx.fillStyle = bg
+      ctx.fillRect(0, 0, W, H)
+
+      let y = PAD
+
+      // Label
+      ctx.fillStyle = "rgba(255,255,255,0.38)"
+      ctx.font = `bold 11px ${FONT}`
+      ctx.letterSpacing = "2px"
+      ctx.fillText("RATE CARD QUOTE", PAD, y + 14)
+      ctx.letterSpacing = "0px"
+
+      // Page name
+      y += 30
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `bold 24px ${FONT}`
+      ctx.fillText(pageName ?? "unfinished house", PAD, y + 24)
+
+      // Date
+      y += 34
+      ctx.fillStyle = "rgba(255,255,255,0.32)"
+      ctx.font = `13px ${FONT}`
+      ctx.fillText(
+        new Date().toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" }),
+        PAD, y + 14
+      )
+
+      // Divider
+      y += 28
+      ctx.strokeStyle = "rgba(255,255,255,0.1)"
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(PAD, y)
+      ctx.lineTo(W - PAD, y)
+      ctx.stroke()
+
+      y += 22
+
+      // Items
+      for (const pkg of selectedPkgs) {
+        ctx.fillStyle = "#ffffff"
+        ctx.font = `600 15px ${FONT}`
+        ctx.fillText(pkg.name, PAD, y + 16)
+
+        const priceStr = formatCurrency(pkg.price!)
+        ctx.fillStyle = "#f5c47a"
+        ctx.font = `bold 15px ${FONT}`
+        const pw = ctx.measureText(priceStr).width
+        ctx.fillText(priceStr, W - PAD - pw, y + 16)
+
+        if (pkg.unit) {
+          ctx.fillStyle = "rgba(255,255,255,0.32)"
+          ctx.font = `11px ${FONT}`
+          ctx.fillText(pkg.unit, PAD, y + 30)
+        }
+
+        y += 44
+      }
+
+      y += 20
+
+      // Total box
+      ctx.fillStyle = "rgba(255,255,255,0.1)"
+      rr(ctx, PAD, y, W - PAD * 2, 64, 14)
+      ctx.fill()
+
+      ctx.fillStyle = "rgba(255,255,255,0.55)"
+      ctx.font = `bold 13px ${FONT}`
+      ctx.fillText("ราคารวม (Net)", PAD + 16, y + 28)
+
+      const totalStr = formatCurrency(total)
+      ctx.fillStyle = "#ffffff"
+      ctx.font = `bold 24px ${FONT}`
+      const tw = ctx.measureText(totalStr).width
+      ctx.fillText(totalStr, W - PAD - 16 - tw, y + 32)
+
+      y += 64 + 14
+
+      // WHT note
+      ctx.fillStyle = "rgba(255,255,255,0.28)"
+      ctx.font = `11px ${FONT}`
+      ctx.fillText("*ราคานี้ยังไม่รวม การหักภาษี ณ ที่จ่าย 3%", PAD, y + 12)
+
+      // LINE footer
+      if (contactLine) {
+        y += 28
+        ctx.fillStyle = "rgba(255,255,255,0.35)"
+        ctx.font = `12px ${FONT}`
+        ctx.fillText(`LINE: ${contactLine}`, PAD, y + 16)
+      }
+
+      // Download
+      canvas.toBlob(blob => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "rate-card-quote.png"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        setSaving(false)
+      }, "image/png")
     } catch (err) {
-      console.error("save image failed", err)
-    } finally {
+      console.error(err)
       setSaving(false)
     }
   }
@@ -191,13 +315,12 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
         </div>
       </div>
 
-      {/* Summary card (for screenshot) */}
+      {/* Summary card — visual preview */}
       {selectedPkgs.length > 0 && (
         <div
-          ref={summaryRef}
           data-summary-card
           className="rounded-2xl overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #1f1509 0%, #1e1b12 100%)" }}
+          style={{ background: "linear-gradient(135deg, #1f1509 0%, #1a1810 100%)" }}
         >
           {/* Header */}
           <div className="px-5 pt-5 pb-4 border-b border-white/10">
