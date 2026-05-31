@@ -126,7 +126,7 @@ export default async function RateCardPage() {
           <div>
             <h1
               className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
-              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
             >
               {settings?.hero_heading ?? settings?.page_name ?? "Rate Card"}
             </h1>
@@ -415,7 +415,7 @@ export default async function RateCardPage() {
         <div className="flex flex-col items-center mb-6 text-center">
           <h2
             className="text-5xl sm:text-6xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
-            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
           >
             Rate Card
           </h2>

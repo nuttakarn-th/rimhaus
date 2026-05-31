@@ -58,7 +58,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
             {/* Brand */}
             <span
               className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}
-              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
             >
               unfinished house
             </span>

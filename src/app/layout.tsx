@@ -11,7 +11,7 @@ const notoSansThai = Noto_Sans_Thai({
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["600"],
+  weight: ["700"],
   variable: "--font-inter",
 })
 
