@@ -107,9 +107,9 @@ export default async function RateCardPage() {
         className="relative overflow-hidden w-full -mt-14 aspect-square sm:aspect-auto sm:min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white"
         style={settings?.hero_bg_image_url ? { backgroundImage: `url(${settings.hero_bg_image_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
       >
-        {/* Dark overlay when bg image set */}
+        {/* Dark overlay — always present when bg image; stronger at bottom where text sits */}
         {settings?.hero_bg_image_url && (
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/65" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
         )}
         {/* Decorative circles (no bg image) */}
         {!settings?.hero_bg_image_url && (
@@ -119,8 +119,8 @@ export default async function RateCardPage() {
           </>
         )}
 
-        {/* Content: absolute-fill so it works with aspect-square */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8 pt-14 pb-6 space-y-3">
+        {/* Content: pushed to lower portion of banner */}
+        <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-14 space-y-3">
 
           {/* Heading */}
           <div>
@@ -413,7 +413,14 @@ export default async function RateCardPage() {
       {/* ── Rate Card Image (before packages) ───────────── */}
       {settings?.image_url && (
         <section>
-          <SectionHeader title="Rate Card" />
+          <div className="flex flex-col items-center mb-6 text-center">
+            <h2
+              className="text-3xl sm:text-4xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+            >
+              Rate Card
+            </h2>
+          </div>
           <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
