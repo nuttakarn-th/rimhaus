@@ -3,11 +3,27 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { upsertPortfolioItem, deletePortfolioItem } from "@/actions/portfolio.actions"
+import { upsertPortfolioItem, deletePortfolioItem, reorderPortfolioItems } from "@/actions/portfolio.actions"
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus, Video, Image as ImageIcon, Upload, Pencil, X, Check } from "lucide-react"
+import { Trash2, Plus, Video, Image as ImageIcon, Upload, Pencil, X, Check, GripVertical } from "lucide-react"
 import { toast } from "sonner"
 import type { PortfolioItem } from "@/lib/types"
 
@@ -92,8 +108,6 @@ function ItemEditForm({ item, form, setForm, saving, onSave, onCancel }: ItemEdi
           <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder="https://..." />
         </div>
       </div>
-
-      {/* Thumbnail */}
       <div className="space-y-1">
         <Label className="text-xs">Thumbnail</Label>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbUpload} />
@@ -108,12 +122,10 @@ function ItemEditForm({ item, form, setForm, saving, onSave, onCancel }: ItemEdi
           </div>
         ) : (
           <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-            <Upload className="w-3.5 h-3.5 mr-1.5" />
-            {uploading ? "กำลังอัปโหลด..." : "อัปโหลด Thumbnail"}
+            <Upload className="w-3.5 h-3.5 mr-1.5" />{uploading ? "กำลังอัปโหลด..." : "อัปโหลด Thumbnail"}
           </Button>
         )}
       </div>
-
       <div className="flex gap-2 justify-end">
         <Button size="sm" variant="outline" onClick={onCancel}><X className="w-3.5 h-3.5 mr-1" />ยกเลิก</Button>
         <Button size="sm" onClick={onSave} disabled={!form.url.trim() || saving}>
@@ -123,6 +135,124 @@ function ItemEditForm({ item, form, setForm, saving, onSave, onCancel }: ItemEdi
     </div>
   )
 }
+
+// ─── Single draggable row ────────────────────────────────────────────────────
+
+interface SortableItemProps {
+  item: PortfolioItem
+  editId: string | null
+  editForm: EditForm
+  setEditForm: React.Dispatch<React.SetStateAction<EditForm>>
+  editSaving: boolean
+  deletingId: string | null
+  onEdit: (item: PortfolioItem) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onDelete: (id: string) => void
+}
+
+function SortableItem({
+  item, editId, editForm, setEditForm, editSaving, deletingId,
+  onEdit, onSaveEdit, onCancelEdit, onDelete,
+}: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
+
+  if (editId === item.id) {
+    return (
+      <div ref={setNodeRef} style={style}>
+        <ItemEditForm
+          item={item}
+          form={editForm}
+          setForm={setEditForm}
+          saving={editSaving}
+          onSave={onSaveEdit}
+          onCancel={onCancelEdit}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm group">
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="text-[hsl(25,10%,65%)] hover:text-[hsl(25,10%,35%)] cursor-grab active:cursor-grabbing shrink-0 touch-none"
+        aria-label="ลาก"
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
+
+      {item.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={item.image_url} alt="" className={`object-cover rounded shrink-0 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`} />
+      ) : (
+        item.type === "video"
+          ? <Video className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
+          : <ImageIcon className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
+      )}
+
+      <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
+        {item.title ? <><span className="font-medium">{item.title}</span> · </> : null}
+        <span className="text-[hsl(25,10%,60%)]">{item.url}</span>
+      </span>
+
+      <button onClick={() => onEdit(item)} className="text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,15%)] transition-colors shrink-0">
+        <Pencil className="w-3.5 h-3.5" />
+      </button>
+      <button onClick={() => onDelete(item.id)} disabled={deletingId === item.id} className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0">
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  )
+}
+
+// ─── Sortable group (videos or photos) ──────────────────────────────────────
+
+interface SortableGroupProps {
+  items: PortfolioItem[]
+  onReorder: (newItems: PortfolioItem[]) => void
+  editId: string | null
+  editForm: EditForm
+  setEditForm: React.Dispatch<React.SetStateAction<EditForm>>
+  editSaving: boolean
+  deletingId: string | null
+  onEdit: (item: PortfolioItem) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onDelete: (id: string) => void
+}
+
+function SortableGroup({ items, onReorder, ...rowProps }: SortableGroupProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+  )
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = items.findIndex(i => i.id === active.id)
+    const newIndex = items.findIndex(i => i.id === over.id)
+    onReorder(arrayMove(items, oldIndex, newIndex))
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-1.5">
+          {items.map(item => (
+            <SortableItem key={item.id} item={item} {...rowProps} />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  )
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
 
 interface Props {
   items: PortfolioItem[]
@@ -141,8 +271,8 @@ export function AdminPortfolio({ items }: Props) {
   const [editForm, setEditForm] = useState<EditForm>({ type: "video", title: "", url: "", image_url: "" })
   const [editSaving, setEditSaving] = useState(false)
 
-  const videos = items.filter(i => i.type === "video")
-  const photos = items.filter(i => i.type === "photo")
+  const [videos, setVideos] = useState<PortfolioItem[]>(items.filter(i => i.type === "video"))
+  const [photos, setPhotos] = useState<PortfolioItem[]>(items.filter(i => i.type === "photo"))
 
   function startEdit(item: PortfolioItem) {
     setEditId(item.id)
@@ -152,19 +282,26 @@ export function AdminPortfolio({ items }: Props) {
   async function handleSaveEdit() {
     if (!editId || !editForm.url.trim()) return
     setEditSaving(true)
+    const target = [...videos, ...photos].find(i => i.id === editId)
     const result = await upsertPortfolioItem({
       id: editId,
       type: editForm.type,
       title: editForm.title.trim() || null,
       url: editForm.url.trim(),
       image_url: editForm.image_url || null,
-      sort_order: items.find(i => i.id === editId)?.sort_order ?? 99,
+      sort_order: target?.sort_order ?? 99,
     })
     setEditSaving(false)
     if (!result.success) { toast.error(result.error); return }
     toast.success("แก้ไขสำเร็จ")
     setEditId(null)
     router.refresh()
+  }
+
+  async function handleReorder(type: "video" | "photo", newOrder: PortfolioItem[]) {
+    const setter = type === "video" ? setVideos : setPhotos
+    setter(newOrder)
+    await reorderPortfolioItems(newOrder.map((item, idx) => ({ id: item.id, sort_order: idx })))
   }
 
   async function handleThumbUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -192,7 +329,7 @@ export function AdminPortfolio({ items }: Props) {
       title: form.title.trim() || null,
       url: form.url.trim(),
       image_url: form.image_url || null,
-      sort_order: items.filter(i => i.type === form.type).length,
+      sort_order: (form.type === "video" ? videos : photos).length,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -208,88 +345,43 @@ export function AdminPortfolio({ items }: Props) {
     setDeletingId(null)
     if (!result.success) { toast.error(result.error); return }
     toast.success("ลบแล้ว")
+    setVideos(v => v.filter(i => i.id !== id))
+    setPhotos(p => p.filter(i => i.id !== id))
     router.refresh()
   }
 
-  function renderItem(item: PortfolioItem) {
-    if (editId === item.id) {
-      return (
-        <ItemEditForm
-          key={item.id}
-          item={item}
-          form={editForm}
-          setForm={setEditForm}
-          saving={editSaving}
-          onSave={handleSaveEdit}
-          onCancel={() => setEditId(null)}
-        />
-      )
-    }
-    return (
-      <div key={item.id} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm">
-        {item.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.image_url} alt="" className={`object-cover rounded shrink-0 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`} />
-        ) : (
-          item.type === "video"
-            ? <Video className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
-            : <ImageIcon className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
-        )}
-        <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
-          {item.title ? <><span className="font-medium">{item.title}</span> · </> : null}
-          <span className="text-[hsl(25,10%,60%)]">{item.url}</span>
-        </span>
-        <button
-          onClick={() => startEdit(item)}
-          className="text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,15%)] transition-colors shrink-0"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => handleDelete(item.id)}
-          disabled={deletingId === item.id}
-          className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    )
-  }
+  const rowProps = { editId, editForm, setEditForm, editSaving, deletingId, onEdit: startEdit, onSaveEdit: handleSaveEdit, onCancelEdit: () => setEditId(null), onDelete: handleDelete }
 
   return (
     <div className="space-y-5">
       <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ตัวอย่าง Content</h3>
 
-      {/* Short VDO list */}
+      {/* Short VDO */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-[hsl(25,10%,50%)] flex items-center gap-1.5">
           <Video className="w-3.5 h-3.5" /> Short VDO ({videos.length})
+          <span className="text-[hsl(25,10%,65%)] font-normal">· ลากเพื่อจัดลำดับ</span>
         </p>
-        {videos.map(renderItem)}
+        <SortableGroup items={videos} onReorder={items => handleReorder("video", items)} {...rowProps} />
       </div>
 
-      {/* Photo list */}
+      {/* Photo Album */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-[hsl(25,10%,50%)] flex items-center gap-1.5">
           <ImageIcon className="w-3.5 h-3.5" /> Photo Album ({photos.length})
+          <span className="text-[hsl(25,10%,65%)] font-normal">· ลากเพื่อจัดลำดับ</span>
         </p>
-        {photos.map(renderItem)}
+        <SortableGroup items={photos} onReorder={items => handleReorder("photo", items)} {...rowProps} />
       </div>
 
       {/* Add form */}
       <div className="border border-[hsl(35,20%,88%)] rounded-xl p-4 space-y-3 bg-white">
         <p className="text-xs font-semibold text-[hsl(25,20%,25%)]">เพิ่มรายการใหม่</p>
         <div className="flex gap-2">
-          <button
-            onClick={() => setForm(f => ({ ...f, type: "video" }))}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.type === "video" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-[hsl(35,30%,97%)] text-[hsl(25,10%,50%)] hover:bg-[hsl(35,20%,92%)]"}`}
-          >
+          <button onClick={() => setForm(f => ({ ...f, type: "video" }))} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.type === "video" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-[hsl(35,30%,97%)] text-[hsl(25,10%,50%)] hover:bg-[hsl(35,20%,92%)]"}`}>
             <Video className="w-3.5 h-3.5" /> Short VDO
           </button>
-          <button
-            onClick={() => setForm(f => ({ ...f, type: "photo" }))}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.type === "photo" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-[hsl(35,30%,97%)] text-[hsl(25,10%,50%)] hover:bg-[hsl(35,20%,92%)]"}`}
-          >
+          <button onClick={() => setForm(f => ({ ...f, type: "photo" }))} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.type === "photo" ? "bg-[hsl(24,85%,50%)] text-white" : "bg-[hsl(35,30%,97%)] text-[hsl(25,10%,50%)] hover:bg-[hsl(35,20%,92%)]"}`}>
             <ImageIcon className="w-3.5 h-3.5" /> Photo
           </button>
         </div>
@@ -299,18 +391,12 @@ export function AdminPortfolio({ items }: Props) {
             <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="ชื่อคลิป / อัลบั้ม" />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">URL {form.type === "video" ? "(YouTube / Instagram / Facebook Reel)" : "(Facebook Album / รูปภาพ)"}</Label>
+            <Label className="text-xs">URL {form.type === "video" ? "(Facebook / TikTok / Instagram)" : "(Facebook Album)"}</Label>
             <Input value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} placeholder={form.type === "video" ? "https://www.instagram.com/reel/..." : "https://www.facebook.com/share/p/..."} />
           </div>
         </div>
-
         <div className="space-y-1">
-          <Label className="text-xs">
-            Thumbnail{" "}
-            <span className="text-[hsl(25,10%,55%)] font-normal">
-              — {form.type === "video" ? "อัตราส่วน 9:16" : "อัตราส่วน 3:4"} · บีบอัด ≤100KB อัตโนมัติ
-            </span>
-          </Label>
+          <Label className="text-xs">Thumbnail <span className="text-[hsl(25,10%,55%)] font-normal">— {form.type === "video" ? "9:16" : "3:4"} · บีบอัด ≤100KB อัตโนมัติ</span></Label>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbUpload} />
           {form.image_url ? (
             <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
@@ -321,15 +407,12 @@ export function AdminPortfolio({ items }: Props) {
             </div>
           ) : (
             <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              <Upload className="w-3.5 h-3.5 mr-1.5" />
-              {uploading ? "กำลังอัปโหลด..." : "อัปโหลด Thumbnail (optional)"}
+              <Upload className="w-3.5 h-3.5 mr-1.5" />{uploading ? "กำลังอัปโหลด..." : "อัปโหลด Thumbnail (optional)"}
             </Button>
           )}
         </div>
-
         <Button size="sm" onClick={handleAdd} disabled={saving}>
-          <Plus className="w-3.5 h-3.5 mr-1" />
-          {saving ? "กำลังบันทึก..." : "เพิ่ม"}
+          <Plus className="w-3.5 h-3.5 mr-1" />{saving ? "กำลังบันทึก..." : "เพิ่ม"}
         </Button>
       </div>
     </div>

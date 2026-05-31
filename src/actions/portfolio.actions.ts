@@ -32,6 +32,21 @@ export async function upsertPortfolioItem(
   return { success: true, data: item as PortfolioItem }
 }
 
+export async function reorderPortfolioItems(
+  updates: { id: string; sort_order: number }[]
+): Promise<ActionResult<void>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+
+  for (const u of updates) {
+    await supabase.from("portfolio_items").update({ sort_order: u.sort_order }).eq("id", u.id).eq("user_id", user.id)
+  }
+  revalidatePath("/portfolio")
+  revalidatePath("/settings/ratecard")
+  return { success: true, data: undefined }
+}
+
 export async function deletePortfolioItem(id: string): Promise<ActionResult<void>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
