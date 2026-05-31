@@ -49,15 +49,18 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
     <>
       <header className={`sticky top-0 z-50 transition-all duration-500 ${
         ghost
-          ? "bg-transparent border-b border-white/10"
+          ? "bg-transparent"
           : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
       }`}>
         <div className="max-w-4xl mx-auto px-4 relative">
           <div className="h-14 flex items-center justify-between gap-2">
 
-            {/* Page name */}
-            <span className={`font-black text-base truncate shrink-0 transition-colors duration-300 ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}>
-              🏠 {pageName}
+            {/* Brand */}
+            <span
+              className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 600 }}
+            >
+              unfinished house
             </span>
 
             {/* Desktop nav (center) */}

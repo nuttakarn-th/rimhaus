@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Noto_Sans_Thai } from "next/font/google"
+import { Noto_Sans_Thai, Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 
@@ -9,6 +9,12 @@ const notoSansThai = Noto_Sans_Thai({
   variable: "--font-noto-thai",
 })
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["600"],
+  variable: "--font-inter",
+})
+
 export const metadata: Metadata = {
   title: "Rimhaus — จัดการธุรกิจเพจแต่งบ้าน",
   description: "ระบบจัดการงานรีวิว การเงิน และคอนเทนต์สำหรับเพจแต่งบ้าน",
@@ -16,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`h-full ${notoSansThai.variable}`}>
+    <html lang="th" className={`h-full ${notoSansThai.variable} ${inter.variable}`}>
       <body className="h-full antialiased font-sans">
         {children}
         <Toaster richColors position="top-right" />
