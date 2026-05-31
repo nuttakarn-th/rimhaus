@@ -53,16 +53,25 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
     try {
       const html2canvas = (await import("html2canvas")).default
       const canvas = await html2canvas(summaryRef.current, {
-        backgroundColor: "#1a1208",
+        backgroundColor: "#1f1509",
         scale: 2,
         useCORS: true,
+        allowTaint: true,
         logging: false,
+        onclone: (doc) => {
+          const el = doc.querySelector("[data-summary-card]") as HTMLElement | null
+          if (el) el.style.borderRadius = "0"
+        },
       })
       const url = canvas.toDataURL("image/png")
       const a = document.createElement("a")
       a.href = url
       a.download = "rate-card-quote.png"
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
+    } catch (err) {
+      console.error("save image failed", err)
     } finally {
       setSaving(false)
     }
@@ -84,7 +93,7 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
           className="text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
           style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
         >
-          ลองคำนวณค่าจ้าง
+          Calculate Cost
         </h2>
         <p className="text-xs text-[hsl(25,10%,55%)]">เลือกแพ็กเกจที่สนใจเพื่อดูราคาล่วงหน้า</p>
       </div>
@@ -186,8 +195,9 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
       {selectedPkgs.length > 0 && (
         <div
           ref={summaryRef}
+          data-summary-card
           className="rounded-2xl overflow-hidden"
-          style={{ background: "linear-gradient(135deg, hsl(25,20%,12%) 0%, hsl(22,25%,18%) 100%)" }}
+          style={{ background: "linear-gradient(135deg, #1f1509 0%, #1e1b12 100%)" }}
         >
           {/* Header */}
           <div className="px-5 pt-5 pb-4 border-b border-white/10">
@@ -212,12 +222,17 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
           </div>
 
           {/* Total */}
-          <div className="mx-5 mb-5 bg-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="mx-5 bg-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
             <p className="text-white/70 text-xs font-bold">ราคารวม (Net)</p>
             <p className="text-white font-black text-xl" style={{ fontFamily: "var(--font-inter, 'Inter', sans-serif)" }}>
               {formatCurrency(total)}
             </p>
           </div>
+
+          {/* WHT note */}
+          <p className="mx-5 mt-2 mb-5 text-white/35 text-[9px] leading-relaxed">
+            *ราคานี้ยังไม่รวม การหักภาษี ณ ที่จ่าย 3%
+          </p>
 
           {/* Contact footer */}
           {contactLine && (
