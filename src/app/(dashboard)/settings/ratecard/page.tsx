@@ -26,7 +26,7 @@ export default async function AdminRateCardPage() {
           <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">จัดการ Packages และข้อมูลสำหรับลูกค้า</p>
         </div>
         <Link
-          href="/ratecard"
+          href="/"
           rel="noopener noreferrer"
           target="_blank"
           className="flex items-center gap-1.5 text-sm text-[hsl(24,85%,50%)] hover:underline"
