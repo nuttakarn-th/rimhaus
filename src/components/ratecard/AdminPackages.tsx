@@ -21,6 +21,81 @@ const emptyForm = {
   is_featured: false, is_active: true, sort_order: 99, sub_items: [] as Array<{ label: string; price: number }>,
 }
 
+type FormState = typeof emptyForm
+
+interface PackageFormProps {
+  form: FormState
+  setForm: React.Dispatch<React.SetStateAction<FormState>>
+  saving: boolean
+  id?: string
+  onSave: (id?: string) => void
+  onCancel: () => void
+}
+
+function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFormProps) {
+  return (
+    <div className="border-2 border-[hsl(24,85%,50%)] rounded-xl p-4 space-y-3 bg-orange-50">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">ชื่อ Package *</Label>
+          <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Album Photo" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">หมวดหมู่</Label>
+          <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v as RateCardCategory }))}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {(Object.entries(RATE_CARD_CATEGORY_LABELS) as [RateCardCategory, string][]).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">ราคา (บาท)</Label>
+          <Input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} placeholder="4000" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">ราคาเดิม (บาท)</Label>
+          <Input type="number" value={form.original_price} onChange={e => setForm(p => ({ ...p, original_price: e.target.value }))} placeholder="6000" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">หน่วย</Label>
+          <Input value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} placeholder="THB/clip/platform" />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <Label className="text-xs">คำอธิบาย</Label>
+        <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="flex items-center gap-2 text-xs cursor-pointer">
+          <Checkbox checked={form.is_featured} onCheckedChange={v => setForm(p => ({ ...p, is_featured: Boolean(v) }))} />
+          เด่น (Featured)
+        </label>
+        <label className="flex items-center gap-2 text-xs cursor-pointer">
+          <Checkbox checked={form.is_active} onCheckedChange={v => setForm(p => ({ ...p, is_active: Boolean(v) }))} />
+          แสดงผล
+        </label>
+        <div className="flex items-center gap-2 ml-auto">
+          <Label className="text-xs">ลำดับ</Label>
+          <Input type="number" className="w-16" value={form.sort_order} onChange={e => setForm(p => ({ ...p, sort_order: Number(e.target.value) }))} />
+        </div>
+      </div>
+      <div className="flex gap-2 justify-end pt-1">
+        <Button size="sm" variant="outline" onClick={onCancel}>
+          <X className="w-3.5 h-3.5 mr-1" />ยกเลิก
+        </Button>
+        <Button size="sm" onClick={() => onSave(id)} disabled={!form.name || saving}>
+          <Check className="w-3.5 h-3.5 mr-1" />{saving ? "บันทึก..." : "บันทึก"}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
   const router = useRouter()
   const [editId, setEditId] = useState<string | null>(null)
@@ -82,67 +157,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
     router.refresh()
   }
 
-  const PackageForm = ({ id }: { id?: string }) => (
-    <div className="border-2 border-[hsl(24,85%,50%)] rounded-xl p-4 space-y-3 bg-orange-50">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <Label className="text-xs">ชื่อ Package *</Label>
-          <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Album Photo" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">หมวดหมู่</Label>
-          <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v as RateCardCategory }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {(Object.entries(RATE_CARD_CATEGORY_LABELS) as [RateCardCategory, string][]).map(([k, v]) => (
-                <SelectItem key={k} value={k}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div className="space-y-1">
-          <Label className="text-xs">ราคา (บาท)</Label>
-          <Input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} placeholder="4000" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">ราคาเดิม (บาท)</Label>
-          <Input type="number" value={form.original_price} onChange={e => setForm(p => ({ ...p, original_price: e.target.value }))} placeholder="6000" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">หน่วย</Label>
-          <Input value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} placeholder="THB/clip/platform" />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <Label className="text-xs">คำอธิบาย</Label>
-        <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
-      </div>
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 text-xs cursor-pointer">
-          <Checkbox checked={form.is_featured} onCheckedChange={v => setForm(p => ({ ...p, is_featured: Boolean(v) }))} />
-          เด่น (Featured)
-        </label>
-        <label className="flex items-center gap-2 text-xs cursor-pointer">
-          <Checkbox checked={form.is_active} onCheckedChange={v => setForm(p => ({ ...p, is_active: Boolean(v) }))} />
-          แสดงผล
-        </label>
-        <div className="flex items-center gap-2 ml-auto">
-          <Label className="text-xs">ลำดับ</Label>
-          <Input type="number" className="w-16" value={form.sort_order} onChange={e => setForm(p => ({ ...p, sort_order: Number(e.target.value) }))} />
-        </div>
-      </div>
-      <div className="flex gap-2 justify-end pt-1">
-        <Button size="sm" variant="outline" onClick={() => { setEditId(null); setAdding(false) }}>
-          <X className="w-3.5 h-3.5 mr-1" />ยกเลิก
-        </Button>
-        <Button size="sm" onClick={() => handleSave(id)} disabled={!form.name || saving}>
-          <Check className="w-3.5 h-3.5 mr-1" />{saving ? "บันทึก..." : "บันทึก"}
-        </Button>
-      </div>
-    </div>
-  )
+  const cancelForm = () => { setEditId(null); setAdding(false) }
 
   return (
     <div className="space-y-6">
@@ -152,14 +167,14 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
           <Plus className="w-3.5 h-3.5 mr-1" />เพิ่ม Package
         </Button>
       </div>
-      {adding && <PackageForm />}
+      {adding && <PackageForm form={form} setForm={setForm} saving={saving} onSave={handleSave} onCancel={cancelForm} />}
       {grouped.map(({ cat, items }) => items.length === 0 ? null : (
         <div key={cat} className="space-y-2">
           <h4 className="text-sm font-semibold text-[hsl(25,10%,50%)] uppercase tracking-wide">
             {RATE_CARD_CATEGORY_LABELS[cat]}
           </h4>
           {items.map(pkg => editId === pkg.id ? (
-            <PackageForm key={pkg.id} id={pkg.id} />
+            <PackageForm key={pkg.id} id={pkg.id} form={form} setForm={setForm} saving={saving} onSave={handleSave} onCancel={cancelForm} />
           ) : (
             <div key={pkg.id} className="flex items-center gap-3 bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3">
               <div className="flex-1 min-w-0">
