@@ -17,6 +17,7 @@ import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
 import { SceneTableEditor, sceneRowsToHTML, parseSceneRows, type SceneRow } from "@/components/content/SceneTableEditor"
 import { JobCombobox } from "@/components/content/JobCombobox"
+import { ScriptGenerator } from "@/components/content/ScriptGenerator"
 
 interface ContentFormProps {
   item?: ContentItem
@@ -26,6 +27,7 @@ interface ContentFormProps {
 }
 
 const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
+const SCRIPT_GEN_TYPES = ["short_video", "long_video", "reel"]
 
 export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps) {
   const router = useRouter()
@@ -72,6 +74,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
 
   const isVideoType = VIDEO_TYPES.includes(form.content_type)
   const isPhotoType = form.content_type === "photo"
+  const isScriptGenType = SCRIPT_GEN_TYPES.includes(form.content_type)
 
   // Scene table mode
   const initialRows = item?.script ? parseSceneRows(item.script) : null
@@ -306,6 +309,16 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
                   </button>
                 </div>
               </div>
+
+              {/* Script AI Generator */}
+              {isScriptGenType && (
+                <ScriptGenerator
+                  onApply={script => {
+                    setScriptMode("editor")
+                    setForm(p => ({ ...p, script }))
+                  }}
+                />
+              )}
 
               {/* Scene Table form mode */}
               {scriptMode === "table" && (
