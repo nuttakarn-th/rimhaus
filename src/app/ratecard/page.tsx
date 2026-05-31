@@ -13,13 +13,16 @@ const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
 // ── Package Card ──────────────────────────────────────────────────
 function PackageCard({ pkg }: { pkg: RateCardPackage }) {
   const saving = pkg.original_price && pkg.price ? pkg.original_price - pkg.price : null
+  const isPerPlatform = pkg.category === "per_platform"
   return (
     <div className={[
       "group relative flex flex-col rounded-2xl border-2 bg-white overflow-hidden",
       "transition-all duration-200 hover:-translate-y-1 hover:shadow-xl",
       pkg.is_featured
         ? "border-[hsl(24,85%,50%)] shadow-md shadow-orange-100"
-        : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
+        : isPerPlatform
+          ? "border-blue-400 shadow-md shadow-blue-50"
+          : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
         <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 py-2 flex items-center justify-between">
@@ -31,7 +34,17 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
           )}
         </div>
       )}
-      <div className="p-4 flex flex-col gap-2 flex-1">
+      {isPerPlatform && (
+        <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 flex items-center justify-between">
+          <span className="text-xs font-black text-white tracking-wide">📦 ต่อ Platform</span>
+          {saving && (
+            <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
+              ประหยัด {formatCurrency(saving)}
+            </span>
+          )}
+        </div>
+      )}
+      <div className="p-4 flex flex-col gap-2 flex-1 text-center">
         <h3 className="font-black text-[hsl(25,20%,12%)] text-sm leading-snug">{pkg.name}</h3>
         {pkg.description && (
           <p className="text-xs text-[hsl(25,10%,52%)] leading-relaxed">{pkg.description}</p>
@@ -52,7 +65,7 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
                 {formatCurrency(pkg.original_price)}
               </div>
             )}
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline justify-center gap-1.5">
               <span className="text-xl font-black text-[hsl(24,85%,50%)]">{formatCurrency(pkg.price)}</span>
               {pkg.unit && <span className="text-[10px] text-[hsl(25,10%,55%)]">{pkg.unit}</span>}
             </div>
