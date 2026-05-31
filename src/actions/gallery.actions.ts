@@ -26,8 +26,8 @@ export async function upsertGalleryItem(
     : await supabase.from("gallery_items").insert(payload).select().single()
 
   if (error) return { success: false, error: error.message }
-  revalidatePath("/ratecard")
-  revalidatePath("/ratecard/gallery")
+  revalidatePath("/")
+  revalidatePath("/gallery")
   revalidatePath("/settings/ratecard")
   return { success: true, data: item as GalleryItem }
 }
@@ -39,8 +39,8 @@ export async function deleteGalleryItem(id: string): Promise<ActionResult<void>>
 
   const { error } = await supabase.from("gallery_items").delete().eq("id", id).eq("user_id", user.id)
   if (error) return { success: false, error: error.message }
-  revalidatePath("/ratecard")
-  revalidatePath("/ratecard/gallery")
+  revalidatePath("/")
+  revalidatePath("/gallery")
   revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
 }
@@ -57,8 +57,8 @@ export async function reorderGalleryItems(orderedIds: string[]): Promise<ActionR
   const failed = results.find(r => r.error)
   if (failed?.error) return { success: false, error: failed.error.message }
 
-  revalidatePath("/ratecard")
-  revalidatePath("/ratecard/gallery")
+  revalidatePath("/")
+  revalidatePath("/gallery")
   revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
 }

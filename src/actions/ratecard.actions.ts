@@ -46,8 +46,8 @@ export async function upsertPackage(
     : await supabase.from("rate_card_packages").insert(payload).select().single()
 
   if (error) return { success: false, error: error.message }
-  revalidatePath("/ratecard")
-  revalidatePath("/dashboard/ratecard")
+  revalidatePath("/")
+  revalidatePath("/settings/ratecard")
   return { success: true, data: pkg as RateCardPackage }
 }
 
@@ -58,8 +58,8 @@ export async function deletePackage(id: string): Promise<ActionResult<void>> {
 
   const { error } = await supabase.from("rate_card_packages").delete().eq("id", id).eq("user_id", user.id)
   if (error) return { success: false, error: error.message }
-  revalidatePath("/ratecard")
-  revalidatePath("/dashboard/ratecard")
+  revalidatePath("/")
+  revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
 }
 
@@ -77,7 +77,7 @@ export async function upsertSettings(
     : await supabase.from("rate_card_settings").insert({ ...payload, user_id: user.id }).select().single()
 
   if (error) return { success: false, error: error.message }
-  revalidatePath("/ratecard")
-  revalidatePath("/dashboard/ratecard")
+  revalidatePath("/")
+  revalidatePath("/settings/ratecard")
   return { success: true, data: settings as RateCardSettings }
 }

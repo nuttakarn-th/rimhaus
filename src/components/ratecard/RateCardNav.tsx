@@ -20,7 +20,7 @@ const LINE_ICON = (
 
 export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, contactLine }: Props) {
   const pathname = usePathname()
-  const isHome = pathname === "/ratecard"
+  const isHome = pathname === "/"
 
   const [scrolled, setScrolled] = useState(!isHome)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -38,10 +38,10 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
   const ghost = isHome && !scrolled
 
   const navItems = [
-    { label: "Rate Card",        href: "/ratecard",           always: true },
-    { label: "ตัวอย่าง Content", href: "/ratecard/portfolio", show: hasPortfolio },
-    { label: "Gallery",          href: "/ratecard/gallery",   show: hasGallery },
-    { label: "All Partner",      href: "/ratecard/partners",  show: hasPartners },
+    { label: "Rate Card",        href: "/",            always: true },
+    { label: "ตัวอย่าง Content", href: "/portfolio",  show: hasPortfolio },
+    { label: "Gallery",          href: "/gallery",    show: hasGallery },
+    { label: "All Partner",      href: "/partners",   show: hasPartners },
   ]
   const visibleItems = navItems.filter(item => item.always || item.show)
 

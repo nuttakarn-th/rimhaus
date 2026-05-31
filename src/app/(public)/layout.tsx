@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function RateCardLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const [settings, portfolioItems, partners, galleryItems] = await Promise.all([
     getSettings(),
     getPortfolioItems(),

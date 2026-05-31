@@ -97,7 +97,7 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
 }
 
 // ── Page ──────────────────────────────────────────────────────────
-export default async function RateCardPage() {
+export default async function HomePage() {
   const [packages, settings, portfolioItems, partners, galleryItems] = await Promise.all([
     getPackages(),
     getSettings(),
@@ -120,16 +120,13 @@ export default async function RateCardPage() {
   return (
     <>
       {/* ── Full-screen Hero ──────────────────────────────── */}
-      {/* -mt-14: pull hero up behind sticky nav (single-row hamburger nav = 56px) */}
       <section
         className="relative overflow-hidden w-full -mt-14 aspect-square sm:aspect-auto sm:min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white"
         style={settings?.hero_bg_image_url ? { backgroundImage: `url(${settings.hero_bg_image_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
       >
-        {/* Dark overlay — always present when bg image; stronger at bottom where text sits */}
         {settings?.hero_bg_image_url && (
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
         )}
-        {/* Decorative circles (no bg image) */}
         {!settings?.hero_bg_image_url && (
           <>
             <div className="pointer-events-none absolute top-0 right-0 w-80 h-80 rounded-full bg-[hsl(24,85%,50%)]/10 -translate-y-1/2 translate-x-1/2" />
@@ -137,10 +134,7 @@ export default async function RateCardPage() {
           </>
         )}
 
-        {/* Content: pushed to lower portion of banner */}
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-14 space-y-3">
-
-          {/* Heading */}
           <div>
             <h1
               className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
@@ -155,7 +149,6 @@ export default async function RateCardPage() {
             )}
           </div>
 
-          {/* Platform circles — smaller */}
           <div className="flex justify-center gap-2 flex-wrap">
             {PLATFORMS.map(p => {
               const logoUrl = settings?.platform_logos?.[p]
@@ -179,7 +172,6 @@ export default async function RateCardPage() {
             })}
           </div>
 
-          {/* Social stats */}
           {settings?.social_stats && (settings.social_stats.ig_followers || settings.social_stats.ig_engagement_rate) && (
             <div className="flex justify-center gap-6 flex-wrap">
               {settings.social_stats.ig_followers != null && (
@@ -217,7 +209,6 @@ export default async function RateCardPage() {
             </div>
           )}
 
-          {/* Scroll indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
               <polyline points="6 9 12 15 18 9"/>
@@ -230,13 +221,11 @@ export default async function RateCardPage() {
       <div className="bg-[hsl(35,30%,97%)]">
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
 
-      {/* ── Partner Strip ─────────────────────────────────── */}
       {partners.length > 0 && (
         <section>
           <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-3">
             แบรนด์ที่เคยร่วมงาน
           </p>
-          {/* 2-row horizontal scroll — grid-flow-col fills column-by-column */}
           <div
             className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-3 overflow-x-auto pb-2 px-1"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -244,11 +233,7 @@ export default async function RateCardPage() {
             {partners.map(p => (
               <div key={p.id} className="flex flex-col items-center gap-1 w-14">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.logo_url}
-                  alt={p.name ?? ""}
-                  className="h-6 w-14 object-contain"
-                />
+                <img src={p.logo_url} alt={p.name ?? ""} className="h-6 w-14 object-contain" />
                 {p.name && (
                   <span className="text-[8px] text-[hsl(25,10%,60%)] text-center leading-tight line-clamp-1">{p.name}</span>
                 )}
@@ -258,49 +243,28 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Short VDO Thumbnails (9:16) ───────────────────── */}
       {videos.length > 0 && (
         <section>
           <SectionHeader title="Short VDO" sub="ตัวอย่างคอนเทนต์วิดีโอ" />
-          <div
-            className="flex gap-3 overflow-x-auto pb-2"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {videos.map(item => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 group block"
-              >
+              <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0 group block">
                 <div className="relative w-28 overflow-hidden rounded-2xl bg-[hsl(25,20%,20%)] shadow-md">
-                  {/* 9:16 aspect */}
                   <div className="aspect-[9/16]">
                     {item.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.image_url}
-                        alt={item.title ?? ""}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <img src={item.image_url} alt={item.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="white" opacity="0.5">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="white" opacity="0.5"><path d="M8 5v14l11-7z"/></svg>
                       </div>
                     )}
                   </div>
-                  {/* Play overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
                     <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-md">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="hsl(24,85%,50%)">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="hsl(24,85%,50%)"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                   </div>
-                  {/* Title */}
                   {item.title && (
                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-2">
                       <p className="text-[9px] text-white font-medium line-clamp-2">{item.title}</p>
@@ -311,43 +275,28 @@ export default async function RateCardPage() {
             ))}
           </div>
           <div className="text-center mt-4">
-            <Link
-              href="/ratecard/portfolio"
-              className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline"
-            >
+            <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
               ดูตัวอย่างเพิ่มเติม →
             </Link>
           </div>
         </section>
       )}
 
-      {/* ── Photo Thumbnails (3:4) ────────────────────────── */}
       {photos.length > 0 && (
         <section>
           <SectionHeader title="Photo Content" sub="ตัวอย่างภาพถ่าย" />
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {photos.slice(0, 8).map(item => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block overflow-hidden rounded-xl bg-[hsl(35,30%,93%)] shadow-sm"
-              >
+              <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer"
+                 className="group block overflow-hidden rounded-xl bg-[hsl(35,30%,93%)] shadow-sm">
                 <div className="aspect-[3/4]">
                   {item.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.image_url}
-                      alt={item.title ?? ""}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <img src={item.image_url} alt={item.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(25,10%,70%)" strokeWidth="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <path d="m21 15-5-5L5 21"/>
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
                       </svg>
                     </div>
                   )}
@@ -357,20 +306,14 @@ export default async function RateCardPage() {
           </div>
           {photos.length > 8 && (
             <div className="text-center mt-4">
-              <Link
-                href="/ratecard/portfolio"
-                className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline"
-              >
+              <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
                 ดูเพิ่มเติม ({photos.length} รูป) →
               </Link>
             </div>
           )}
           {photos.length <= 8 && (
             <div className="text-center mt-4">
-              <Link
-                href="/ratecard/portfolio"
-                className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline"
-              >
+              <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
                 ดูตัวอย่าง Content ทั้งหมด →
               </Link>
             </div>
@@ -378,7 +321,6 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Gallery Preview ───────────────────────────────── */}
       {previewGallery.length > 0 && (
         <section>
           <SectionHeader title="Gallery" />
@@ -386,11 +328,7 @@ export default async function RateCardPage() {
             {previewGallery.map(item => (
               <div key={item.id} className="relative group overflow-hidden rounded-2xl aspect-square bg-[hsl(35,30%,93%)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.image_url}
-                  alt={item.caption ?? ""}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                <img src={item.image_url} alt={item.caption ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 {item.caption && (
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <p className="text-[10px] text-white">{item.caption}</p>
@@ -401,10 +339,8 @@ export default async function RateCardPage() {
           </div>
           {galleryItems.length > 6 && (
             <div className="text-center mt-5">
-              <Link
-                href="/ratecard/gallery"
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-[hsl(25,20%,12%)] text-sm font-bold text-[hsl(25,20%,12%)] hover:bg-[hsl(25,20%,12%)] hover:text-white transition-all"
-              >
+              <Link href="/gallery"
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-[hsl(25,20%,12%)] text-sm font-bold text-[hsl(25,20%,12%)] hover:bg-[hsl(25,20%,12%)] hover:text-white transition-all">
                 ดูทั้งหมด ({galleryItems.length} รูป)
               </Link>
             </div>
@@ -412,7 +348,6 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── LINE CTA (big button before Rate Card) ──────── */}
       {settings?.contact_line && (
         <section>
           <a
@@ -429,7 +364,6 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Rate Card heading + image ────────────────────── */}
       <section>
         <div className="flex flex-col items-center mb-4 text-center">
           <h2
@@ -447,7 +381,6 @@ export default async function RateCardPage() {
         )}
       </section>
 
-      {/* ── Packages ─────────────────────────────────────── */}
       {grouped.per_platform.length > 0 && (
         <section>
           <SectionHeader title="Single Platform" />
@@ -486,7 +419,6 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Notes ────────────────────────────────────────── */}
       {settings?.notes && settings.notes.length > 0 && (
         <section className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-4">
           <div className="flex items-center gap-2 mb-2">
@@ -504,7 +436,6 @@ export default async function RateCardPage() {
         </section>
       )}
 
-      {/* ── Contact ──────────────────────────────────────── */}
       {settings && (
         <section className="relative overflow-hidden bg-[hsl(25,20%,12%)] rounded-2xl p-5 text-white space-y-3">
           <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
@@ -512,12 +443,8 @@ export default async function RateCardPage() {
           <h3 className="font-black text-lg">ติดต่อเรา 👋</h3>
           <div className="space-y-3">
             {settings.contact_line && (
-              <a
-                href={`https://line.me/ti/p/~${settings.contact_line}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-sm hover:opacity-90"
-              >
+              <a href={`https://line.me/ti/p/~${settings.contact_line}`} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-3 text-sm hover:opacity-90">
                 <div className="w-8 h-8 rounded-lg bg-[#06C755] flex items-center justify-center shrink-0">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
                     <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
@@ -533,9 +460,7 @@ export default async function RateCardPage() {
                     <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                   </svg>
                 </div>
-                <a href={`mailto:${settings.contact_email}`} className="font-medium hover:underline">
-                  {settings.contact_email}
-                </a>
+                <a href={`mailto:${settings.contact_email}`} className="font-medium hover:underline">{settings.contact_email}</a>
               </div>
             )}
             {settings.contact_phone && (
@@ -545,9 +470,7 @@ export default async function RateCardPage() {
                     <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                   </svg>
                 </div>
-                <a href={`tel:${settings.contact_phone}`} className="font-medium hover:underline">
-                  {settings.contact_phone}
-                </a>
+                <a href={`tel:${settings.contact_phone}`} className="font-medium hover:underline">{settings.contact_phone}</a>
               </div>
             )}
           </div>

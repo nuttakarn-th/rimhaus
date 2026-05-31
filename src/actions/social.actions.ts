@@ -56,7 +56,7 @@ export async function disconnectSocial(platform: "instagram" | "facebook"): Prom
     .eq("user_id", user.id)
 
   revalidatePath("/settings/instagram")
-  revalidatePath("/ratecard")
+  revalidatePath("/")
   return { success: true, data: undefined }
 }
 
@@ -153,7 +153,7 @@ export async function refreshInstagramInsights(): Promise<ActionResult<void>> {
       .eq("user_id", user.id)
 
     revalidatePath("/settings/instagram")
-    revalidatePath("/ratecard")
+    revalidatePath("/")
     return { success: true, data: undefined }
   } catch (err) {
     const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาด"
