@@ -13,23 +13,8 @@ interface Props {
 }
 
 const LINE_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
     <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-  </svg>
-)
-
-const MenuIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="3" y1="6" x2="21" y2="6"/>
-    <line x1="3" y1="12" x2="21" y2="12"/>
-    <line x1="3" y1="18" x2="21" y2="18"/>
-  </svg>
-)
-
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="18" y1="6" x2="6" y2="18"/>
-    <line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 )
 
@@ -48,7 +33,6 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
     return () => window.removeEventListener("scroll", check)
   }, [isHome])
 
-  // Close menu on route change
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
   const ghost = isHome && !scrolled
@@ -68,7 +52,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
           ? "bg-transparent border-b border-white/10"
           : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
       }`}>
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4 relative">
           <div className="h-14 flex items-center justify-between gap-2">
 
             {/* Page name */}
@@ -98,7 +82,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
 
             {/* Right side */}
             <div className="flex items-center gap-2 shrink-0">
-              {/* LINE - desktop only */}
+              {/* LINE — desktop only */}
               {contactLine && (
                 <a
                   href={`https://line.me/ti/p/~${contactLine}`}
@@ -110,7 +94,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                   LINE: {contactLine}
                 </a>
               )}
-              {/* Admin - desktop only */}
+              {/* Admin — desktop only */}
               <Link
                 href="/dashboard"
                 className={`hidden sm:block text-xs transition-colors duration-300 ${ghost ? "text-white/70 hover:text-white" : "text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)]"}`}
@@ -118,79 +102,97 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 Admin →
               </Link>
 
-              {/* Hamburger - mobile only */}
+              {/* Hamburger — mobile only */}
               <button
                 onClick={() => setMenuOpen(o => !o)}
                 aria-label="เมนู"
-                className={`sm:hidden p-1.5 rounded-lg transition-colors duration-300 ${
-                  ghost
-                    ? "text-white hover:bg-white/10"
-                    : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,30%,94%)]"
+                className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 ${
+                  menuOpen
+                    ? ghost ? "bg-white/20 text-white" : "bg-[hsl(35,25%,92%)] text-[hsl(25,20%,15%)]"
+                    : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)]"
                 }`}
               >
-                {menuOpen ? <CloseIcon /> : <MenuIcon />}
+                {menuOpen ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                  </svg>
+                )}
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Mobile dropdown */}
-        {menuOpen && (
-          <div className={`sm:hidden px-4 pb-4 pt-2 space-y-1 ${
-            ghost
-              ? "bg-black/75 backdrop-blur-md border-t border-white/10"
-              : "bg-white border-t border-[hsl(35,20%,90%)]"
-          }`}>
-            {visibleItems.map(item => {
-              const isActive = pathname === item.href
-              return (
+          {/* Floating dropdown card */}
+          {menuOpen && (
+            <div className={`sm:hidden absolute right-4 top-full mt-2 w-56 rounded-2xl shadow-2xl overflow-hidden z-50 ${
+              ghost
+                ? "bg-[hsl(25,20%,14%)]/95 backdrop-blur-xl border border-white/10"
+                : "bg-white border border-[hsl(35,20%,88%)]"
+            }`}>
+              {/* Nav items */}
+              <div className="p-2 space-y-0.5">
+                {visibleItems.map(item => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                        isActive
+                          ? ghost
+                            ? "bg-white/15 text-white"
+                            : "bg-[hsl(24,85%,50%)] text-white"
+                          : ghost
+                            ? "text-white/75 hover:bg-white/10 hover:text-white"
+                            : "text-[hsl(25,10%,40%)] hover:bg-[hsl(35,25%,95%)] hover:text-[hsl(25,20%,15%)]"
+                      }`}
+                    >
+                      {item.label}
+                      {isActive && (
+                        <svg className="ml-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {/* Footer: LINE + Admin */}
+              <div className={`px-2 pb-2 pt-1 ${ghost ? "border-t border-white/10" : "border-t border-[hsl(35,20%,92%)]"}`}>
+                {contactLine && (
+                  <a
+                    href={`https://line.me/ti/p/~${contactLine}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-[#06C755] text-white text-sm font-bold px-3 py-2.5 rounded-xl hover:bg-[#05b34c] transition-colors mt-1"
+                  >
+                    {LINE_ICON}
+                    ติดต่อ LINE
+                  </a>
+                )}
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  href="/dashboard"
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                    isActive
-                      ? ghost ? "bg-white/20 text-white" : "bg-[hsl(24,85%,50%)] text-white"
-                      : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,95%)] hover:text-[hsl(25,20%,15%)]"
+                  className={`flex items-center justify-center w-full mt-1.5 py-1.5 text-xs rounded-lg transition-colors ${
+                    ghost ? "text-white/40 hover:text-white/70" : "text-[hsl(25,10%,60%)] hover:text-[hsl(24,85%,50%)]"
                   }`}
                 >
-                  {item.label}
+                  Admin →
                 </Link>
-              )
-            })}
-
-            <div className="pt-2 flex items-center gap-2 border-t border-white/10">
-              {contactLine && (
-                <a
-                  href={`https://line.me/ti/p/~${contactLine}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#06C755] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#05b34c] transition-colors"
-                >
-                  {LINE_ICON}
-                  LINE: {contactLine}
-                </a>
-              )}
-              <Link
-                href="/dashboard"
-                onClick={() => setMenuOpen(false)}
-                className={`px-4 py-2.5 rounded-xl text-sm transition-colors ${
-                  ghost ? "text-white/60 hover:text-white hover:bg-white/10" : "text-[hsl(25,10%,55%)] hover:text-[hsl(24,85%,50%)] hover:bg-[hsl(35,25%,95%)]"
-                }`}
-              >
-                Admin →
-              </Link>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
-      {/* Backdrop to close menu when clicking outside */}
+      {/* Backdrop */}
       {menuOpen && (
-        <div
-          className="fixed inset-0 z-40 sm:hidden"
-          onClick={() => setMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setMenuOpen(false)} />
       )}
     </>
   )
