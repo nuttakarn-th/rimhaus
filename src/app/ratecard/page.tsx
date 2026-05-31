@@ -71,7 +71,12 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
 function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?: string }) {
   return (
     <div className="flex flex-col items-center gap-1.5 mb-4 text-center">
-      <h2 className="font-black text-[hsl(25,20%,12%)] text-xl tracking-tight leading-tight">{title}</h2>
+      <h2
+        className="text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+        style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
+      >
+        {title}
+      </h2>
       {sub && <p className="text-xs text-[hsl(25,10%,55%)]">{sub}</p>}
       {tag && <span className="text-xs font-bold text-[hsl(24,85%,50%)] bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
     </div>
