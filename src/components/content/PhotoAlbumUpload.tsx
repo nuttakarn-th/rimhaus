@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ImagePlus, X, Loader2, CheckCircle2 } from "lucide-react"
+import { ImagePlus, X, Loader2, CheckCircle2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
@@ -101,6 +101,20 @@ export function PhotoAlbumUpload({ images, onChange }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt={`ภาพที่ ${idx + 1}`} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+              {/* View full size */}
+              <a
+                href={src}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="คลิกเพื่อดูภาพใหญ่"
+                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={e => e.stopPropagation()}
+              >
+                <span className="flex items-center gap-1 bg-black/60 text-white text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                  <ExternalLink className="w-2.5 h-2.5" />
+                  ดูภาพใหญ่
+                </span>
+              </a>
               <button
                 type="button"
                 onClick={() => removeImage(idx)}
