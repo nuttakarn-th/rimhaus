@@ -9,7 +9,7 @@ export async function signIn(email: string, password: string) {
   if (error) {
     return { success: false as const, error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" }
   }
-  redirect("/dashboard")
+  redirect("/admin")
 }
 
 export async function signOut() {

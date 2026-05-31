@@ -97,14 +97,6 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                   LINE: {contactLine}
                 </a>
               )}
-              {/* Admin — desktop only */}
-              <Link
-                href="/dashboard"
-                className={`hidden sm:block text-xs transition-colors duration-300 ${ghost ? "text-white/70 hover:text-white" : "text-[hsl(25,10%,50%)] hover:text-[hsl(24,85%,50%)]"}`}
-              >
-                Admin →
-              </Link>
-
               {/* Hamburger — mobile only */}
               <button
                 onClick={() => setMenuOpen(o => !o)}
@@ -165,9 +157,9 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 })}
               </div>
 
-              {/* Footer: LINE + Admin */}
-              <div className={`px-2 pb-2 pt-1 ${ghost ? "border-t border-white/10" : "border-t border-[hsl(35,20%,92%)]"}`}>
-                {contactLine && (
+              {/* Footer: LINE */}
+              {contactLine && (
+                <div className={`px-2 pb-2 pt-1 ${ghost ? "border-t border-white/10" : "border-t border-[hsl(35,20%,92%)]"}`}>
                   <a
                     href={`https://line.me/ti/p/~${contactLine}`}
                     target="_blank"
@@ -177,17 +169,8 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                     {LINE_ICON}
                     ติดต่อ LINE
                   </a>
-                )}
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center justify-center w-full mt-1.5 py-1.5 text-xs rounded-lg transition-colors ${
-                    ghost ? "text-white/40 hover:text-white/70" : "text-[hsl(25,10%,60%)] hover:text-[hsl(24,85%,50%)]"
-                  }`}
-                >
-                  Admin →
-                </Link>
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>

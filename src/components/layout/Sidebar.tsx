@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "หน้าหลัก" },
+  { href: "/admin", icon: LayoutDashboard, label: "หน้าหลัก" },
   { href: "/jobs", icon: ClipboardList, label: "งานรีวิว" },
   { href: "/finances", icon: Wallet, label: "การเงิน" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
@@ -92,7 +92,7 @@ export function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
           {navItems.map(item => {
-            const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+            const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
             return (
               <Link
                 key={item.href}
