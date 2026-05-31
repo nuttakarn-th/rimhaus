@@ -19,10 +19,12 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const heroBgRef = useRef<HTMLInputElement>(null)
+  const ogImageRef = useRef<HTMLInputElement>(null)
   const platformFileRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadingHeroBg, setUploadingHeroBg] = useState(false)
+  const [uploadingOgImage, setUploadingOgImage] = useState(false)
   const [uploadingPlatform, setUploadingPlatform] = useState<string | null>(null)
   const [form, setForm] = useState({
     page_name: settings?.page_name ?? "",
@@ -35,6 +37,9 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     hero_heading: settings?.hero_heading ?? "",
     hero_subtitle: settings?.hero_subtitle ?? "",
     hero_bg_image_url: settings?.hero_bg_image_url ?? "",
+    og_title: settings?.og_title ?? "",
+    og_description: settings?.og_description ?? "",
+    og_image_url: settings?.og_image_url ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -126,6 +131,25 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     router.refresh()
   }
 
+  async function handleOgImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingOgImage(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploadingOgImage(false); return }
+    const ext = file.name.split(".").pop() ?? "jpg"
+    const path = `${user.id}/og-image.${ext}`
+    const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: true })
+    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploadingOgImage(false); return }
+    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+    setForm(p => ({ ...p, og_image_url: publicUrl }))
+    await upsertSettings({ og_image_url: publicUrl })
+    toast.success("อัปโหลดภาพ Preview สำเร็จ")
+    setUploadingOgImage(false)
+    router.refresh()
+  }
+
   async function handleSave() {
     setSaving(true)
     const result = await upsertSettings({
@@ -139,6 +163,9 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       hero_heading: form.hero_heading || null,
       hero_subtitle: form.hero_subtitle || null,
       hero_bg_image_url: form.hero_bg_image_url || null,
+      og_title: form.og_title || null,
+      og_description: form.og_description || null,
+      og_image_url: form.og_image_url || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -312,6 +339,85 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">เงื่อนไข (1 บรรทัด = 1 ข้อ)</h3>
         <Textarea rows={4} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder={"เก็บค่าบริการ 2 งวด...\nราคาสุทธิ (Net)..."} />
+      </div>
+
+      {/* Link Preview (OG Meta) */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+        <div>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">Link Preview (เมื่อแชร์ลิงค์)</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ตั้งค่าภาพและข้อความที่แสดงเมื่อส่งลิงค์ให้ลูกค้าผ่าน LINE / Facebook / etc.</p>
+        </div>
+
+        {/* Live preview */}
+        <div className="rounded-xl border border-[hsl(35,20%,90%)] overflow-hidden bg-[hsl(35,30%,97%)]">
+          <div className="text-[10px] text-[hsl(25,10%,55%)] px-3 pt-2 pb-1 font-medium">ตัวอย่าง Preview</div>
+          <div className="bg-white border-t border-[hsl(35,20%,90%)] flex gap-3 p-3">
+            {(form.og_image_url || form.hero_bg_image_url || form.image_url) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.og_image_url || form.hero_bg_image_url || form.image_url}
+                alt="OG"
+                className="w-20 h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+              />
+            ) : (
+              <div className="w-20 h-16 rounded-lg bg-[hsl(35,20%,90%)] shrink-0 flex items-center justify-center text-[hsl(25,10%,60%)] text-[10px]">ไม่มีภาพ</div>
+            )}
+            <div className="min-w-0 flex flex-col justify-center gap-0.5">
+              <p className="text-xs font-bold text-[hsl(25,20%,12%)] truncate">
+                {form.og_title || form.page_name || "Rate Card"}
+              </p>
+              <p className="text-[10px] text-[hsl(25,10%,50%)] line-clamp-2 leading-relaxed">
+                {form.og_description || `Rate Card ของ ${form.page_name || "Content Creator"}`}
+              </p>
+              <p className="text-[9px] text-[hsl(25,10%,65%)] mt-0.5">rimhaus.vercel.app</p>
+            </div>
+          </div>
+        </div>
+
+        {/* OG Image */}
+        <div className="space-y-2">
+          <Label className="text-xs">ภาพ Preview (แนะนำ 1200×630px)</Label>
+          {form.og_image_url && (
+            <div className="rounded-xl overflow-hidden border border-[hsl(35,20%,88%)] aspect-video bg-gray-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={form.og_image_url} alt="OG" className="w-full h-full object-cover" />
+            </div>
+          )}
+          <input ref={ogImageRef} type="file" accept="image/*" className="hidden" onChange={handleOgImageUpload} />
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => ogImageRef.current?.click()} disabled={uploadingOgImage}>
+              <Upload className="w-3.5 h-3.5 mr-1.5" />
+              {uploadingOgImage ? "กำลังอัปโหลด..." : form.og_image_url ? "เปลี่ยนภาพ" : "อัปโหลดภาพ"}
+            </Button>
+            {form.og_image_url && (
+              <Button size="sm" variant="outline" className="text-red-500 border-red-200" onClick={() => setForm(p => ({ ...p, og_image_url: "" }))}>
+                ลบภาพ
+              </Button>
+            )}
+          </div>
+          <p className="text-[10px] text-[hsl(25,10%,60%)]">ถ้าไม่อัปโหลด จะใช้ภาพ Banner แทนอัตโนมัติ</p>
+        </div>
+
+        {/* OG Title */}
+        <div className="space-y-1">
+          <Label className="text-xs">ชื่อที่แสดงใน Preview</Label>
+          <Input
+            value={form.og_title}
+            onChange={e => setForm(p => ({ ...p, og_title: e.target.value }))}
+            placeholder={form.page_name || "Rate Card — เมื่อไหร่บ้านจะเสร็จ?"}
+          />
+        </div>
+
+        {/* OG Description */}
+        <div className="space-y-1">
+          <Label className="text-xs">คำอธิบาย</Label>
+          <Textarea
+            rows={2}
+            value={form.og_description}
+            onChange={e => setForm(p => ({ ...p, og_description: e.target.value }))}
+            placeholder="Home & Living Creator · รีวิวสินค้าแต่งบ้านจริงจากประสบการณ์ใช้งาน"
+          />
+        </div>
       </div>
 
       <Button onClick={handleSave} disabled={saving}>

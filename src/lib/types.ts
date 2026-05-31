@@ -182,6 +182,9 @@ export interface RateCardSettings {
   hero_heading: string | null
   hero_subtitle: string | null
   hero_bg_image_url: string | null
+  og_title: string | null
+  og_description: string | null
+  og_image_url: string | null
   updated_at: string
 }
 
