@@ -87,7 +87,11 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
       const ctx = canvas.getContext("2d")!
       ctx.scale(DPR, DPR)
 
-      // Background
+      // JPG has no alpha — fill opaque base first
+      ctx.fillStyle = "#1f1509"
+      ctx.fillRect(0, 0, W, H)
+
+      // Background gradient
       const bg = ctx.createLinearGradient(0, 0, W, H)
       bg.addColorStop(0, "#1f1509")
       bg.addColorStop(1, "#1a1810")
@@ -188,13 +192,13 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = "rate-card-quote.png"
+        a.download = "rate-card-quote.jpg"
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
         setSaving(false)
-      }, "image/png")
+      }, "image/jpeg", 0.92)
     } catch (err) {
       console.error(err)
       setSaving(false)
