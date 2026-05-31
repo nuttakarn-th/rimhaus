@@ -70,10 +70,10 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
 
 function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?: string }) {
   return (
-    <div className="flex flex-col items-center gap-2 mb-6 text-center">
-      <h2 className="font-black text-[hsl(25,20%,12%)] text-2xl tracking-tight leading-tight">{title}</h2>
-      {sub && <p className="text-sm text-[hsl(25,10%,55%)]">{sub}</p>}
-      {tag && <span className="text-xs font-bold text-[hsl(24,85%,50%)] bg-orange-50 px-3 py-1 rounded-full border border-orange-200">{tag}</span>}
+    <div className="flex flex-col items-center gap-1.5 mb-4 text-center">
+      <h2 className="font-black text-[hsl(25,20%,12%)] text-xl tracking-tight leading-tight">{title}</h2>
+      {sub && <p className="text-xs text-[hsl(25,10%,55%)]">{sub}</p>}
+      {tag && <span className="text-xs font-bold text-[hsl(24,85%,50%)] bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
     </div>
   )
 }
@@ -210,12 +210,12 @@ export default async function RateCardPage() {
 
       {/* ── Below-hero content ────────────────────────────── */}
       <div className="bg-[hsl(35,30%,97%)]">
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-14">
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
 
       {/* ── Partner Strip ─────────────────────────────────── */}
       {partners.length > 0 && (
         <section>
-          <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-4">
+          <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-3">
             แบรนด์ที่เคยร่วมงาน
           </p>
           {/* Mobile: 2-row grid  |  Desktop: single scrolling row */}
@@ -428,7 +428,7 @@ export default async function RateCardPage() {
 
       {/* ── Rate Card heading + image ────────────────────── */}
       <section>
-        <div className="flex flex-col items-center mb-6 text-center">
+        <div className="flex flex-col items-center mb-4 text-center">
           <h2
             className="text-5xl sm:text-6xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
             style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
@@ -485,8 +485,8 @@ export default async function RateCardPage() {
 
       {/* ── Notes ────────────────────────────────────────── */}
       {settings?.notes && settings.notes.length > 0 && (
-        <section className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-5">
-          <div className="flex items-center gap-2 mb-3">
+        <section className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-4">
+          <div className="flex items-center gap-2 mb-2">
             <span className="text-sm">📋</span>
             <h3 className="font-bold text-sm text-[hsl(25,20%,25%)]">เงื่อนไข</h3>
           </div>
@@ -503,7 +503,7 @@ export default async function RateCardPage() {
 
       {/* ── Contact ──────────────────────────────────────── */}
       {settings && (
-        <section className="relative overflow-hidden bg-[hsl(25,20%,12%)] rounded-2xl p-6 text-white space-y-4">
+        <section className="relative overflow-hidden bg-[hsl(25,20%,12%)] rounded-2xl p-5 text-white space-y-3">
           <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
           <div className="absolute bottom-0 right-16 w-16 h-16 rounded-full bg-white/5" />
           <h3 className="font-black text-lg">ติดต่อเรา 👋</h3>
