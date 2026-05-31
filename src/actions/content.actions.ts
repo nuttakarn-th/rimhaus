@@ -20,6 +20,7 @@ export interface ContentFormValues {
   status: ContentStatus
   content_pillar?: ContentPillar | null
   is_sponsored: boolean
+  link?: string | null
   review_job_id?: string | null
 }
 

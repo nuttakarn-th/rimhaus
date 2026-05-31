@@ -115,6 +115,7 @@ export interface ContentItem {
   status: ContentStatus
   content_pillar: ContentPillar | null
   is_sponsored: boolean
+  link: string | null
   created_at: string
   updated_at: string
 }

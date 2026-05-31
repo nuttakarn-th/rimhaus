@@ -68,7 +68,22 @@ export default async function ContentBriefPage({ params }: { params: Promise<{ i
             {/* PHOTO: Image grid */}
             {isPhoto && item.images && item.images.length > 0 && (
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)] mb-3">ภาพ Draft ({item.images.length} ภาพ)</h2>
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(25,10%,55%)]">ภาพ Draft ({item.images.length} ภาพ)</h2>
+                  {item.link && (
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[hsl(24,85%,50%)] text-white text-xs font-semibold hover:bg-[hsl(24,85%,43%)] transition-colors print:bg-[hsl(24,85%,50%)] print:text-white shrink-0"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                      คลิกเพื่อดูภาพใหญ่
+                    </a>
+                  )}
+                </div>
                 <div className="grid grid-cols-5 gap-1.5">
                   {item.images.map((src, i) => (
                     <div key={i} className="bg-[hsl(35,20%,94%)] rounded-sm overflow-hidden flex items-center justify-center aspect-square">

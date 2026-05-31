@@ -51,6 +51,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           status: item.status,
           content_pillar: item.content_pillar,
           is_sponsored: item.is_sponsored,
+          link: item.link ?? "",
           review_job_id: item.review_job_id,
         }
       : {
@@ -68,6 +69,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           status: "idea",
           content_pillar: null,
           is_sponsored: false,
+          link: "",
           review_job_id: prefill?.review_job_id ?? null,
         }
   )
@@ -266,6 +268,19 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
           <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
             <Label>Hashtags</Label>
             <Input value={form.hashtags ?? ""} onChange={e => setForm(p => ({ ...p, hashtags: e.target.value }))} placeholder="#แต่งบ้าน #รีวิว #homedesign" />
+          </div>
+
+          {/* Link */}
+          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
+            <div>
+              <Label>Link ไฟล์ต้นฉบับ</Label>
+              <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">จะแสดงปุ่ม "คลิกเพื่อดูภาพใหญ่" ใน Brief และ PDF</p>
+            </div>
+            <Input
+              value={form.link ?? ""}
+              onChange={e => setForm(p => ({ ...p, link: e.target.value }))}
+              placeholder="https://drive.google.com/... หรือ Dropbox / WeTransfer"
+            />
           </div>
         </div>
 
