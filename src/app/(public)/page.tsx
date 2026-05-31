@@ -6,6 +6,7 @@ import { getPortfolioItems, getPartners } from "@/actions/portfolio.actions"
 import { getGalleryItems } from "@/actions/gallery.actions"
 import { formatCurrency } from "@/lib/utils"
 import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
+import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
 import type { RateCardPackage } from "@/lib/types"
 
 const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
@@ -417,6 +418,15 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+      )}
+
+      {/* ── Package Calculator ────────────────────────────── */}
+      {packages.filter(p => p.category !== "barter" && p.price != null).length > 0 && (
+        <PackageCalculator
+          packages={packages}
+          contactLine={settings?.contact_line ?? null}
+          pageName={settings?.page_name ?? null}
+        />
       )}
 
       {settings?.notes && settings.notes.length > 0 && (
