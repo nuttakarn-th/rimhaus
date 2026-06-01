@@ -20,12 +20,14 @@ import {
   X,
   MessageSquare,
   BarChart2,
+  PieChart,
 } from "lucide-react"
 
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "หน้าหลัก" },
   { href: "/jobs", icon: ClipboardList, label: "งานรีวิว" },
   { href: "/finances", icon: Wallet, label: "การเงิน" },
+  { href: "/commission", icon: PieChart, label: "จัดสรรรายได้" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
   { href: "/customers", icon: Building2, label: "ลูกค้า" },
   { href: "/documents", icon: FileText, label: "เอกสาร" },
