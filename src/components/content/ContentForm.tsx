@@ -28,6 +28,26 @@ interface ContentFormProps {
 const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 const SCRIPT_GEN_TYPES = ["short_video", "long_video", "reel"]
 
+const TH = `background-color:hsl(24,85%,88%);font-size:8pt;font-weight:600;padding:6px 8px;text-align:center;border:1px solid hsl(35,20%,82%);`
+const TD = `font-size:7pt;padding:6px 8px;vertical-align:top;border:1px solid hsl(35,20%,82%);`
+
+function esc(s: string) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>") }
+
+function scriptResultToTable(r: { hook?:string; story?:string; solution?:string; cta?:string; full_script?:string }): string {
+  const sections = [
+    { label: "🪝 Hook", text: r.hook },
+    { label: "📖 Story", text: r.story },
+    { label: "💡 Solution", text: r.solution },
+    { label: "📣 CTA", text: r.cta },
+  ].filter(s => s.text)
+
+  const rows = sections.length > 0
+    ? sections.map(s => `<tr><td style="${TD}"></td><td style="${TD}"><strong>${s.label}</strong><br>${esc(s.text!)}</td><td style="${TD}"></td></tr>`).join("")
+    : `<tr><td style="${TD}"></td><td style="${TD}">${esc(r.full_script ?? "")}</td><td style="${TD}"></td></tr>`
+
+  return `<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="${TH}">Scene / Visual</th><th style="${TH}">Voice Over</th><th style="${TH}">Text Pop-up</th></tr></thead><tbody>${rows}</tbody></table>`
+}
+
 export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -319,9 +339,9 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
               {/* Script AI Generator */}
               {isScriptGenType && (
                 <ScriptGenerator
-                  onApply={script => {
-                    setForm(p => ({ ...p, script }))
-                    setScriptMode("editor")
+                  onApply={result => {
+                    setForm(p => ({ ...p, script: scriptResultToTable(result) }))
+                    setScriptMode("table")
                   }}
                 />
               )}

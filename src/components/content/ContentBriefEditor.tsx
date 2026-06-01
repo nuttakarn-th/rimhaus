@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils"
 
 const BRIEF_TEMPLATE = `<h2>Story / Concept</h2><p>เล่าเรื่องหรือแนวคิดหลักของคอนเทนต์...</p><h2>Scene</h2><p>Scene 1: ...</p><p>Scene 2: ...</p><p>Scene 3: ...</p>`
 
-// Custom mark: wraps selected text with font-size inline style
+// Custom mark: wraps selected text with inline styles (font-size, color, background-color)
 const FontSizeMark = Mark.create({
   name: "textStyle",
   addAttributes() {
@@ -31,12 +31,28 @@ const FontSizeMark = Mark.create({
       fontSize: {
         default: null,
         parseHTML: el => (el as HTMLElement).style.fontSize || null,
-        renderHTML: attrs => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
+        renderHTML: () => ({}),
+      },
+      color: {
+        default: null,
+        parseHTML: el => (el as HTMLElement).style.color || null,
+        renderHTML: () => ({}),
+      },
+      backgroundColor: {
+        default: null,
+        parseHTML: el => (el as HTMLElement).style.backgroundColor || null,
+        renderHTML: () => ({}),
       },
     }
   },
-  parseHTML() { return [{ tag: "span[style*=font-size]" }] },
-  renderHTML({ HTMLAttributes }) { return ["span", mergeAttributes(HTMLAttributes), 0] },
+  parseHTML() { return [{ tag: "span[style]" }] },
+  renderHTML({ HTMLAttributes }) {
+    const styles: string[] = []
+    if (HTMLAttributes.fontSize) styles.push(`font-size: ${HTMLAttributes.fontSize}`)
+    if (HTMLAttributes.color) styles.push(`color: ${HTMLAttributes.color}`)
+    if (HTMLAttributes.backgroundColor) styles.push(`background-color: ${HTMLAttributes.backgroundColor}`)
+    return ["span", styles.length ? { style: styles.join("; ") } : {}, 0]
+  },
 })
 
 // Extend TableCell and TableHeader to preserve inline style
@@ -84,6 +100,21 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
   const FONT_SIZE_OPTIONS = [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 24, 36]
   const [toolbarFontSize, setToolbarFontSize] = useState(7)
 
+  const TEXT_COLORS = [
+    "#000000","#444444","#666666","#999999","#cccccc","#ffffff",
+    "#cc0000","#e67e22","#f1c232","#27ae60","#2980b9","#8e44ad",
+    "#e74c3c","#f39c12","#a3cb38","#16a085","#2c82c9","#c27ba0",
+  ]
+  const BG_COLORS = [
+    "remove","#fce5cd","#fff2cc","#d9ead3","#d0e4f7","#ead1dc",
+    "#d9d2e9","#f4cccc","#fce8b2","#b6d7a8","#9fc5e8","#c9daf8",
+    "#ffcccc","#ffd9b3","#ffffb3","#ccffcc","#b3d9ff","#e6ccff",
+  ]
+  const [textColor, setTextColor] = useState<string | null>(null)
+  const [bgColor, setBgColor] = useState<string | null>(null)
+  const [colorPickerOpen, setColorPickerOpen] = useState<"text" | "bg" | null>(null)
+  const colorPickerRef = useRef<HTMLDivElement>(null)
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -117,7 +148,7 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
-  // Sync toolbar font size display from cursor position
+  // Sync toolbar state from cursor position
   useEffect(() => {
     if (!editor) return
     function update() {
@@ -126,10 +157,24 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
         const num = parseFloat(attrs.fontSize)
         if (!isNaN(num)) setToolbarFontSize(num)
       }
+      setTextColor(attrs.color ?? null)
+      setBgColor(attrs.backgroundColor ?? null)
     }
     editor.on("selectionUpdate", update)
     return () => { editor.off("selectionUpdate", update) }
   }, [editor])
+
+  // Close color picker on outside click
+  useEffect(() => {
+    if (!colorPickerOpen) return
+    function handler(e: MouseEvent) {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setColorPickerOpen(null)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [colorPickerOpen])
 
   // Close table popover on outside click
   useEffect(() => {
@@ -145,6 +190,20 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
   function applyFontSize(size: number) {
     if (!editor) return
     editor.chain().focus().setMark("textStyle", { fontSize: `${size}pt` }).run()
+  }
+
+  function applyTextColor(color: string) {
+    if (!editor) return
+    editor.chain().focus().setMark("textStyle", { color: color === "remove" ? null : color }).run()
+    setTextColor(color === "remove" ? null : color)
+    setColorPickerOpen(null)
+  }
+
+  function applyBgColor(color: string) {
+    if (!editor) return
+    editor.chain().focus().setMark("textStyle", { backgroundColor: color === "remove" ? null : color }).run()
+    setBgColor(color === "remove" ? null : color)
+    setColorPickerOpen(null)
   }
 
   function handleInsertTable() {
@@ -223,6 +282,56 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
         <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive("strike")} title="ขีดทับ">
           <Strikethrough className="w-3.5 h-3.5" />
         </ToolBtn>
+
+        {/* Color pickers */}
+        <div className="relative flex items-center" ref={colorPickerRef}>
+          {/* Text color */}
+          <button
+            type="button"
+            title="สีตัวอักษร"
+            onClick={() => setColorPickerOpen(v => v === "text" ? null : "text")}
+            className={cn("p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors flex flex-col items-center gap-0", colorPickerOpen === "text" ? "bg-[hsl(35,25%,88%)]" : "")}
+          >
+            <span className="text-[11px] font-bold leading-none" style={{ color: textColor ?? "#000" }}>A</span>
+            <div className="w-3.5 h-1 rounded-sm mt-0.5" style={{ backgroundColor: textColor ?? "#000" }} />
+          </button>
+          {/* Background color */}
+          <button
+            type="button"
+            title="สีพื้นหลังข้อความ"
+            onClick={() => setColorPickerOpen(v => v === "bg" ? null : "bg")}
+            className={cn("p-1.5 rounded hover:bg-[hsl(35,25%,92%)] transition-colors flex flex-col items-center gap-0", colorPickerOpen === "bg" ? "bg-[hsl(35,25%,88%)]" : "")}
+          >
+            <div className="w-3.5 h-3.5 rounded-sm border border-[hsl(35,20%,70%)] text-[9px] flex items-center justify-center font-bold"
+              style={{ backgroundColor: bgColor && bgColor !== "remove" ? bgColor : "#fff" }}>
+              <span style={{ color: bgColor && bgColor !== "remove" ? "#333" : "#999" }}>a</span>
+            </div>
+          </button>
+
+          {/* Color palette dropdown */}
+          {colorPickerOpen && (
+            <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-[hsl(35,20%,85%)] rounded-xl shadow-xl p-3 w-36"
+              onMouseDown={e => e.stopPropagation()}>
+              <p className="text-[10px] font-semibold text-[hsl(25,10%,50%)] mb-2 uppercase tracking-wide">
+                {colorPickerOpen === "text" ? "สีตัวอักษร" : "สีพื้นหลัง"}
+              </p>
+              <div className="grid grid-cols-6 gap-1">
+                {(colorPickerOpen === "text" ? TEXT_COLORS : BG_COLORS).map(color => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => colorPickerOpen === "text" ? applyTextColor(color) : applyBgColor(color)}
+                    className="w-4 h-4 rounded-sm border border-[hsl(35,20%,78%)] hover:scale-125 transition-transform flex items-center justify-center"
+                    style={{ backgroundColor: color === "remove" ? "#fff" : color }}
+                    title={color === "remove" ? "ลบสี" : color}
+                  >
+                    {color === "remove" && <span className="text-red-400 text-[9px] leading-none font-bold">×</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <span className="w-px h-4 bg-[hsl(35,20%,85%)] mx-1" />
 

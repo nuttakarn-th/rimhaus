@@ -36,7 +36,7 @@ interface ScriptResult {
 }
 
 interface Props {
-  onApply?: (script: string) => void
+  onApply?: (result: ScriptResult) => void
 }
 
 export function ScriptGenerator({ onApply }: Props) {
@@ -70,8 +70,8 @@ export function ScriptGenerator({ onApply }: Props) {
   }
 
   function handleApply() {
-    if (!result?.full_script) return
-    onApply?.(result.full_script)
+    if (!result) return
+    onApply?.(result)
     toast.success("ใช้ Script แล้ว")
   }
 
