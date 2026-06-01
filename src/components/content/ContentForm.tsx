@@ -15,7 +15,6 @@ import type { ContentItem, ReviewJob, Platform, ContentPillar } from "@/lib/type
 import { toast } from "sonner"
 import { ContentBriefEditor } from "@/components/content/ContentBriefEditor"
 import { PhotoAlbumUpload } from "@/components/content/PhotoAlbumUpload"
-import { SceneTableEditor, sceneRowsToHTML, parseSceneRows, type SceneRow } from "@/components/content/SceneTableEditor"
 import { JobCombobox } from "@/components/content/JobCombobox"
 import { ScriptGenerator } from "@/components/content/ScriptGenerator"
 
@@ -78,27 +77,19 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
   const isPhotoType = form.content_type === "photo"
   const isScriptGenType = SCRIPT_GEN_TYPES.includes(form.content_type)
 
-  // Scene table mode
-  const initialRows = item?.script ? parseSceneRows(item.script) : null
-  const [scriptMode, setScriptMode] = useState<"table" | "editor">(initialRows ? "table" : "editor")
-  const [sceneRows, setSceneRows] = useState<SceneRow[]>(initialRows ?? [{ scene: "", voiceover: "", text: "" }])
+  const TABLE_TEMPLATE = `<table><thead><tr><th>Scene / Visual</th><th>Voice Over</th><th>Text Pop-up</th></tr></thead><tbody><tr><td><br></td><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td><td><br></td></tr></tbody></table>`
+  const STORY_TEMPLATE = `<h2>Story / Concept</h2><p>เล่าเรื่องหรือแนวคิดหลักของคอนเทนต์...</p><h2>Scene</h2><p>Scene 1: ...</p><p>Scene 2: ...</p><p>Scene 3: ...</p>`
 
-  function handleSceneRowsChange(rows: SceneRow[]) {
-    setSceneRows(rows)
-    setForm(p => ({ ...p, script: sceneRowsToHTML(rows) }))
-  }
+  // Strip legacy scene-table marker if present; keep only the HTML table
+  const cleanScript = (form.script ?? "").replace(/^<!--scene-table:.*?-->/, "")
+  const hasExistingScript = !!item?.script
 
-  function switchToTableMode() {
-    setScriptMode("table")
-    setForm(p => ({ ...p, script: sceneRowsToHTML(sceneRows) }))
-  }
+  const [scriptMode, setScriptMode] = useState<"table" | "editor">(
+    hasExistingScript ? "editor" : "table"
+  )
 
-  function switchToEditorMode() {
-    setScriptMode("editor")
-    // strip the marker — keep only the HTML table in the editor
-    const html = (form.script ?? "").replace(/^<!--scene-table:.*?-->/, "")
-    setForm(p => ({ ...p, script: html }))
-  }
+  function switchToTableMode() { setScriptMode("table") }
+  function switchToEditorMode() { setScriptMode("editor") }
 
   function togglePlatform(id: string) {
     setForm(prev => ({
@@ -329,25 +320,27 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
               {isScriptGenType && (
                 <ScriptGenerator
                   onApply={script => {
-                    setScriptMode("editor")
                     setForm(p => ({ ...p, script }))
+                    setScriptMode("editor")
                   }}
                 />
               )}
 
-              {/* Scene Table form mode */}
+              {/* Table mode — pre-filled 3-column table */}
               {scriptMode === "table" && (
-                <SceneTableEditor
-                  rows={sceneRows}
-                  onChange={handleSceneRowsChange}
+                <ContentBriefEditor
+                  value={cleanScript}
+                  onChange={v => setForm(p => ({ ...p, script: v }))}
+                  defaultContent={TABLE_TEMPLATE}
                 />
               )}
 
-              {/* Free-form rich text editor mode */}
+              {/* Free-form editor mode */}
               {scriptMode === "editor" && (
                 <ContentBriefEditor
-                  value={form.script ?? ""}
+                  value={cleanScript}
                   onChange={v => setForm(p => ({ ...p, script: v }))}
+                  defaultContent={STORY_TEMPLATE}
                 />
               )}
             </div>

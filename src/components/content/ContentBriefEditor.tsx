@@ -70,9 +70,10 @@ type Props = {
   value: string
   onChange: (html: string) => void
   placeholder?: string
+  defaultContent?: string
 }
 
-export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
+export function ContentBriefEditor({ value, onChange, placeholder, defaultContent }: Props) {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const tableButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -81,7 +82,7 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
   const [tableCols, setTableCols] = useState(3)
 
   const FONT_SIZE_OPTIONS = [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 24, 36]
-  const [toolbarFontSize, setToolbarFontSize] = useState(10)
+  const [toolbarFontSize, setToolbarFontSize] = useState(7)
 
   const editor = useEditor({
     extensions: [
@@ -99,7 +100,7 @@ export function ContentBriefEditor({ value, onChange, placeholder }: Props) {
         emptyEditorClass: "is-editor-empty",
       }),
     ],
-    content: value || BRIEF_TEMPLATE,
+    content: value || defaultContent || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
