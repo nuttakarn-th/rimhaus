@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import { NextResponse } from "next/server"
 
 const PILLAR_LABELS: Record<string, string> = {
@@ -23,43 +23,38 @@ const DURATION_LABELS: Record<string, string> = {
 
 const SYSTEM_PROMPT = `คุณคือนักเขียน script voiceover ประจำเพจ "เมื่อไหร่บ้านจะเสร็จ?" เพจแต่งบ้านที่มีสไตล์อารมณ์ขัน เป็นกันเอง เล่าเหมือนเพื่อนมาเล่าให้ฟัง ไม่ใช่นักการตลาด
 
-## กฎสำคัญ
+กฎสำคัญ:
 - ห้ามเริ่มด้วย "สวัสดีครับ/ค่ะ" หรือแนะนำตัว
 - ห้ามใช้ภาษาโฆษณา: "นำเสนอ", "ประสิทธิภาพ", "เหมาะสำหรับ", "ผู้ชม", "คุณผู้ชม"
 - ใช้ "ทุกคน" ไม่ใช่ "ผู้ชม"
 - ใช้ประโยคสั้น ตัดฉับ
 - แปลง spec เป็นภาษาคนทั่วไป เช่น "IP67" → "ตกน้ำก็ไม่พัง"
 
-## โครงสร้าง 4 ส่วน
-1. 🪝 Hook (3 วิแรก) — ดึงความสนใจทันที อย่าเริ่มธรรมดา
-2. 📖 Story / Pain Point — เล่าประสบการณ์จริง ให้คนอิน
-3. 💡 Solution — นำเสนอสิ่งที่มาแก้ปัญหา เลือก 2-3 จุดเด่น
-4. 📣 CTA — ปิดด้วยความรู้สึกจริงๆ + คำถามปลายเปิดชวนคอมเมนต์
+โครงสร้าง 4 ส่วน:
+1. Hook (3 วิแรก) — ดึงความสนใจทันที อย่าเริ่มธรรมดา
+2. Story / Pain Point — เล่าประสบการณ์จริง ให้คนอิน
+3. Solution — นำเสนอสิ่งที่มาแก้ปัญหา เลือก 2-3 จุดเด่น
+4. CTA — ปิดด้วยความรู้สึกจริงๆ + คำถามปลายเปิดชวนคอมเมนต์
 
-## Output format
-ให้ตอบเป็น JSON เท่านั้น ไม่มีข้อความอื่นนอกจาก JSON:
-{
-  "hook": "...",
-  "story": "...",
-  "solution": "...",
-  "cta": "...",
-  "full_script": "..."
-}
-
-full_script คือ script รวมทุกส่วน พร้อมพูดได้เลย`
+ตอบเป็น JSON เท่านั้น ไม่มีข้อความอื่น:
+{"hook":"...","story":"...","solution":"...","cta":"...","full_script":"..."}`
 
 export async function POST(request: Request) {
   try {
     const { pillar, product, style, duration } = await request.json()
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 500 })
+      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 })
     }
 
-    const client = new Anthropic({ apiKey })
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
+    })
 
-    const userPrompt = `เขียน script voiceover สำหรับ:
+    const prompt = `เขียน script voiceover สำหรับ:
 - หมวดหมู่: ${PILLAR_LABELS[pillar] ?? pillar}
 - สินค้า/เนื้อหา: ${product}
 - สไตล์: ${STYLE_LABELS[style] ?? style}
@@ -67,14 +62,8 @@ export async function POST(request: Request) {
 
 เขียน script ตามโครงสร้าง 4 ส่วน ให้พอดีกับความยาวที่กำหนด`
 
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userPrompt }],
-    })
-
-    const raw = message.content[0].type === "text" ? message.content[0].text : ""
+    const result = await model.generateContent(prompt)
+    const raw = result.response.text()
 
     let parsed: Record<string, string>
     try {
