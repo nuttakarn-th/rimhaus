@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import { Mark, mergeAttributes } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
@@ -82,6 +82,8 @@ const StyledTableHeader = TableHeader.extend({
   },
 })
 
+export type ContentBriefEditorRef = { applyContent: (html: string) => void }
+
 type Props = {
   value: string
   onChange: (html: string) => void
@@ -89,7 +91,8 @@ type Props = {
   defaultContent?: string
 }
 
-export function ContentBriefEditor({ value, onChange, placeholder, defaultContent }: Props) {
+export const ContentBriefEditor = forwardRef<ContentBriefEditorRef, Props>(
+function ContentBriefEditor({ value, onChange, placeholder, defaultContent }, ref) {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const tableButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -228,6 +231,14 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
     reader.readAsDataURL(file)
     e.target.value = ""
   }
+
+  useImperativeHandle(ref, () => ({
+    applyContent: (html: string) => {
+      if (!editor) return
+      editor.commands.clearContent(true)
+      editor.chain().insertContent(html).run()
+    }
+  }), [editor])
 
   if (!editor) return null
 
@@ -441,4 +452,4 @@ export function ContentBriefEditor({ value, onChange, placeholder, defaultConten
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
     </div>
   )
-}
+})
