@@ -28,12 +28,12 @@ interface ContentFormProps {
 const VIDEO_TYPES = ["short_video", "long_video", "story", "reel"]
 const SCRIPT_GEN_TYPES = ["short_video", "long_video", "reel"]
 
-const TH = `background-color:hsl(24,85%,88%);font-size:8pt;font-weight:600;padding:6px 8px;text-align:center;border:1px solid hsl(35,20%,82%);`
-const TD = `font-size:7pt;padding:6px 8px;vertical-align:top;border:1px solid hsl(35,20%,82%);`
-
-function esc(s: string) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>") }
+function escInline(s: string) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
 
 function scriptResultToTable(r: { hook?:string; story?:string; solution?:string; cta?:string; full_script?:string }): string {
+  const TH = `style="background-color:hsl(24,85%,88%);font-size:8pt;font-weight:600;padding:6px 8px;text-align:center;border:1px solid hsl(35,20%,82%);"`
+  const TD = `style="font-size:7pt;padding:6px 8px;vertical-align:top;border:1px solid hsl(35,20%,82%);"`
+
   const sections = [
     { label: "🪝 Hook", text: r.hook },
     { label: "📖 Story", text: r.story },
@@ -41,11 +41,17 @@ function scriptResultToTable(r: { hook?:string; story?:string; solution?:string;
     { label: "📣 CTA", text: r.cta },
   ].filter(s => s.text)
 
-  const rows = sections.length > 0
-    ? sections.map(s => `<tr><td style="${TD}"></td><td style="${TD}"><strong>${s.label}</strong><br>${esc(s.text!)}</td><td style="${TD}"></td></tr>`).join("")
-    : `<tr><td style="${TD}"></td><td style="${TD}">${esc(r.full_script ?? "")}</td><td style="${TD}"></td></tr>`
+  function cellContent(text: string, label: string) {
+    const lines = text.split("\n").filter(Boolean)
+    const paras = lines.map(l => `<p>${escInline(l)}</p>`).join("")
+    return `<p><strong>${label}</strong></p>${paras || "<p></p>"}`
+  }
 
-  return `<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="${TH}">Scene / Visual</th><th style="${TH}">Voice Over</th><th style="${TH}">Text Pop-up</th></tr></thead><tbody>${rows}</tbody></table>`
+  const rows = sections.length > 0
+    ? sections.map(s => `<tr><td ${TD}><p></p></td><td ${TD}>${cellContent(s.text!, s.label)}</td><td ${TD}><p></p></td></tr>`).join("")
+    : `<tr><td ${TD}><p></p></td><td ${TD}>${r.full_script?.split("\n").filter(Boolean).map(l => `<p>${escInline(l)}</p>`).join("") ?? "<p></p>"}</td><td ${TD}><p></p></td></tr>`
+
+  return `<table><thead><tr><th ${TH}><p>Scene / Visual</p></th><th ${TH}><p>Voice Over</p></th><th ${TH}><p>Text Pop-up</p></th></tr></thead><tbody>${rows}</tbody></table><p></p>`
 }
 
 export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps) {
@@ -96,6 +102,8 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
   const isVideoType = VIDEO_TYPES.includes(form.content_type)
   const isPhotoType = form.content_type === "photo"
   const isScriptGenType = SCRIPT_GEN_TYPES.includes(form.content_type)
+
+  const [editorKey, setEditorKey] = useState(0)
 
   const TABLE_TEMPLATE = `<table><thead><tr><th>Scene / Visual</th><th>Voice Over</th><th>Text Pop-up</th></tr></thead><tbody><tr><td><br></td><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td><td><br></td></tr></tbody></table>`
   const STORY_TEMPLATE = `<h2>Story / Concept</h2><p>เล่าเรื่องหรือแนวคิดหลักของคอนเทนต์...</p><h2>Scene</h2><p>Scene 1: ...</p><p>Scene 2: ...</p><p>Scene 3: ...</p>`
@@ -340,8 +348,10 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
               {isScriptGenType && (
                 <ScriptGenerator
                   onApply={result => {
-                    setForm(p => ({ ...p, script: scriptResultToTable(result) }))
+                    const tableHTML = scriptResultToTable(result)
+                    setForm(p => ({ ...p, script: tableHTML }))
                     setScriptMode("table")
+                    setEditorKey(k => k + 1)
                   }}
                 />
               )}
@@ -349,6 +359,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
               {/* Table mode — pre-filled 3-column table */}
               {scriptMode === "table" && (
                 <ContentBriefEditor
+                  key={`table-${editorKey}`}
                   value={cleanScript}
                   onChange={v => setForm(p => ({ ...p, script: v }))}
                   defaultContent={TABLE_TEMPLATE}
@@ -358,6 +369,7 @@ export function ContentForm({ item, jobs, platforms, prefill }: ContentFormProps
               {/* Free-form editor mode */}
               {scriptMode === "editor" && (
                 <ContentBriefEditor
+                  key={`editor-${editorKey}`}
                   value={cleanScript}
                   onChange={v => setForm(p => ({ ...p, script: v }))}
                   defaultContent={STORY_TEMPLATE}
