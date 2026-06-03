@@ -47,14 +47,6 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
   const [platformUrls, setPlatformUrls] = useState<Record<string, string>>(
     settings?.platform_urls ?? {}
   )
-  const [platformStats, setPlatformStats] = useState<Record<string, { followers: string; engagement_rate: string }>>(
-    Object.fromEntries(
-      Object.entries(settings?.social_stats?.platforms ?? {}).map(([k, v]) => [
-        k,
-        { followers: String(v?.followers ?? ""), engagement_rate: String(v?.engagement_rate ?? "") },
-      ])
-    )
-  )
   const [savingUrls, setSavingUrls] = useState(false)
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -130,24 +122,12 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
 
   async function handleSavePlatformUrls() {
     setSavingUrls(true)
-    const cleanedUrls = Object.fromEntries(
+    const cleaned = Object.fromEntries(
       Object.entries(platformUrls).filter(([, v]) => v.trim())
     )
-    const cleanedStats = Object.fromEntries(
-      Object.entries(platformStats)
-        .filter(([, v]) => v.followers.trim() || v.engagement_rate.trim())
-        .map(([k, v]) => [k, {
-          followers: v.followers ? Number(v.followers) : null,
-          engagement_rate: v.engagement_rate ? Number(v.engagement_rate) : null,
-        }])
-    )
-    const existingSocialStats = settings?.social_stats ?? {}
-    await upsertSettings({
-      platform_urls: cleanedUrls,
-      social_stats: { ...existingSocialStats, platforms: cleanedStats },
-    })
+    await upsertSettings({ platform_urls: cleaned })
     setSavingUrls(false)
-    toast.success("บันทึกข้อมูล Social Media สำเร็จ")
+    toast.success("บันทึก URL สำเร็จ")
     router.refresh()
   }
 
@@ -268,30 +248,6 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
                       )}
                     </div>
                   </div>
-                  {/* Followers + Engagement Rate */}
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        value={platformStats[p]?.followers ?? ""}
-                        onChange={e => setPlatformStats(prev => ({ ...prev, [p]: { ...prev[p] ?? { engagement_rate: "" }, followers: e.target.value } }))}
-                        placeholder="ผู้ติดตาม"
-                        className="w-full h-7 pl-2 pr-2 rounded border border-[hsl(35,20%,88%)] bg-white text-[11px] text-[hsl(25,20%,15%)] focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,70%)]"
-                      />
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={platformStats[p]?.engagement_rate ?? ""}
-                        onChange={e => setPlatformStats(prev => ({ ...prev, [p]: { ...prev[p] ?? { followers: "" }, engagement_rate: e.target.value } }))}
-                        placeholder="ER % (เช่น 5.2)"
-                        className="w-full h-7 pl-2 pr-2 rounded border border-[hsl(35,20%,88%)] bg-white text-[11px] text-[hsl(25,20%,15%)] focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,70%)]"
-                      />
-                    </div>
-                  </div>
                   <Input
                     value={platformUrls[p] ?? ""}
                     onChange={e => setPlatformUrls(prev => ({ ...prev, [p]: e.target.value }))}
@@ -303,9 +259,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
             )
           })}
         </div>
-        <p className="text-[10px] text-[hsl(25,10%,55%)]">ผู้ติดตาม และ ER% จะแสดงในหน้า Rate Card ของลูกค้า</p>
         <Button size="sm" variant="outline" onClick={handleSavePlatformUrls} disabled={savingUrls}>
-          {savingUrls ? "กำลังบันทึก..." : "บันทึกข้อมูล Social Media"}
+          {savingUrls ? "กำลังบันทึก..." : "บันทึก URL ทั้งหมด"}
         </Button>
       </div>
 

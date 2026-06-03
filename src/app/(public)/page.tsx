@@ -12,9 +12,10 @@ import type { RateCardPackage } from "@/lib/types"
 const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
 
 // ── Package Card ──────────────────────────────────────────────────
-function PackageCard({ pkg }: { pkg: RateCardPackage }) {
+function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLogos?: Record<string, string> }) {
   const saving = pkg.original_price && pkg.price ? pkg.original_price - pkg.price : null
   const isPerPlatform = pkg.category === "per_platform"
+  const hasPlatforms = pkg.platforms && pkg.platforms.length > 0
   return (
     <div className={[
       "group relative flex flex-col rounded-2xl border-2 bg-white overflow-hidden",
@@ -36,12 +37,37 @@ function PackageCard({ pkg }: { pkg: RateCardPackage }) {
         </div>
       )}
       {isPerPlatform && (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 flex items-center justify-center gap-2">
-          <span className="text-xs font-black text-white tracking-wide">📦 Single Platform</span>
-          {saving && (
-            <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
-              ประหยัด {formatCurrency(saving)}
-            </span>
+        <div className={`px-4 py-2 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-[hsl(25,20%,14%)]" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
+          {hasPlatforms ? (
+            <>
+              <div className="flex items-center gap-1.5">
+                {pkg.platforms!.map(p => {
+                  const logo = platformLogos?.[p]
+                  return logo ? (
+                    <div key={p} className="w-6 h-6 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={logo} alt={p} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <PlatformBubble key={p} platform={p} size={24} noHover />
+                  )
+                })}
+              </div>
+              {saving && (
+                <span className="text-[10px] font-bold text-white/90 bg-white/15 px-2 py-0.5 rounded-full ml-auto">
+                  ประหยัด {formatCurrency(saving)}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="text-xs font-black text-white tracking-wide">📦 Single Platform</span>
+              {saving && (
+                <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
+                  ประหยัด {formatCurrency(saving)}
+                </span>
+              )}
+            </>
           )}
         </div>
       )}
@@ -173,87 +199,6 @@ export default async function HomePage() {
             })}
           </div>
 
-          {settings?.social_stats && (() => {
-            const perPlatform = settings.social_stats?.platforms
-            const hasPlatformStats = perPlatform && Object.values(perPlatform).some(s => s?.followers)
-
-            if (hasPlatformStats) {
-              return (
-                <div className="flex flex-wrap justify-center gap-3">
-                  {Object.entries(perPlatform!).filter(([, s]) => s?.followers).map(([platform, stats]) => {
-                    const logoUrl = settings.platform_logos?.[platform]
-                    const platformUrl = settings.platform_urls?.[platform]
-                    const fmtFollowers = (n: number) => n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : n.toLocaleString()
-                    const inner = (
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-2xl px-3 py-2 border border-white/15 hover:bg-white/15 transition-colors">
-                        {logoUrl ? (
-                          <div className="w-8 h-8 rounded-full overflow-hidden bg-white shrink-0 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={logoUrl} alt={platform} className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <PlatformBubble platform={platform} size={32} noHover />
-                        )}
-                        <div className="text-left">
-                          <p className="text-sm font-black text-white leading-tight">{fmtFollowers(stats.followers!)}</p>
-                          {stats.engagement_rate ? (
-                            <p className="text-[10px] text-white/60 leading-tight">{stats.engagement_rate}% ER</p>
-                          ) : (
-                            <p className="text-[10px] text-white/60 leading-tight capitalize">{platform}</p>
-                          )}
-                        </div>
-                      </div>
-                    )
-                    return platformUrl ? (
-                      <a key={platform} href={platformUrl} target="_blank" rel="noopener noreferrer" className="block">
-                        {inner}
-                      </a>
-                    ) : (
-                      <div key={platform}>{inner}</div>
-                    )
-                  })}
-                </div>
-              )
-            }
-
-            // Legacy fallback
-            return (settings.social_stats?.ig_followers || settings.social_stats?.ig_engagement_rate) ? (
-            <div className="flex justify-center gap-6 flex-wrap">
-              {settings.social_stats.ig_followers != null && (
-                <div className="text-center">
-                  <p className="text-xl font-black">
-                    {settings.social_stats.ig_followers >= 1000
-                      ? `${(settings.social_stats.ig_followers / 1000).toFixed(1)}K`
-                      : settings.social_stats.ig_followers.toLocaleString()}
-                  </p>
-                  <p className="text-[10px] text-white/60 mt-0.5">Followers</p>
-                </div>
-              )}
-              {settings.social_stats.ig_engagement_rate != null && (
-                <>
-                  <div className="w-px h-8 bg-white/20" />
-                  <div className="text-center">
-                    <p className="text-xl font-black">{settings.social_stats.ig_engagement_rate}%</p>
-                    <p className="text-[10px] text-white/60 mt-0.5">Engagement</p>
-                  </div>
-                </>
-              )}
-              {settings.social_stats.ig_avg_reach != null && (
-                <>
-                  <div className="w-px h-8 bg-white/20" />
-                  <div className="text-center">
-                    <p className="text-xl font-black">
-                      {settings.social_stats.ig_avg_reach >= 1000
-                        ? `${(settings.social_stats.ig_avg_reach / 1000).toFixed(1)}K`
-                        : settings.social_stats.ig_avg_reach.toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-white/60 mt-0.5">Avg. Reach</p>
-                  </div>
-                </>
-              )}
-            </div>
-            ) : null
-          })()}
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
@@ -431,7 +376,7 @@ export default async function HomePage() {
         <section>
           <SectionHeader title="Single Platform" />
           <div className="grid grid-cols-2 gap-3">
-            {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} />)}
+            {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
       )}
@@ -440,7 +385,7 @@ export default async function HomePage() {
         <section>
           <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
           <div className="grid grid-cols-2 gap-3">
-            {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} />)}
+            {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
       )}
@@ -449,7 +394,7 @@ export default async function HomePage() {
         <section>
           <SectionHeader title="Additional Services" />
           <div className="grid grid-cols-2 gap-3">
-            {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} />)}
+            {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
       )}

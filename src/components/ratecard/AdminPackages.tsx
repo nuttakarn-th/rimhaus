@@ -13,12 +13,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Pencil, Trash2, Plus, X, Check } from "lucide-react"
 import { toast } from "sonner"
+import { PlatformBubble, PLATFORM_LABELS } from "@/components/ui/PlatformIcon"
 import type { RateCardPackage, RateCardCategory } from "@/lib/types"
+
+const PLATFORM_KEYS = ["facebook", "instagram", "tiktok", "lemon8", "youtube", "shopee"] as const
 
 const emptyForm = {
   name: "", category: "per_platform" as RateCardCategory, price: "" as string | number,
   original_price: "" as string | number, unit: "", description: "",
-  is_featured: false, is_active: true, sort_order: 99, sub_items: [] as Array<{ label: string; price: number }>,
+  is_featured: false, is_active: true, sort_order: 99,
+  sub_items: [] as Array<{ label: string; price: number }>,
+  platforms: [] as string[],
 }
 
 type FormState = typeof emptyForm
@@ -70,6 +75,37 @@ function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFor
         <Label className="text-xs">คำอธิบาย</Label>
         <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </div>
+      {/* Platform selector */}
+      <div className="space-y-1.5">
+        <Label className="text-xs">Platform (เลือกได้หลายอัน)</Label>
+        <div className="flex gap-2 flex-wrap">
+          {PLATFORM_KEYS.map(p => {
+            const selected = form.platforms.includes(p)
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setForm(prev => ({
+                  ...prev,
+                  platforms: selected
+                    ? prev.platforms.filter(x => x !== p)
+                    : [...prev.platforms, p],
+                }))}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  selected
+                    ? "border-[hsl(24,85%,50%)] bg-orange-50 text-[hsl(24,85%,40%)]"
+                    : "border-[hsl(35,20%,88%)] bg-white text-[hsl(25,10%,50%)] hover:border-[hsl(24,85%,60%)]"
+                }`}
+              >
+                <PlatformBubble platform={p} size={18} noHover />
+                <span>{PLATFORM_LABELS[p] ?? p}</span>
+                {selected && <span className="text-[hsl(24,85%,50%)]">✓</span>}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <div className="flex items-center gap-4">
         <label className="flex items-center gap-2 text-xs cursor-pointer">
           <Checkbox checked={form.is_featured} onCheckedChange={v => setForm(p => ({ ...p, is_featured: Boolean(v) }))} />
@@ -117,6 +153,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       unit: pkg.unit ?? "", description: pkg.description ?? "",
       is_featured: pkg.is_featured, is_active: pkg.is_active,
       sort_order: pkg.sort_order, sub_items: pkg.sub_items ?? [],
+      platforms: pkg.platforms ?? [],
     })
   }
 
@@ -140,6 +177,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       is_featured: form.is_featured,
       is_active: form.is_active,
       sort_order: form.sort_order,
+      platforms: form.platforms,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -178,10 +216,15 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
           ) : (
             <div key={pkg.id} className="flex items-center gap-3 bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-sm text-[hsl(25,20%,15%)]">{pkg.name}</span>
                   {pkg.is_featured && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">เด่น</span>}
                   {!pkg.is_active && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">ซ่อน</span>}
+                  {pkg.platforms && pkg.platforms.length > 0 && (
+                    <div className="flex gap-1">
+                      {pkg.platforms.map(p => <PlatformBubble key={p} platform={p} size={16} noHover />)}
+                    </div>
+                  )}
                 </div>
                 <div className="text-xs text-[hsl(25,10%,50%)] mt-0.5">
                   {pkg.price != null ? formatCurrency(pkg.price) : pkg.sub_items?.length ? `${pkg.sub_items.length} ระดับราคา` : "ราคาตามตกลง"}

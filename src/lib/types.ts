@@ -155,6 +155,7 @@ export interface RateCardPackage {
   unit: string | null
   description: string | null
   sub_items: Array<{ label: string; price: number }> | null
+  platforms: string[]
   is_featured: boolean
   is_active: boolean
   sort_order: number
