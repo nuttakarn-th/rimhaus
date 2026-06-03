@@ -27,29 +27,31 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
           : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
-        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 py-2 flex items-center gap-2">
-          <span className="text-xs font-black text-white tracking-wide">⭐ เหมาทุกอย่าง</span>
+        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 pt-2 pb-2.5 flex flex-col items-center gap-1.5">
+          <div className="flex items-center gap-2 w-full justify-center">
+            <span className="text-xs font-black text-white tracking-wide">🔥 All Platforms</span>
+            {saving && (
+              <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full">
+                ประหยัด {formatCurrency(saving)}
+              </span>
+            )}
+          </div>
           {hasPlatforms && (
-            <div className="flex items-center gap-1 ml-1">
+            <div className="flex items-center justify-center gap-1.5">
               {pkg.platforms!.map(p => {
                 const logo = platformLogos?.[p]
                 return logo ? (
-                  <div key={p} className="w-5 h-5 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
+                  <div key={p} className="w-6 h-6 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={logo} alt={p} className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <PlatformBubble key={p} platform={p} size={20} noHover />
+                  <PlatformBubble key={p} platform={p} size={24} noHover />
                 )
               })}
               {pkg.content_type === "video" && <span className="text-sm leading-none">🎬</span>}
               {pkg.content_type === "photo" && <span className="text-sm leading-none">📷</span>}
             </div>
-          )}
-          {saving && (
-            <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2 py-0.5 rounded-full ml-auto shrink-0">
-              ประหยัด {formatCurrency(saving)}
-            </span>
           )}
         </div>
       )}
