@@ -441,6 +441,7 @@ export default async function HomePage() {
           packages={packages}
           contactLine={settings?.contact_line ?? null}
           pageName={settings?.page_name ?? null}
+          platformLogos={settings?.platform_logos ?? {}}
         />
       )}
 

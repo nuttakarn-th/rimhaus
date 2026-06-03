@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { formatCurrency } from "@/lib/utils"
+import { PlatformBubble } from "@/components/ui/PlatformIcon"
 import type { RateCardPackage } from "@/lib/types"
 
 const LINE_SVG = (
@@ -20,6 +21,7 @@ interface Props {
   packages: RateCardPackage[]
   contactLine: string | null
   pageName: string | null
+  platformLogos?: Record<string, string>
 }
 
 function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -36,7 +38,7 @@ function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: n
   ctx.closePath()
 }
 
-export function PackageCalculator({ packages, contactLine, pageName }: Props) {
+export function PackageCalculator({ packages, contactLine, pageName, platformLogos }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
 
@@ -263,6 +265,23 @@ export function PackageCalculator({ packages, contactLine, pageName }: Props) {
                         <p className={`text-sm font-bold leading-snug ${isOn ? "text-[hsl(24,85%,40%)]" : "text-[hsl(25,20%,15%)]"}`}>
                           {pkg.name}
                         </p>
+                        {(pkg.platforms?.length || pkg.content_type) && (
+                          <div className="flex items-center gap-1 mt-1 flex-wrap">
+                            {pkg.platforms?.map(p => {
+                              const logo = platformLogos?.[p]
+                              return logo ? (
+                                <div key={p} className="w-4 h-4 rounded-full overflow-hidden bg-white border border-[hsl(35,20%,85%)] shrink-0">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={logo} alt={p} className="w-full h-full object-cover" />
+                                </div>
+                              ) : (
+                                <PlatformBubble key={p} platform={p} size={16} noHover />
+                              )
+                            })}
+                            {pkg.content_type === "video" && <span className="text-[11px] leading-none">🎬</span>}
+                            {pkg.content_type === "photo" && <span className="text-[11px] leading-none">📷</span>}
+                          </div>
+                        )}
                         {pkg.description && (
                           <p className="text-[11px] text-[hsl(25,10%,55%)] mt-0.5 line-clamp-1">{pkg.description}</p>
                         )}
