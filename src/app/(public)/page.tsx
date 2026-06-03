@@ -52,6 +52,12 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
                     <PlatformBubble key={p} platform={p} size={24} noHover />
                   )
                 })}
+                {pkg.content_type === "video" && (
+                  <span className="text-base leading-none" title="VDO">🎬</span>
+                )}
+                {pkg.content_type === "photo" && (
+                  <span className="text-base leading-none" title="Photo">📷</span>
+                )}
               </div>
               {saving && (
                 <span className="text-[10px] font-bold text-white/90 bg-white/15 px-2 py-0.5 rounded-full ml-auto">

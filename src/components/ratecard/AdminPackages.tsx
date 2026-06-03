@@ -24,6 +24,7 @@ const emptyForm = {
   is_featured: false, is_active: true, sort_order: 99,
   sub_items: [] as Array<{ label: string; price: number }>,
   platforms: [] as string[],
+  content_type: null as "video" | "photo" | null,
 }
 
 type FormState = typeof emptyForm
@@ -75,6 +76,30 @@ function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFor
         <Label className="text-xs">คำอธิบาย</Label>
         <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </div>
+      {/* Content type */}
+      <div className="space-y-1.5">
+        <Label className="text-xs">ประเภทคอนเทนต์</Label>
+        <div className="flex gap-2">
+          {([
+            { value: "video", label: "🎬 VDO" },
+            { value: "photo", label: "📷 Photo Album" },
+          ] as const).map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setForm(p => ({ ...p, content_type: p.content_type === opt.value ? null : opt.value }))}
+              className={`flex-1 py-2 px-3 rounded-lg border text-xs font-semibold transition-all ${
+                form.content_type === opt.value
+                  ? "border-[hsl(24,85%,50%)] bg-orange-50 text-[hsl(24,85%,40%)]"
+                  : "border-[hsl(35,20%,88%)] bg-white text-[hsl(25,10%,50%)] hover:border-[hsl(24,85%,60%)]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Platform selector */}
       <div className="space-y-1.5">
         <Label className="text-xs">Platform (เลือกได้หลายอัน)</Label>
@@ -154,6 +179,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       is_featured: pkg.is_featured, is_active: pkg.is_active,
       sort_order: pkg.sort_order, sub_items: pkg.sub_items ?? [],
       platforms: pkg.platforms ?? [],
+      content_type: pkg.content_type ?? null,
     })
   }
 
@@ -178,6 +204,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       is_active: form.is_active,
       sort_order: form.sort_order,
       platforms: form.platforms,
+      content_type: form.content_type,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -225,6 +252,8 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
                       {pkg.platforms.map(p => <PlatformBubble key={p} platform={p} size={16} noHover />)}
                     </div>
                   )}
+                  {pkg.content_type === "video" && <span className="text-sm">🎬</span>}
+                  {pkg.content_type === "photo" && <span className="text-sm">📷</span>}
                 </div>
                 <div className="text-xs text-[hsl(25,10%,50%)] mt-0.5">
                   {pkg.price != null ? formatCurrency(pkg.price) : pkg.sub_items?.length ? `${pkg.sub_items.length} ระดับราคา` : "ราคาตามตกลง"}

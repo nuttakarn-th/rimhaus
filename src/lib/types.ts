@@ -156,6 +156,7 @@ export interface RateCardPackage {
   description: string | null
   sub_items: Array<{ label: string; price: number }> | null
   platforms: string[]
+  content_type: "video" | "photo" | null
   is_featured: boolean
   is_active: boolean
   sort_order: number
