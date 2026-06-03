@@ -177,6 +177,10 @@ export interface RateCardSettings {
     ig_avg_reach?: number | null
     ig_engagement_rate?: number | null
     updated_at?: string | null
+    platforms?: Record<string, {
+      followers?: number | null
+      engagement_rate?: number | null
+    }>
   } | null
   platform_logos: Record<string, string> | null
   platform_urls: Record<string, string> | null

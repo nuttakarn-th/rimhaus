@@ -173,7 +173,51 @@ export default async function HomePage() {
             })}
           </div>
 
-          {settings?.social_stats && (settings.social_stats.ig_followers || settings.social_stats.ig_engagement_rate) && (
+          {settings?.social_stats && (() => {
+            const perPlatform = settings.social_stats?.platforms
+            const hasPlatformStats = perPlatform && Object.values(perPlatform).some(s => s?.followers)
+
+            if (hasPlatformStats) {
+              return (
+                <div className="flex flex-wrap justify-center gap-3">
+                  {Object.entries(perPlatform!).filter(([, s]) => s?.followers).map(([platform, stats]) => {
+                    const logoUrl = settings.platform_logos?.[platform]
+                    const platformUrl = settings.platform_urls?.[platform]
+                    const fmtFollowers = (n: number) => n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : n.toLocaleString()
+                    const inner = (
+                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-2xl px-3 py-2 border border-white/15 hover:bg-white/15 transition-colors">
+                        {logoUrl ? (
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-white shrink-0 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={logoUrl} alt={platform} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <PlatformBubble platform={platform} size={32} noHover />
+                        )}
+                        <div className="text-left">
+                          <p className="text-sm font-black text-white leading-tight">{fmtFollowers(stats.followers!)}</p>
+                          {stats.engagement_rate ? (
+                            <p className="text-[10px] text-white/60 leading-tight">{stats.engagement_rate}% ER</p>
+                          ) : (
+                            <p className="text-[10px] text-white/60 leading-tight capitalize">{platform}</p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                    return platformUrl ? (
+                      <a key={platform} href={platformUrl} target="_blank" rel="noopener noreferrer" className="block">
+                        {inner}
+                      </a>
+                    ) : (
+                      <div key={platform}>{inner}</div>
+                    )
+                  })}
+                </div>
+              )
+            }
+
+            // Legacy fallback
+            return (settings.social_stats?.ig_followers || settings.social_stats?.ig_engagement_rate) ? (
             <div className="flex justify-center gap-6 flex-wrap">
               {settings.social_stats.ig_followers != null && (
                 <div className="text-center">
@@ -208,7 +252,8 @@ export default async function HomePage() {
                 </>
               )}
             </div>
-          )}
+            ) : null
+          })()}
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
