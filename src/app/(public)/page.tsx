@@ -27,7 +27,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
           : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
-        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-4 pt-2 pb-2.5 flex flex-col items-center gap-1.5">
+        <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-3 pt-1.5 pb-2 sm:px-4 sm:pt-2 sm:pb-2.5 flex flex-col items-center gap-1 sm:gap-1.5">
           <div className="flex items-center gap-2 w-full justify-center">
             <span className="text-xs font-black text-white tracking-wide">🔥 All Platforms</span>
             {saving && (
@@ -56,7 +56,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         </div>
       )}
       {isPerPlatform && (
-        <div className={`px-4 py-2 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-[hsl(25,20%,14%)]" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
+        <div className={`px-3 py-1.5 sm:px-4 sm:py-2 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-[hsl(25,20%,14%)]" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
           {hasPlatforms ? (
             <>
               <div className="flex items-center gap-1.5">
@@ -96,13 +96,13 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
           )}
         </div>
       )}
-      <div className="p-4 flex flex-col gap-2 flex-1 text-center">
+      <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1 text-center">
         <h3 className="font-black text-[hsl(25,20%,12%)] text-sm leading-snug">{pkg.name}</h3>
         {pkg.description && (
-          <p className="text-xs text-[hsl(25,10%,52%)] leading-relaxed">{pkg.description}</p>
+          <p className="text-[11px] sm:text-xs text-[hsl(25,10%,52%)] leading-snug sm:leading-relaxed">{pkg.description}</p>
         )}
         {pkg.sub_items && pkg.sub_items.length > 0 ? (
-          <div className="mt-auto pt-3 space-y-1.5 border-t border-[hsl(35,25%,92%)]">
+          <div className="mt-auto pt-2 sm:pt-3 space-y-1 sm:space-y-1.5 border-t border-[hsl(35,25%,92%)]">
             {pkg.sub_items.map((item, i) => (
               <div key={i} className="flex justify-between items-center text-xs">
                 <span className="text-[hsl(25,10%,50%)]">{item.label}</span>
@@ -111,19 +111,19 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
             ))}
           </div>
         ) : pkg.price != null ? (
-          <div className="mt-auto pt-3 border-t border-[hsl(35,25%,92%)]">
+          <div className="mt-auto pt-2 sm:pt-3 border-t border-[hsl(35,25%,92%)]">
             {pkg.original_price && (
-              <div className="text-xs text-[hsl(25,10%,60%)] line-through mb-0.5">
+              <div className="text-[10px] sm:text-xs text-[hsl(25,10%,60%)] line-through mb-0.5">
                 {formatCurrency(pkg.original_price)}
               </div>
             )}
-            <div className="flex items-baseline justify-center gap-1.5">
-              <span className="text-xl font-black text-[hsl(24,85%,50%)]">{formatCurrency(pkg.price)}</span>
-              {pkg.unit && <span className="text-[10px] text-[hsl(25,10%,55%)]">{pkg.unit}</span>}
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-lg sm:text-xl font-black text-[hsl(24,85%,50%)]">{formatCurrency(pkg.price)}</span>
+              {pkg.unit && <span className="text-[9px] sm:text-[10px] text-[hsl(25,10%,55%)]">{pkg.unit}</span>}
             </div>
           </div>
         ) : (
-          <div className="mt-auto pt-3 border-t border-[hsl(35,25%,92%)] text-sm font-bold text-violet-600">
+          <div className="mt-auto pt-2 sm:pt-3 border-t border-[hsl(35,25%,92%)] text-sm font-bold text-violet-600">
             ติดต่อสอบถาม →
           </div>
         )}
@@ -135,9 +135,9 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
 
 function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?: string }) {
   return (
-    <div className="flex flex-col items-center gap-1.5 mb-4 text-center">
+    <div className="flex flex-col items-center gap-1 sm:gap-1.5 mb-2 sm:mb-4 text-center">
       <h2
-        className="text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+        className="text-xl sm:text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
         style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
       >
         {title}
@@ -235,7 +235,7 @@ export default async function HomePage() {
 
       {/* ── Below-hero content ────────────────────────────── */}
       <div className="bg-[hsl(35,30%,97%)]">
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5 sm:space-y-8">
 
       {partners.length > 0 && (
         <section>
@@ -400,7 +400,7 @@ export default async function HomePage() {
       {grouped.per_platform.length > 0 && (
         <section>
           <SectionHeader title="Single Platform" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
@@ -409,7 +409,7 @@ export default async function HomePage() {
       {grouped.bundle.length > 0 && (
         <section>
           <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
@@ -418,7 +418,7 @@ export default async function HomePage() {
       {grouped.addon.length > 0 && (
         <section>
           <SectionHeader title="Additional Services" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
