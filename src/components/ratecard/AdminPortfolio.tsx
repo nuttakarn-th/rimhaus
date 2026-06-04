@@ -114,7 +114,7 @@ function ItemEditForm({ item, form, setForm, saving, onSave, onCancel }: ItemEdi
         {form.image_url ? (
           <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={form.image_url} alt="" className={`object-cover border rounded ${item.type === "video" ? "w-7 h-12" : "w-9 h-12"}`} />
+            <img src={form.image_url} alt="" className="w-10 h-10 object-cover border rounded" />
             <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading} className="text-xs h-7">
               <Upload className="w-3 h-3 mr-1" />{uploading ? "กำลังอัปโหลด..." : "เปลี่ยนภาพ"}
             </Button>
@@ -187,9 +187,9 @@ function SortableItem({
 
       {item.image_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.image_url} alt="" className={`object-cover rounded shrink-0 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`} />
+        <img src={item.image_url} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
       ) : (
-        <div className={`shrink-0 rounded border-2 border-dashed border-[hsl(35,20%,80%)] bg-[hsl(35,30%,95%)] flex flex-col items-center justify-center gap-0.5 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`}>
+        <div className="w-10 h-10 shrink-0 rounded border-2 border-dashed border-[hsl(35,20%,80%)] bg-[hsl(35,30%,95%)] flex flex-col items-center justify-center gap-0.5">
           {item.type === "video"
             ? <Video className="w-3 h-3 text-[hsl(25,10%,65%)]" />
             : <ImageIcon className="w-3 h-3 text-[hsl(25,10%,65%)]" />}
@@ -404,7 +404,7 @@ export function AdminPortfolio({ items }: Props) {
           {form.image_url ? (
             <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={form.image_url} alt="thumbnail" className={`object-cover border rounded ${form.type === "video" ? "w-7 h-12" : "w-9 h-12"}`} />
+              <img src={form.image_url} alt="thumbnail" className="w-10 h-10 object-cover border rounded" />
               <span className="text-xs text-[hsl(25,10%,55%)] flex-1">อัปโหลดแล้ว</span>
               <button onClick={() => { setForm(f => ({ ...f, image_url: "" })); if (fileRef.current) fileRef.current.value = "" }} className="text-xs text-red-500 hover:text-red-700">ลบ</button>
             </div>
