@@ -44,6 +44,7 @@ export function DocumentForm({
   quotations,
   packages,
   platforms,
+  defaultCustomerId,
 }: {
   document?: Document
   customers: Customer[]
@@ -52,6 +53,7 @@ export function DocumentForm({
   quotations: Document[]
   packages: RateCardPackage[]
   platforms: Platform[]
+  defaultCustomerId?: string
 }) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
@@ -77,7 +79,7 @@ export function DocumentForm({
   const [issuerHeaderImageUrl, setIssuerHeaderImageUrl] = useState(document?.issuer_header_image_url ?? defaultIssuer?.header_image_url ?? "")
   const [issuerContactLine, setIssuerContactLine] = useState(document?.issuer_contact_line ?? defaultIssuer?.contact_line ?? "")
 
-  const [customerId, setCustomerId] = useState(document?.customer_id ?? "")
+  const [customerId, setCustomerId] = useState(document?.customer_id ?? defaultCustomerId ?? "")
   const [customerName, setCustomerName] = useState(document?.customer_name ?? "")
   const [customerAddress, setCustomerAddress] = useState(document?.customer_address ?? "")
   const [customerTaxId, setCustomerTaxId] = useState(document?.customer_tax_id ?? "")

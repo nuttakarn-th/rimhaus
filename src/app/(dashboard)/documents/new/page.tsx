@@ -13,7 +13,8 @@ async function getPlatforms(): Promise<Platform[]> {
   return (data as Platform[]) ?? []
 }
 
-export default async function NewDocumentPage() {
+export default async function NewDocumentPage({ searchParams }: { searchParams: Promise<{ customer_id?: string }> }) {
+  const params = await searchParams
   const [customers, jobs, issuers, quotations, packages, platforms] = await Promise.all([
     getCustomers(), getJobs(), getIssuers(), getQuotations(), getAllPackages(), getPlatforms(),
   ])
@@ -24,7 +25,7 @@ export default async function NewDocumentPage() {
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">สร้างเอกสาร</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">ใบเสนอราคา / ใบแจ้งหนี้ / ใบเสร็จ</p>
       </div>
-      <DocumentForm customers={customers} jobs={jobs} issuers={issuers} quotations={quotations} packages={packages} platforms={platforms} />
+      <DocumentForm customers={customers} jobs={jobs} issuers={issuers} quotations={quotations} packages={packages} platforms={platforms} defaultCustomerId={params.customer_id} />
     </div>
   )
 }
