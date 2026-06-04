@@ -7,6 +7,7 @@ import { getGalleryItems } from "@/actions/gallery.actions"
 import { formatCurrency } from "@/lib/utils"
 import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
+import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import type { RateCardPackage } from "@/lib/types"
 
 const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
@@ -340,19 +341,7 @@ export default async function HomePage() {
       {previewGallery.length > 0 && (
         <section>
           <SectionHeader title="Gallery" />
-          <div className="grid grid-cols-3 gap-2">
-            {previewGallery.map(item => (
-              <div key={item.id} className="relative group overflow-hidden rounded-2xl aspect-square bg-[hsl(35,30%,93%)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image_url} alt={item.caption ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                {item.caption && (
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-[10px] text-white">{item.caption}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <GalleryGrid items={previewGallery} />
           {galleryItems.length > 6 && (
             <div className="text-center mt-5">
               <Link href="/gallery"
