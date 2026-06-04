@@ -189,9 +189,12 @@ function SortableItem({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={item.image_url} alt="" className={`object-cover rounded shrink-0 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`} />
       ) : (
-        item.type === "video"
-          ? <Video className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
-          : <ImageIcon className="w-3.5 h-3.5 text-[hsl(25,10%,50%)] shrink-0" />
+        <div className={`shrink-0 rounded border-2 border-dashed border-[hsl(35,20%,80%)] bg-[hsl(35,30%,95%)] flex flex-col items-center justify-center gap-0.5 ${item.type === "video" ? "w-8 h-14" : "w-10 h-[52px]"}`}>
+          {item.type === "video"
+            ? <Video className="w-3 h-3 text-[hsl(25,10%,65%)]" />
+            : <ImageIcon className="w-3 h-3 text-[hsl(25,10%,65%)]" />}
+          <span className="text-[7px] text-[hsl(25,10%,65%)] leading-none">ไม่มี</span>
+        </div>
       )}
 
       <span className="flex-1 truncate text-[hsl(25,20%,25%)]">
