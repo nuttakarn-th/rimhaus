@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import { getGalleryItems } from "@/actions/gallery.actions"
+import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 
 export default async function GalleryPage() {
   const items = await getGalleryItems()
@@ -17,26 +18,7 @@ export default async function GalleryPage() {
           <p className="text-[hsl(25,10%,60%)]">ยังไม่มีรูปใน Gallery</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
-          {items.map(item => (
-            <div
-              key={item.id}
-              className="relative group overflow-hidden rounded-2xl aspect-square bg-[hsl(35,30%,93%)]"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={item.image_url}
-                alt={item.caption ?? ""}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              {item.caption && (
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-xs text-white">{item.caption}</p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <GalleryGrid items={items} />
       )}
     </div>
   )
