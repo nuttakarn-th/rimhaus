@@ -15,7 +15,14 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Rimhaus — จัดการธุรกิจเพจแต่งบ้าน",
   description: "ระบบจัดการงานรีวิว การเงิน และคอนเทนต์สำหรับเพจแต่งบ้าน",
 }

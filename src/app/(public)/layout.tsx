@@ -4,6 +4,12 @@ import { getPortfolioItems, getPartners } from "@/actions/portfolio.actions"
 import { getGalleryItems } from "@/actions/gallery.actions"
 import { RateCardNav } from "@/components/ratecard/RateCardNav"
 
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000"
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
 
@@ -11,20 +17,31 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = settings?.og_description || `Rate Card ของ ${settings?.page_name ?? "Content Creator"}`
   const image = settings?.og_image_url || settings?.hero_bg_image_url || settings?.image_url
 
+  const imageList = image
+    ? [{ url: image, width: 1200, height: 630, alt: title }]
+    : []
+
   return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
+    alternates: {
+      canonical: siteUrl,
+    },
     openGraph: {
       title,
       description,
+      url: siteUrl,
+      siteName: settings?.page_name ?? title,
+      locale: "th_TH",
       type: "website",
-      ...(image ? { images: [{ url: image, width: 1200, height: 630, alt: title }] } : {}),
+      images: imageList,
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
       title,
       description,
-      ...(image ? { images: [image] } : {}),
+      images: image ? [image] : [],
     },
   }
 }
