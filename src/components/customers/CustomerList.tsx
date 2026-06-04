@@ -7,12 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Building2, Phone, Mail, MessageCircle, FileText, Pencil, FilePlus, Search, X } from "lucide-react"
 import { formatDate } from "@/lib/utils"
-import type { Customer } from "@/lib/types"
-
-interface CustomerWithStats extends Customer {
-  document_count: number
-  latest_invoice_date: string | null
-}
+import type { CustomerWithStats } from "@/actions/customers.actions"
 
 interface Props {
   customers: CustomerWithStats[]
@@ -21,12 +16,14 @@ interface Props {
 export function CustomerList({ customers }: Props) {
   const [query, setQuery] = useState("")
 
-  const filtered = query.trim()
+  const q = query.trim().toLowerCase()
+  const filtered = q
     ? customers.filter(c =>
-        c.name.toLowerCase().includes(query.toLowerCase()) ||
-        c.contact_name?.toLowerCase().includes(query.toLowerCase()) ||
-        c.tax_id?.includes(query) ||
-        c.phone?.includes(query)
+        c.name.toLowerCase().includes(q) ||
+        c.contact_name?.toLowerCase().includes(q) ||
+        c.tax_id?.includes(q) ||
+        c.phone?.includes(q) ||
+        c.doc_keywords.toLowerCase().includes(q)
       )
     : customers
 
@@ -38,7 +35,7 @@ export function CustomerList({ customers }: Props) {
         <Input
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="ค้นหาชื่อลูกค้า ผู้ติดต่อ เลขภาษี..."
+          placeholder="ค้นหาชื่อลูกค้า รายการในเอกสาร เลขภาษี..."
           className="pl-8 pr-8 text-sm"
         />
         {query && (
@@ -99,10 +96,10 @@ export function CustomerList({ customers }: Props) {
                     </a>
                   )}
                 </div>
-                {c.latest_invoice_date && (
+                {c.latest_doc_date && (
                   <div className="text-xs text-[hsl(25,10%,60%)] mt-0.5 flex items-center gap-1">
-                    <span className="text-[hsl(25,10%,70%)]">ใบแจ้งหนี้ล่าสุด:</span>
-                    <span className="font-medium">{formatDate(c.latest_invoice_date)}</span>
+                    <span className="text-[hsl(25,10%,70%)]">เอกสารล่าสุด:</span>
+                    <span className="font-medium">{formatDate(c.latest_doc_date)}</span>
                   </div>
                 )}
                 {c.tax_id && (
