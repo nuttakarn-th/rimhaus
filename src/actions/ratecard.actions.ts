@@ -63,6 +63,23 @@ export async function deletePackage(id: string): Promise<ActionResult<void>> {
   return { success: true, data: undefined }
 }
 
+export async function reorderPackages(
+  items: Array<{ id: string; sort_order: number }>
+): Promise<ActionResult<void>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+
+  await Promise.all(
+    items.map(({ id, sort_order }) =>
+      supabase.from("rate_card_packages").update({ sort_order }).eq("id", id).eq("user_id", user.id)
+    )
+  )
+  revalidatePath("/")
+  revalidatePath("/settings/ratecard")
+  return { success: true, data: undefined }
+}
+
 export async function upsertSettings(
   data: Partial<Omit<RateCardSettings, "id" | "user_id" | "updated_at">>
 ): Promise<ActionResult<RateCardSettings>> {
