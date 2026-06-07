@@ -177,7 +177,7 @@ export function DocumentForm({
           unit_price: i.unit_price,
           amount: i.amount,
         })))
-        setWhtMode((qt.wht_rate ?? 0) > 0 ? "deduct" : "none")
+        setWhtMode((qt.wht_rate ?? 0) > 0 ? "deduct" : (qt.wht_rate ?? 0) < 0 ? "grossup" : "none")
       }
       // Platforms from quotation
       if (qt.platforms && qt.platforms.length > 0) {

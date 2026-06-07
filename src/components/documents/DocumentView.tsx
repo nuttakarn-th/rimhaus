@@ -62,6 +62,8 @@ export function DocumentView({ document: doc }: { document: Document }) {
 
   const remarkLines = (doc.doc_remarks ?? "").split("\n").filter(Boolean)
   const hasBank = doc.issuer_account_number || doc.issuer_bank_name
+  const isGrossup = doc.wht_rate < 0
+  const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
 
   return (
     <div>
@@ -243,17 +245,23 @@ export function DocumentView({ document: doc }: { document: Document }) {
                   <span className="font-bold">รวมทั้งสิ้น</span>
                   {" "}
                   <span className="text-[hsl(25,10%,45%)]">
-                    ({bahtText(doc.total)})
+                    ({bahtText(netTotal)})
                   </span>
                 </td>
                 {(() => {
                   const hasDiscount = (doc.discount_amount ?? 0) > 0
-                  const hasWht = doc.wht_rate > 0  // grossup (wht_rate=-3) hides WHT line
+                  const hasWht = doc.wht_rate > 0
                   return (
                     <>
                       <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
                         {hasDiscount && (
                           <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
+                        )}
+                        {isGrossup && (
+                          <>
+                            <span>ราคาหลักหักส่วนลด</span><br />
+                            <span>หักภาษี ณ ที่จ่าย 3%</span>
+                          </>
                         )}
                         {hasWht && (
                           <span>หัก ณ ที่จ่าย 3%</span>
@@ -270,13 +278,23 @@ export function DocumentView({ document: doc }: { document: Document }) {
                             </div>
                           </>
                         )}
+                        {isGrossup && (
+                          <>
+                            <div className="text-[hsl(25,10%,40%)] text-xs">
+                              {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-red-600 text-xs">
+                              -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </div>
+                          </>
+                        )}
                         {hasWht && (
                           <div className="text-red-600 text-xs">
                             -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                           </div>
                         )}
                         <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
-                          {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          {netTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
                       </td>
                     </>

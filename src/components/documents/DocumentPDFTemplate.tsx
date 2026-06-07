@@ -116,6 +116,8 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
   const hasBank = !!(doc.issuer_account_number || doc.issuer_bank_name)
   const hasDiscount = (doc.discount_amount ?? 0) > 0
   const hasWht = doc.wht_rate > 0
+  const isGrossup = doc.wht_rate < 0
+  const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
   const platformStr = (doc.platforms ?? []).map(p => PLATFORM_LABELS[p] ?? p).join(", ")
 
   return (
@@ -212,7 +214,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
         <View style={S.tFoot}>
           <View style={[S.flex1, { flexDirection: "row", alignItems: "flex-end" }]}>
             <Text style={{ fontWeight: "bold" }}>รวมทั้งสิ้น</Text>
-            <Text style={{ color: "#78716c", fontSize: 8, marginLeft: 4 }}>({bahtText(doc.total)})</Text>
+            <Text style={{ color: "#78716c", fontSize: 8, marginLeft: 4 }}>({bahtText(netTotal)})</Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             {hasDiscount && (
@@ -224,6 +226,14 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
                 <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.discount_amount)}</Text>
               </>
             )}
+            {isGrossup && (
+              <>
+                <Text style={{ fontSize: 8, color: "#78716c" }}>ราคาหลักหักส่วนลด</Text>
+                <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.total)}</Text>
+                <Text style={{ fontSize: 8, color: "#78716c" }}>หักภาษี ณ ที่จ่าย 3%</Text>
+                <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.wht_amount)}</Text>
+              </>
+            )}
             {hasWht && (
               <>
                 <Text style={{ fontSize: 8, color: "#78716c" }}>หัก ณ ที่จ่าย 3%</Text>
@@ -231,7 +241,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
               </>
             )}
             <View style={{ borderTop: "1pt solid #292524", marginTop: 4, paddingTop: 3 }}>
-              <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(doc.total)}</Text>
+              <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(netTotal)}</Text>
             </View>
           </View>
         </View>
