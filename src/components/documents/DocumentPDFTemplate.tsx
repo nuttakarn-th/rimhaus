@@ -114,9 +114,11 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
   const remarkLines = (doc.doc_remarks ?? "").split("\n").filter(Boolean)
   const paymentLines = (doc.payment_terms ?? "").split("\n").filter(Boolean)
   const hasBank = !!(doc.issuer_account_number || doc.issuer_bank_name)
+  const isReceipt = doc.doc_type === "receipt"
   const hasDiscount = (doc.discount_amount ?? 0) > 0
   const hasWht = doc.wht_rate > 0
   const isGrossup = doc.wht_rate < 0
+  const afterDiscount = doc.subtotal - (doc.discount_amount ?? 0)
   const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
   const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
   const platformStr = (doc.platforms ?? []).map(p => PLATFORM_LABELS[p] ?? p).join(", ")
@@ -212,34 +214,62 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
             <Text style={{ fontWeight: "bold" }}>รวมทั้งสิ้น</Text>
             <Text style={{ color: "#78716c", fontSize: 8, marginLeft: 4 }}>({bahtText(displayTotal)})</Text>
           </View>
-          <View style={{ alignItems: "flex-end" }}>
-            {hasDiscount && (
-              <>
-                <Text style={{ fontSize: 8, color: "#78716c" }}>
-                  {`ส่วนลด${doc.discount_type === "%" ? ` ${doc.discount_value}%` : ""}`}
-                </Text>
+          {(isInvoice || isReceipt) ? (
+            <View style={{ minWidth: 160, borderLeft: "0.5pt solid #d6cfc7" }}>
+              {/* รวม */}
+              <View style={{ flexDirection: "row", borderBottom: "0.5pt solid #e5ddd5", paddingVertical: 2, paddingHorizontal: 5 }}>
+                <Text style={{ flex: 1, fontSize: 8, color: "#78716c" }}>รวม</Text>
                 <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.subtotal)}</Text>
-                <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.discount_amount)}</Text>
-              </>
-            )}
-            {isGrossup && !isQuotation && (
-              <>
-                <Text style={{ fontSize: 8, color: "#78716c" }}>ราคาหลักหักส่วนลด</Text>
-                <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.total)}</Text>
-                <Text style={{ fontSize: 8, color: "#78716c" }}>หักภาษี ณ ที่จ่าย 3%</Text>
-                <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.wht_amount)}</Text>
-              </>
-            )}
-            {hasWht && (
-              <>
-                <Text style={{ fontSize: 8, color: "#78716c" }}>หัก ณ ที่จ่าย 3%</Text>
-                <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.wht_amount)}</Text>
-              </>
-            )}
-            <View style={{ borderTop: "1pt solid #292524", marginTop: 4, paddingTop: 3 }}>
-              <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(displayTotal)}</Text>
+              </View>
+              {/* ส่วนลด */}
+              {hasDiscount && (
+                <View style={{ flexDirection: "row", borderBottom: "0.5pt solid #e5ddd5", paddingVertical: 2, paddingHorizontal: 5 }}>
+                  <Text style={{ flex: 1, fontSize: 8, color: "#78716c" }}>{`ส่วนลด${doc.discount_type === "%" ? ` ${doc.discount_value}%` : ""}`}</Text>
+                  <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.discount_amount)}</Text>
+                </View>
+              )}
+              {/* ราคาหลังหักส่วนลด */}
+              {(hasDiscount || hasWht || isGrossup) && (
+                <View style={{ flexDirection: "row", borderBottom: "0.5pt solid #e5ddd5", paddingVertical: 2, paddingHorizontal: 5 }}>
+                  <Text style={{ flex: 1, fontSize: 8, color: "#78716c" }}>ราคาหลังหักส่วนลด</Text>
+                  <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(afterDiscount)}</Text>
+                </View>
+              )}
+              {/* หักภาษี ณ ที่จ่าย 3% */}
+              {(hasWht || isGrossup) && (
+                <View style={{ flexDirection: "row", borderBottom: "0.5pt solid #e5ddd5", paddingVertical: 2, paddingHorizontal: 5 }}>
+                  <Text style={{ flex: 1, fontSize: 8, color: "#78716c" }}>หักภาษี ณ ที่จ่าย 3%</Text>
+                  <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.wht_amount)}</Text>
+                </View>
+              )}
+              {/* จำนวนเงินทั้งสิ้น */}
+              <View style={{ flexDirection: "row", backgroundColor: "#bae6fd", paddingVertical: 3, paddingHorizontal: 5 }}>
+                <Text style={{ flex: 1, fontSize: 9, fontWeight: "bold" }}>จำนวนเงินทั้งสิ้น</Text>
+                <Text style={{ fontSize: 9, fontWeight: "bold" }}>{fmt(displayTotal)}</Text>
+              </View>
             </View>
-          </View>
+          ) : (
+            <View style={{ alignItems: "flex-end" }}>
+              {hasDiscount && (
+                <>
+                  <Text style={{ fontSize: 8, color: "#78716c" }}>
+                    {`ส่วนลด${doc.discount_type === "%" ? ` ${doc.discount_value}%` : ""}`}
+                  </Text>
+                  <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.subtotal)}</Text>
+                  <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.discount_amount)}</Text>
+                </>
+              )}
+              {hasWht && (
+                <>
+                  <Text style={{ fontSize: 8, color: "#78716c" }}>หัก ณ ที่จ่าย 3%</Text>
+                  <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.wht_amount)}</Text>
+                </>
+              )}
+              <View style={{ borderTop: "1pt solid #292524", marginTop: 4, paddingTop: 3 }}>
+                <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(displayTotal)}</Text>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Remarks / Payment / Bank */}

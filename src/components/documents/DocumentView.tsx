@@ -63,6 +63,9 @@ export function DocumentView({ document: doc }: { document: Document }) {
   const remarkLines = (doc.doc_remarks ?? "").split("\n").filter(Boolean)
   const hasBank = doc.issuer_account_number || doc.issuer_bank_name
   const isGrossup = doc.wht_rate < 0
+  const hasDiscount = (doc.discount_amount ?? 0) > 0
+  const hasWht = doc.wht_rate > 0
+  const afterDiscount = doc.subtotal - (doc.discount_amount ?? 0)
   const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
   const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
 
@@ -240,62 +243,83 @@ export function DocumentView({ document: doc }: { document: Document }) {
                 <td colSpan={3} className="py-2 px-3 text-sm">
                   <span className="font-bold">รวมทั้งสิ้น</span>
                   {" "}
-                  <span className="text-[hsl(25,10%,45%)]">
-                    ({bahtText(displayTotal)})
-                  </span>
+                  <span className="text-[hsl(25,10%,45%)]">({bahtText(displayTotal)})</span>
                 </td>
-                {(() => {
-                  const hasDiscount = (doc.discount_amount ?? 0) > 0
-                  const hasWht = doc.wht_rate > 0
-                  return (
-                    <>
-                      <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
+                {(isInvoice || isReceipt) ? (
+                  <td colSpan={2} className="p-0 align-top">
+                    <table className="w-full text-xs border-collapse">
+                      <tbody>
+                        <tr>
+                          <td className="py-1 px-3 text-[hsl(25,10%,45%)] border-b border-[hsl(35,20%,88%)]">รวม</td>
+                          <td className="py-1 px-3 text-right border-b border-[hsl(35,20%,88%)]">
+                            {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
                         {hasDiscount && (
-                          <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
-                        )}
-                        {isGrossup && !isQuotation && (
-                          <>
-                            <span>ราคาหลักหักส่วนลด</span><br />
-                            <span>หักภาษี ณ ที่จ่าย 3%</span>
-                          </>
-                        )}
-                        {hasWht && (
-                          <span>หัก ณ ที่จ่าย 3%</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-3 text-right">
-                        {hasDiscount && (
-                          <>
-                            <div className="text-[hsl(25,10%,40%)] text-xs">
-                              {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                            </div>
-                            <div className="text-red-600 text-xs">
+                          <tr>
+                            <td className="py-1 px-3 text-[hsl(25,10%,45%)] border-b border-[hsl(35,20%,88%)]">
+                              ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}
+                            </td>
+                            <td className="py-1 px-3 text-right text-red-600 border-b border-[hsl(35,20%,88%)]">
                               -{(doc.discount_amount ?? 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                            </div>
-                          </>
+                            </td>
+                          </tr>
                         )}
-                        {isGrossup && !isQuotation && (
-                          <>
-                            <div className="text-[hsl(25,10%,40%)] text-xs">
-                              {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                            </div>
-                            <div className="text-red-600 text-xs">
-                              -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-                            </div>
-                          </>
+                        {(hasDiscount || hasWht || isGrossup) && (
+                          <tr>
+                            <td className="py-1 px-3 text-[hsl(25,10%,45%)] border-b border-[hsl(35,20%,88%)]">ราคาหลังหักส่วนลด</td>
+                            <td className="py-1 px-3 text-right border-b border-[hsl(35,20%,88%)]">
+                              {afterDiscount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
                         )}
-                        {hasWht && (
-                          <div className="text-red-600 text-xs">
-                            -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                        {(hasWht || isGrossup) && (
+                          <tr>
+                            <td className="py-1 px-3 text-[hsl(25,10%,45%)] border-b border-[hsl(35,20%,88%)]">หักภาษี ณ ที่จ่าย 3%</td>
+                            <td className="py-1 px-3 text-right border-b border-[hsl(35,20%,88%)]">
+                              {doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        )}
+                        <tr className="bg-[hsl(195,60%,88%)]">
+                          <td className="py-1.5 px-3 font-bold text-[hsl(25,20%,10%)]">จำนวนเงินทั้งสิ้น</td>
+                          <td className="py-1.5 px-3 text-right font-bold text-[hsl(25,20%,10%)]">
+                            {displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                ) : (
+                  <>
+                    <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
+                      {hasDiscount && (
+                        <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
+                      )}
+                      {hasWht && <span>หัก ณ ที่จ่าย 3%</span>}
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      {hasDiscount && (
+                        <>
+                          <div className="text-[hsl(25,10%,40%)] text-xs">
+                            {doc.subtotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                           </div>
-                        )}
-                        <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
-                          {displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          <div className="text-red-600 text-xs">
+                            -{(doc.discount_amount ?? 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          </div>
+                        </>
+                      )}
+                      {hasWht && (
+                        <div className="text-red-600 text-xs">
+                          -{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
-                      </td>
-                    </>
-                  )
-                })()}
+                      )}
+                      <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
+                        {displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                      </div>
+                    </td>
+                  </>
+                )}
               </tr>
             </tfoot>
           </table>
