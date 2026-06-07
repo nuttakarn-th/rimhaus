@@ -649,11 +649,19 @@ export function DocumentForm({
               </label>
             </div>
           ) : (
-            whtMode !== "none" && (
-              <div className="flex justify-between text-[hsl(25,10%,50%)]">
-                <span>หักภาษี ณ ที่จ่าย 3%</span>
-                <span className="text-red-600">- {formatCurrency(whtAmount)}</span>
+            whtMode === "grossup" ? (
+              <div className="flex justify-between text-[hsl(25,10%,50%)] text-sm">
+                <span>หักภาษี ณ ที่จ่าย 3% (grossup)</span>
+                <span>ลูกค้าหัก {formatCurrency(whtAmount)}</span>
               </div>
+            ) : (
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-2">
+                  <Checkbox checked={whtMode === "deduct"} onCheckedChange={() => handleSetWhtMode("deduct")} />
+                  <span className="text-[hsl(25,10%,50%)] text-sm">หักภาษี ณ ที่จ่าย 3%</span>
+                </span>
+                {whtMode === "deduct" && <span className="text-red-600 text-sm">- {formatCurrency(whtAmount)}</span>}
+              </label>
             )
           )}
           <div className="flex justify-between font-bold text-base border-t border-[hsl(35,20%,88%)] pt-2">
