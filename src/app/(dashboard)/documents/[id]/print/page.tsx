@@ -253,10 +253,12 @@ export default async function DocumentPrintPage({
                 {hasBank && (
                   <div>
                     <div className="font-bold text-[hsl(25,20%,15%)]">ข้อมูลการชำระเงิน :</div>
-                    <div className="mt-0.5">ชื่อบัญชี: {doc.issuer_account_name}</div>
-                    <div>เลขที่บัญชี: {doc.issuer_account_number} ธนาคาร {doc.issuer_bank_name}
-                      {doc.issuer_bank_branch ? ` สาขา ${doc.issuer_bank_branch}` : ""}
+                    <div className="mt-0.5">
+                      {doc.issuer_bank_name && <>ธนาคาร {doc.issuer_bank_name}</>}
+                      {doc.issuer_bank_branch && <>{" "}สาขา {doc.issuer_bank_branch}</>}
                     </div>
+                    {doc.issuer_account_number && <div>เลขที่บัญชี: {doc.issuer_account_number}</div>}
+                    {doc.issuer_account_name && <div>ชื่อบัญชี: {doc.issuer_account_name}</div>}
                     {isInvoice && doc.issuer_phone && <div>เบอร์ติดต่อ {doc.issuer_phone}</div>}
                   </div>
                 )}

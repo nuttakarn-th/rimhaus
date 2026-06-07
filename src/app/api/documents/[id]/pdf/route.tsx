@@ -243,9 +243,13 @@ export async function GET(
       }
       if (hasBank) {
         txt("ข้อมูลการชำระเงิน :", ML, cy, fontB, 9); cy += 12
+        const bankLine = [
+          doc.issuer_bank_name && `ธนาคาร ${doc.issuer_bank_name}`,
+          doc.issuer_bank_branch && `สาขา ${doc.issuer_bank_branch}`,
+        ].filter(Boolean).join("   ")
+        if (bankLine) { txt(bankLine, ML + 6, cy, font, 8, rgb(0.3, 0.23, 0.18)); cy += 10 }
+        if (doc.issuer_account_number) { txt(`เลขที่บัญชี: ${doc.issuer_account_number}`, ML + 6, cy, font, 8, rgb(0.3, 0.23, 0.18)); cy += 10 }
         if (doc.issuer_account_name) { txt(`ชื่อบัญชี: ${doc.issuer_account_name}`, ML + 6, cy, font, 8, rgb(0.3, 0.23, 0.18)); cy += 10 }
-        const bank = `เลขที่บัญชี: ${doc.issuer_account_number} ธนาคาร ${doc.issuer_bank_name}${doc.issuer_bank_branch ? ` สาขา ${doc.issuer_bank_branch}` : ""}`
-        txt(bank, ML + 6, cy, font, 8, rgb(0.3, 0.23, 0.18)); cy += 10
         if (doc.doc_type === "invoice" && doc.issuer_phone) { txt(`เบอร์ติดต่อ ${doc.issuer_phone}`, ML + 6, cy, font, 8, rgb(0.3, 0.23, 0.18)); cy += 10 }
       }
     }

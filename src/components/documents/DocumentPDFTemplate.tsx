@@ -300,12 +300,20 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
             {hasBank && (
               <View style={{ marginTop: 6 }}>
                 <Text style={S.secTitle}>ข้อมูลการชำระเงิน :</Text>
+                {(doc.issuer_bank_name || doc.issuer_bank_branch) && (
+                  <Text style={S.bulletText}>
+                    {[
+                      doc.issuer_bank_name && `ธนาคาร ${doc.issuer_bank_name}`,
+                      doc.issuer_bank_branch && `สาขา ${doc.issuer_bank_branch}`,
+                    ].filter(Boolean).join("   ")}
+                  </Text>
+                )}
+                {doc.issuer_account_number && (
+                  <Text style={S.bulletText}>เลขที่บัญชี: {doc.issuer_account_number}</Text>
+                )}
                 {doc.issuer_account_name && (
                   <Text style={S.bulletText}>ชื่อบัญชี: {doc.issuer_account_name}</Text>
                 )}
-                <Text style={S.bulletText}>
-                  {`เลขที่บัญชี: ${doc.issuer_account_number ?? ""} ธนาคาร ${doc.issuer_bank_name ?? ""}${doc.issuer_bank_branch ? ` สาขา ${doc.issuer_bank_branch}` : ""}`}
-                </Text>
                 {isInvoice && doc.issuer_phone && (
                   <Text style={S.bulletText}>เบอร์ติดต่อ {doc.issuer_phone}</Text>
                 )}
