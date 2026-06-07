@@ -229,7 +229,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
                 </View>
               )}
               {/* ราคาหลังหักส่วนลด */}
-              {(hasDiscount || hasWht || isGrossup) && (
+              {hasDiscount && (
                 <View style={{ flexDirection: "row", borderBottom: "0.5pt solid #e5ddd5", paddingVertical: 2, paddingHorizontal: 5 }}>
                   <Text style={{ flex: 1, fontSize: 8, color: "#78716c" }}>ราคาหลังหักส่วนลด</Text>
                   <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(afterDiscount)}</Text>

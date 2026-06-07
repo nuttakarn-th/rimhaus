@@ -179,6 +179,7 @@ export async function GET(
     const hasWht = doc.wht_rate > 0
     const isGrossup = doc.wht_rate < 0
     const isQuotation = doc.doc_type === "quotation"
+    const afterDiscount = doc.subtotal - (doc.discount_amount ?? 0)
     const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
     const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
 
@@ -206,12 +207,14 @@ export async function GET(
       txt(wa, colXArr[4] + cols[4] - waW - 3, rightCy, font, 8, rgb(0.75, 0.1, 0.1)); rightCy += 11
     }
     if (isGrossup && !isQuotation) {
-      const rl = "ราคาหลักหักส่วนลด"
-      const rlW = font.widthOfTextAtSize(rl, 8)
-      txt(rl, colXArr[3] + cols[3] - rlW - 3, rightCy, font, 8, rgb(0.4, 0.33, 0.27))
-      const rv = doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })
-      const rvW = font.widthOfTextAtSize(rv, 8)
-      txt(rv, colXArr[4] + cols[4] - rvW - 3, rightCy, font, 8, rgb(0.35, 0.28, 0.22)); rightCy += 11
+      if (hasDiscount) {
+        const rl = "ราคาหลังหักส่วนลด"
+        const rlW = font.widthOfTextAtSize(rl, 8)
+        txt(rl, colXArr[3] + cols[3] - rlW - 3, rightCy, font, 8, rgb(0.4, 0.33, 0.27))
+        const rv = afterDiscount.toLocaleString("th-TH", { minimumFractionDigits: 2 })
+        const rvW = font.widthOfTextAtSize(rv, 8)
+        txt(rv, colXArr[4] + cols[4] - rvW - 3, rightCy, font, 8, rgb(0.35, 0.28, 0.22)); rightCy += 11
+      }
       const wl = "หักภาษี ณ ที่จ่าย 3%"
       const wlW = font.widthOfTextAtSize(wl, 8)
       txt(wl, colXArr[3] + cols[3] - wlW - 3, rightCy, font, 8, rgb(0.4, 0.33, 0.27))

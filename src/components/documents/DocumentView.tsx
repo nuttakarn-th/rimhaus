@@ -265,7 +265,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                             </td>
                           </tr>
                         )}
-                        {(hasDiscount || hasWht || isGrossup) && (
+                        {hasDiscount && (
                           <tr>
                             <td className="py-1 px-3 text-[hsl(25,10%,45%)] border-b border-[hsl(35,20%,88%)]">ราคาหลังหักส่วนลด</td>
                             <td className="py-1 px-3 text-right border-b border-[hsl(35,20%,88%)]">
