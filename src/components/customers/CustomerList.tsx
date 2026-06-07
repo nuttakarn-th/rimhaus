@@ -103,7 +103,7 @@ export function CustomerList({ customers }: Props) {
                   </div>
                 )}
                 {c.tax_id && (
-                  <div className="text-xs text-[hsl(25,10%,65%)] mt-0.5">เลขภาษี: {c.tax_id}</div>
+                  <div className="text-xs text-[hsl(25,10%,65%)] mt-0.5">เลขประจำตัวผู้เสียภาษี: {c.tax_id}</div>
                 )}
               </div>
               <div className="flex items-center gap-0.5 shrink-0">

@@ -168,18 +168,13 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
           {doc.customer_address && (
             <View style={S.custRow}>
               <Text style={S.custLabel}>ที่อยู่</Text>
-              <View style={S.flex1}>
-                <Text style={S.custDetail}>{doc.customer_address}</Text>
-                {doc.customer_tax_id && (
-                  <Text style={[S.custDetail, { marginTop: 1 }]}>เลขที่ภาษี {doc.customer_tax_id}</Text>
-                )}
-              </View>
+              <Text style={[S.custDetail, S.flex1]}>{doc.customer_address}</Text>
             </View>
           )}
-          {!doc.customer_address && doc.customer_tax_id && (
+          {doc.customer_tax_id && (
             <View style={S.custRow}>
-              <View style={{ width: 40 }} />
-              <Text style={S.custDetail}>เลขที่ภาษี {doc.customer_tax_id}</Text>
+              <Text style={[S.custLabel, { width: 70, fontSize: 8 }]}>เลขประจำตัวผู้เสียภาษี</Text>
+              <Text style={S.custDetail}>{doc.customer_tax_id}</Text>
             </View>
           )}
         </View>

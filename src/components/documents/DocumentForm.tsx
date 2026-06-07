@@ -408,7 +408,7 @@ export function DocumentForm({
         {linkedQuotationId && customerName ? (
           <div className="text-sm text-[hsl(25,20%,25%)] bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2.5 space-y-0.5">
             <p className="font-semibold">{customerName}</p>
-            {customerTaxId && <p className="text-xs text-[hsl(25,10%,50%)]">เลขภาษี: {customerTaxId}</p>}
+            {customerTaxId && <p className="text-xs text-[hsl(25,10%,50%)]">เลขประจำตัวผู้เสียภาษี: {customerTaxId}</p>}
             {customerContact && <p className="text-xs text-[hsl(25,10%,50%)]">ผู้ติดต่อ: {customerContact}</p>}
           </div>
         ) : (
@@ -491,7 +491,7 @@ export function DocumentForm({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">เลขภาษี</Label>
+                <Label className="text-xs">เลขประจำตัวผู้เสียภาษี</Label>
                 <Input value={customerTaxId} onChange={e => setCustomerTaxId(e.target.value)} />
               </div>
               <div className="space-y-1">

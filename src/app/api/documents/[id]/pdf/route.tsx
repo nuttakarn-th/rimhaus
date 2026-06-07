@@ -108,7 +108,11 @@ export async function GET(
     for (const l of (doc.customer_address ?? "").split("\n").filter(Boolean)) {
       txt(l, ML + 42, cy, font, 8, rgb(0.35, 0.28, 0.22)); cy += 10
     }
-    if (doc.customer_tax_id) { txt(`เลขที่ภาษี ${doc.customer_tax_id}`, ML + 42, cy, font, 8, rgb(0.4, 0.33, 0.27)); cy += 10 }
+    if (doc.customer_tax_id) {
+      txt("เลขประจำตัวผู้เสียภาษี", ML, cy, fontB, 8, rgb(0.4, 0.33, 0.27))
+      txt(doc.customer_tax_id, ML + 68, cy, font, 8, rgb(0.4, 0.33, 0.27))
+      cy += 10
+    }
 
     // Platforms
     if (doc.platforms && doc.platforms.length > 0) {

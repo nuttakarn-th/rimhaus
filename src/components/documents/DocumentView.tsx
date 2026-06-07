@@ -172,18 +172,13 @@ export function DocumentView({ document: doc }: { document: Document }) {
             {doc.customer_address && (
               <div className="flex gap-4 mt-0.5">
                 <span className="font-bold text-[hsl(25,20%,10%)] w-12 shrink-0">ที่อยู่</span>
-                <div>
-                  <div className="text-[hsl(25,10%,35%)] text-xs leading-snug whitespace-pre-line">{doc.customer_address}</div>
-                  {doc.customer_tax_id && (
-                    <div className="text-xs text-[hsl(25,10%,45%)]">เลขที่ภาษี {doc.customer_tax_id}</div>
-                  )}
-                </div>
+                <div className="text-[hsl(25,10%,35%)] text-xs leading-snug whitespace-pre-line">{doc.customer_address}</div>
               </div>
             )}
-            {!doc.customer_address && doc.customer_tax_id && (
+            {doc.customer_tax_id && (
               <div className="flex gap-4 mt-0.5">
-                <span className="w-12 shrink-0" />
-                <div className="text-xs text-[hsl(25,10%,45%)]">เลขที่ภาษี {doc.customer_tax_id}</div>
+                <span className="font-bold text-[hsl(25,20%,10%)] shrink-0 text-xs">เลขประจำตัวผู้เสียภาษี</span>
+                <div className="text-xs text-[hsl(25,10%,45%)]">{doc.customer_tax_id}</div>
               </div>
             )}
           </div>
