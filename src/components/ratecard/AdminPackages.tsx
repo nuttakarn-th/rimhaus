@@ -88,6 +88,50 @@ function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFor
           <Input value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} placeholder="THB/clip/platform" />
         </div>
       </div>
+      {/* Sub-items (ตารางระดับราคา) */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">ระดับราคา (ตาราง)</Label>
+          <button
+            type="button"
+            onClick={() => setForm(p => ({ ...p, sub_items: [...p.sub_items, { label: "", price: 0 }] }))}
+            className="flex items-center gap-1 text-xs text-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,40%)] font-medium"
+          >
+            <Plus className="w-3 h-3" />เพิ่มแถว
+          </button>
+        </div>
+        {form.sub_items.length > 0 ? (
+          <div className="space-y-1.5">
+            {form.sub_items.map((item, i) => (
+              <div key={i} className="flex gap-2 items-center">
+                <Input
+                  value={item.label}
+                  onChange={e => setForm(p => ({ ...p, sub_items: p.sub_items.map((s, j) => j === i ? { ...s, label: e.target.value } : s) }))}
+                  placeholder="เช่น 7-30 วัน"
+                  className="flex-1 h-8 text-xs"
+                />
+                <Input
+                  type="number"
+                  value={item.price || ""}
+                  onChange={e => setForm(p => ({ ...p, sub_items: p.sub_items.map((s, j) => j === i ? { ...s, price: Number(e.target.value) } : s) }))}
+                  placeholder="500"
+                  className="w-24 h-8 text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm(p => ({ ...p, sub_items: p.sub_items.filter((_, j) => j !== i) }))}
+                  className="text-red-400 hover:text-red-600 shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-[10px] text-[hsl(25,10%,60%)]">ใส่ถ้าต้องการแสดงตารางราคาหลายระดับ แทนราคาเดียว</p>
+        )}
+      </div>
+
       <div className="space-y-1">
         <Label className="text-xs">คำอธิบาย</Label>
         <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
