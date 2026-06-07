@@ -41,6 +41,9 @@ export default async function DocumentPrintPage({
   const isReceipt = doc.doc_type === "receipt"
   const hasDiscount = (doc.discount_amount ?? 0) > 0
   const hasWht = doc.wht_rate > 0
+  const isGrossup = doc.wht_rate < 0
+  const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
+  const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
 
   return (
     <div className="min-h-screen bg-[hsl(35,30%,97%)] print:min-h-0 print:bg-white">
@@ -170,10 +173,13 @@ export default async function DocumentPrintPage({
                 <tr className="border-t-2 border-[hsl(25,20%,15%)]">
                   <td colSpan={3} className="py-2 px-3 text-sm">
                     <span className="font-bold">รวมทั้งสิ้น</span>{" "}
-                    <span className="text-[hsl(25,10%,45%)]">({bahtText(doc.total)})</span>
+                    <span className="text-[hsl(25,10%,45%)]">({bahtText(displayTotal)})</span>
                   </td>
                   <td className="py-2 px-3 text-right text-xs text-[hsl(25,10%,45%)]">
                     {hasDiscount && <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>}
+                    {isGrossup && !isQuotation && (
+                      <><span>ราคาหลักหักส่วนลด</span><br /><span>หักภาษี ณ ที่จ่าย 3%</span></>
+                    )}
                     {hasWht && <span>หัก ณ ที่จ่าย 3%</span>}
                   </td>
                   <td className="py-2 px-3 text-right">
@@ -183,9 +189,15 @@ export default async function DocumentPrintPage({
                         <div className="text-red-600 text-xs">-{(doc.discount_amount ?? 0).toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>
                       </>
                     )}
+                    {isGrossup && !isQuotation && (
+                      <>
+                        <div className="text-[hsl(25,10%,40%)] text-xs">{doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>
+                        <div className="text-red-600 text-xs">-{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>
+                      </>
+                    )}
                     {hasWht && <div className="text-red-600 text-xs">-{doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>}
                     <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
-                      {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                      {displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                     </div>
                   </td>
                 </tr>

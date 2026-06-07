@@ -64,6 +64,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
   const hasBank = doc.issuer_account_number || doc.issuer_bank_name
   const isGrossup = doc.wht_rate < 0
   const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
+  const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
 
   return (
     <div>
@@ -240,7 +241,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                   <span className="font-bold">รวมทั้งสิ้น</span>
                   {" "}
                   <span className="text-[hsl(25,10%,45%)]">
-                    ({bahtText(netTotal)})
+                    ({bahtText(displayTotal)})
                   </span>
                 </td>
                 {(() => {
@@ -252,7 +253,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                         {hasDiscount && (
                           <><span>ส่วนลด {doc.discount_type === "%" ? `${doc.discount_value}%` : ""}</span><br /></>
                         )}
-                        {isGrossup && (
+                        {isGrossup && !isQuotation && (
                           <>
                             <span>ราคาหลักหักส่วนลด</span><br />
                             <span>หักภาษี ณ ที่จ่าย 3%</span>
@@ -273,7 +274,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                             </div>
                           </>
                         )}
-                        {isGrossup && (
+                        {isGrossup && !isQuotation && (
                           <>
                             <div className="text-[hsl(25,10%,40%)] text-xs">
                               {doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -289,7 +290,7 @@ export function DocumentView({ document: doc }: { document: Document }) {
                           </div>
                         )}
                         <div className="font-bold text-base border-t border-[hsl(25,20%,20%)] mt-1 pt-1">
-                          {netTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                          {displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
                       </td>
                     </>

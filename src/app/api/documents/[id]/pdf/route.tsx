@@ -174,11 +174,15 @@ export async function GET(
 
     // Total footer
     ln(ML, cy + 2, ML + CW, cy + 2, 1.5, rgb(0.12, 0.09, 0.07)); cy += 8
-    const bahtStr = `รวมทั้งสิ้น (${bahtText(doc.total)})`
+    const bahtStr = `รวมทั้งสิ้น (${bahtText(displayTotal)})`
     txt(bahtStr, ML, cy, fontB, 9)
 
     const hasDiscount = (doc.discount_amount ?? 0) > 0
     const hasWht = doc.wht_rate > 0
+    const isGrossup = doc.wht_rate < 0
+    const isQuotation = doc.doc_type === "quotation"
+    const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
+    const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
     let rightCy = cy
 
     if (hasDiscount) {
@@ -200,8 +204,22 @@ export async function GET(
       const waW = font.widthOfTextAtSize(wa, 8)
       txt(wa, colXArr[4] + cols[4] - waW - 3, rightCy, font, 8, rgb(0.75, 0.1, 0.1)); rightCy += 11
     }
+    if (isGrossup && !isQuotation) {
+      const rl = "ราคาหลักหักส่วนลด"
+      const rlW = font.widthOfTextAtSize(rl, 8)
+      txt(rl, colXArr[3] + cols[3] - rlW - 3, rightCy, font, 8, rgb(0.4, 0.33, 0.27))
+      const rv = doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })
+      const rvW = font.widthOfTextAtSize(rv, 8)
+      txt(rv, colXArr[4] + cols[4] - rvW - 3, rightCy, font, 8, rgb(0.35, 0.28, 0.22)); rightCy += 11
+      const wl = "หักภาษี ณ ที่จ่าย 3%"
+      const wlW = font.widthOfTextAtSize(wl, 8)
+      txt(wl, colXArr[3] + cols[3] - wlW - 3, rightCy, font, 8, rgb(0.4, 0.33, 0.27))
+      const wa = `-${doc.wht_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`
+      const waW = font.widthOfTextAtSize(wa, 8)
+      txt(wa, colXArr[4] + cols[4] - waW - 3, rightCy, font, 8, rgb(0.75, 0.1, 0.1)); rightCy += 11
+    }
     ln(colXArr[4], rightCy, colXArr[4] + cols[4], rightCy, 0.5, rgb(0.3, 0.23, 0.18)); rightCy += 4
-    const totStr = doc.total.toLocaleString("th-TH", { minimumFractionDigits: 2 })
+    const totStr = displayTotal.toLocaleString("th-TH", { minimumFractionDigits: 2 })
     const totW = fontB.widthOfTextAtSize(totStr, 11)
     txt(totStr, colXArr[4] + cols[4] - totW - 3, rightCy, fontB, 11)
     cy = Math.max(cy, rightCy) + 16

@@ -117,7 +117,9 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
   const hasDiscount = (doc.discount_amount ?? 0) > 0
   const hasWht = doc.wht_rate > 0
   const isGrossup = doc.wht_rate < 0
+  const isQuotation = doc.doc_type === "quotation"
   const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
+  const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
   const platformStr = (doc.platforms ?? []).map(p => PLATFORM_LABELS[p] ?? p).join(", ")
 
   return (
@@ -209,7 +211,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
         <View style={S.tFoot}>
           <View style={[S.flex1, { flexDirection: "row", alignItems: "flex-end" }]}>
             <Text style={{ fontWeight: "bold" }}>รวมทั้งสิ้น</Text>
-            <Text style={{ color: "#78716c", fontSize: 8, marginLeft: 4 }}>({bahtText(netTotal)})</Text>
+            <Text style={{ color: "#78716c", fontSize: 8, marginLeft: 4 }}>({bahtText(displayTotal)})</Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             {hasDiscount && (
@@ -221,7 +223,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
                 <Text style={{ fontSize: 8, color: "#dc2626" }}>-{fmt(doc.discount_amount)}</Text>
               </>
             )}
-            {isGrossup && (
+            {isGrossup && !isQuotation && (
               <>
                 <Text style={{ fontSize: 8, color: "#78716c" }}>ราคาหลักหักส่วนลด</Text>
                 <Text style={{ fontSize: 8, color: "#57534e" }}>{fmt(doc.total)}</Text>
@@ -236,7 +238,7 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
               </>
             )}
             <View style={{ borderTop: "1pt solid #292524", marginTop: 4, paddingTop: 3 }}>
-              <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(netTotal)}</Text>
+              <Text style={{ fontWeight: "bold", fontSize: 12, textAlign: "right" }}>{fmt(displayTotal)}</Text>
             </View>
           </View>
         </View>
