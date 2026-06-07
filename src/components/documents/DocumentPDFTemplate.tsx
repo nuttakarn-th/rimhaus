@@ -117,7 +117,6 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
   const hasDiscount = (doc.discount_amount ?? 0) > 0
   const hasWht = doc.wht_rate > 0
   const isGrossup = doc.wht_rate < 0
-  const isQuotation = doc.doc_type === "quotation"
   const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
   const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
   const platformStr = (doc.platforms ?? []).map(p => PLATFORM_LABELS[p] ?? p).join(", ")

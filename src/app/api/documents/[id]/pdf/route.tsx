@@ -174,8 +174,6 @@ export async function GET(
 
     // Total footer
     ln(ML, cy + 2, ML + CW, cy + 2, 1.5, rgb(0.12, 0.09, 0.07)); cy += 8
-    const bahtStr = `รวมทั้งสิ้น (${bahtText(displayTotal)})`
-    txt(bahtStr, ML, cy, fontB, 9)
 
     const hasDiscount = (doc.discount_amount ?? 0) > 0
     const hasWht = doc.wht_rate > 0
@@ -183,6 +181,9 @@ export async function GET(
     const isQuotation = doc.doc_type === "quotation"
     const netTotal = isGrossup ? doc.total - doc.wht_amount : doc.total
     const displayTotal = isGrossup && isQuotation ? doc.total : netTotal
+
+    const bahtStr = `รวมทั้งสิ้น (${bahtText(displayTotal)})`
+    txt(bahtStr, ML, cy, fontB, 9)
     let rightCy = cy
 
     if (hasDiscount) {
