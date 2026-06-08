@@ -11,10 +11,10 @@ export function PackageTermsBadge({ name, terms }: { name: string; terms: string
     <>
       <button
         onClick={e => { e.preventDefault(); e.stopPropagation(); setOpen(true) }}
-        title="ดูเงื่อนไข"
-        className="w-7 h-7 rounded-full bg-[hsl(24,85%,50%)]/10 hover:bg-[hsl(24,85%,50%)]/20 border border-[hsl(24,85%,50%)]/25 flex items-center justify-center transition-colors"
+        className="inline-flex items-center gap-1 text-[10px] font-semibold text-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,38%)] transition-colors"
       >
-        <ScrollText className="w-3.5 h-3.5 text-[hsl(24,85%,50%)]" />
+        <ScrollText className="w-3 h-3" />
+        ดูเงื่อนไข
       </button>
 
       {open && createPortal(

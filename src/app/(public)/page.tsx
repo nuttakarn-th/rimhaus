@@ -131,7 +131,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         )}
       </div>
       {pkg.terms && (
-        <div className="absolute top-2 right-2 z-10">
+        <div className="border-t border-[hsl(35,25%,92%)] px-3 py-2 flex justify-center">
           <PackageTermsBadge name={pkg.name} terms={pkg.terms} />
         </div>
       )}
