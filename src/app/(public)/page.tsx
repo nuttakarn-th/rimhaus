@@ -278,9 +278,9 @@ export default async function HomePage() {
                       </div>
                     )}
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="hsl(24,85%,50%)"><path d="M8 5v14l11-7z"/></svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-black/35 border border-white/40 flex items-center justify-center">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                   </div>
                   {item.title && (
