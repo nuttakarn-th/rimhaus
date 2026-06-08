@@ -192,6 +192,7 @@ export interface RateCardSettings {
   og_title: string | null
   og_description: string | null
   og_image_url: string | null
+  show_calculator: boolean
   updated_at: string
 }
 

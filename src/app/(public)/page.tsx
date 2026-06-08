@@ -433,7 +433,7 @@ export default async function HomePage() {
       )}
 
       {/* ── Package Calculator ────────────────────────────── */}
-      {packages.filter(p => p.category !== "barter" && p.price != null).length > 0 && (
+      {settings?.show_calculator !== false && packages.filter(p => p.category !== "barter" && p.price != null).length > 0 && (
         <PackageCalculator
           packages={packages}
           contactLine={settings?.contact_line ?? null}

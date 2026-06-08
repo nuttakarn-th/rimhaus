@@ -40,6 +40,7 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     og_title: settings?.og_title ?? "",
     og_description: settings?.og_description ?? "",
     og_image_url: settings?.og_image_url ?? "",
+    show_calculator: settings?.show_calculator ?? true,
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -166,6 +167,7 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       og_title: form.og_title || null,
       og_description: form.og_description || null,
       og_image_url: form.og_image_url || null,
+      show_calculator: form.show_calculator,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -332,6 +334,23 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         <div className="space-y-1">
           <Label className="text-xs">Email</Label>
           <Input value={form.contact_email} onChange={e => setForm(p => ({ ...p, contact_email: e.target.value }))} placeholder="email@example.com" />
+        </div>
+      </div>
+
+      {/* Calculate Cost toggle */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-[hsl(25,20%,15%)]">แสดงส่วน Calculate Cost</p>
+            <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ให้ลูกค้าคำนวณราคาเองล่วงหน้าก่อน contact</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setForm(p => ({ ...p, show_calculator: !p.show_calculator }))}
+            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${form.show_calculator ? "bg-[hsl(24,85%,50%)]" : "bg-[hsl(35,20%,78%)]"}`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${form.show_calculator ? "translate-x-5" : "translate-x-0"}`} />
+          </button>
         </div>
       </div>
 
