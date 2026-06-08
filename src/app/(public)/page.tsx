@@ -263,7 +263,7 @@ export default async function HomePage() {
 
       {videos.length > 0 && (
         <section>
-          <SectionHeader title="Short VDO" sub="ตัวอย่างคอนเทนต์วิดีโอ" />
+          <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" />
           <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {videos.map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0 group block">
@@ -302,11 +302,11 @@ export default async function HomePage() {
 
       {photos.length > 0 && (
         <section>
-          <SectionHeader title="Photo Content" sub="ตัวอย่างภาพถ่าย" />
+          <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" />
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {photos.slice(0, 8).map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer"
-                 className="group block overflow-hidden rounded-xl bg-[hsl(35,30%,93%)] shadow-sm">
+                 className="group relative block overflow-hidden rounded-xl bg-[hsl(35,30%,93%)] shadow-sm">
                 <div className="aspect-[3/4]">
                   {item.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -318,6 +318,13 @@ export default async function HomePage() {
                       </svg>
                     </div>
                   )}
+                </div>
+                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/40 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
                 </div>
               </a>
             ))}
