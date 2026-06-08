@@ -41,6 +41,7 @@ const emptyForm = {
   sub_items: [] as Array<{ label: string; price: number }>,
   platforms: [] as string[],
   content_type: null as "video" | "photo" | null,
+  terms: "",
 }
 
 type FormState = typeof emptyForm
@@ -55,6 +56,13 @@ interface PackageFormProps {
 }
 
 function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFormProps) {
+  const [showTerms, setShowTerms] = useState(!!form.terms)
+
+  function handleTermsToggle(checked: boolean) {
+    setShowTerms(Boolean(checked))
+    if (!checked) setForm(p => ({ ...p, terms: "" }))
+  }
+
   return (
     <div className="border-2 border-[hsl(24,85%,50%)] rounded-xl p-4 space-y-3 bg-orange-50">
       <div className="grid grid-cols-2 gap-3">
@@ -136,6 +144,25 @@ function PackageForm({ form, setForm, saving, id, onSave, onCancel }: PackageFor
         <Label className="text-xs">คำอธิบาย</Label>
         <Textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} />
       </div>
+
+      {/* Terms / เงื่อนไข */}
+      <div className="space-y-1.5">
+        <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
+          <Checkbox checked={showTerms} onCheckedChange={handleTermsToggle} />
+          <span className="font-medium text-[hsl(25,20%,15%)]">มีเงื่อนไขการจ้างงาน</span>
+          <span className="text-[hsl(25,10%,55%)]">(ลูกค้ากดดูได้จากหน้า Rate Card)</span>
+        </label>
+        {showTerms && (
+          <Textarea
+            rows={4}
+            value={form.terms}
+            onChange={e => setForm(p => ({ ...p, terms: e.target.value }))}
+            placeholder={"เช่น ราคานี้รวม 1 โพสต์หลัก\nปรับแก้ได้ 2 ครั้ง ภายใน 3 วัน\nไม่รวมค่าโฆษณา Boost Post"}
+            className="text-xs"
+          />
+        )}
+      </div>
+
       {/* Content type */}
       <div className="space-y-1.5">
         <Label className="text-xs">ประเภทคอนเทนต์</Label>
@@ -348,6 +375,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       sort_order: pkg.sort_order, sub_items: pkg.sub_items ?? [],
       platforms: pkg.platforms ?? [],
       content_type: pkg.content_type ?? null,
+      terms: pkg.terms ?? "",
     })
   }
 
@@ -373,6 +401,7 @@ export function AdminPackages({ packages }: { packages: RateCardPackage[] }) {
       sort_order: form.sort_order,
       platforms: form.platforms,
       content_type: form.content_type,
+      terms: form.terms || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }

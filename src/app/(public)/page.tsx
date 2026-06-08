@@ -7,6 +7,7 @@ import { getGalleryItems } from "@/actions/gallery.actions"
 import { formatCurrency } from "@/lib/utils"
 import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
+import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import type { RateCardPackage } from "@/lib/types"
 
@@ -128,6 +129,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
             ติดต่อสอบถาม →
           </div>
         )}
+        {pkg.terms && <PackageTermsBadge name={pkg.name} terms={pkg.terms} />}
       </div>
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gradient-to-br from-orange-50/30 to-transparent" />
     </div>

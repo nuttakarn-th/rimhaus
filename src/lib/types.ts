@@ -154,6 +154,7 @@ export interface RateCardPackage {
   original_price: number | null
   unit: string | null
   description: string | null
+  terms: string | null
   sub_items: Array<{ label: string; price: number }> | null
   platforms: string[]
   content_type: "video" | "photo" | null
