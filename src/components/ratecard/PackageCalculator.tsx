@@ -284,7 +284,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
 
       <div className="sm:grid sm:grid-cols-[1fr_300px] sm:gap-5 sm:items-start space-y-4 sm:space-y-0">
         {/* LEFT: Package selection */}
-        <div className="space-y-3">
+        <div className="space-y-3 sm:max-h-[70vh] sm:overflow-y-auto sm:pr-1">
           {(Object.entries(grouped) as [string, RateCardPackage[]][]).map(([cat, pkgs]) => {
             if (!pkgs.length) return null
             return (
