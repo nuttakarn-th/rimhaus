@@ -236,21 +236,20 @@ export default async function HomePage() {
 
       {/* ── Below-hero content ────────────────────────────── */}
       <div className="bg-[hsl(35,30%,97%)]">
-      <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5">
 
       {partners.length > 0 && (
-        <section>
-          <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-3">
+        <section className="pt-4 sm:pt-5">
+          <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-3 px-4">
             แบรนด์ที่เคยร่วมงาน
           </p>
           <div
-            className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-3 overflow-x-auto pb-2 px-1"
+            className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-3 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-4 sm:px-8"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {partners.map(p => (
-              <div key={p.id} className="flex flex-col items-center gap-1 w-14">
+              <div key={p.id} className="flex flex-col items-center gap-1 w-14 sm:w-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.logo_url} alt={p.name ?? ""} className="h-6 w-14 object-contain" />
+                <img src={p.logo_url} alt={p.name ?? ""} className="h-6 w-14 sm:w-full sm:max-w-[72px] object-contain mx-auto" />
                 {p.name && (
                   <span className="text-[8px] text-[hsl(25,10%,60%)] text-center leading-tight line-clamp-1">{p.name}</span>
                 )}
@@ -259,6 +258,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5">
 
       {videos.length > 0 && (
         <section>
