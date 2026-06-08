@@ -129,8 +129,12 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
             ติดต่อสอบถาม →
           </div>
         )}
-        {pkg.terms && <PackageTermsBadge name={pkg.name} terms={pkg.terms} />}
       </div>
+      {pkg.terms && (
+        <div className="absolute top-2 right-2 z-10">
+          <PackageTermsBadge name={pkg.name} terms={pkg.terms} />
+        </div>
+      )}
       <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gradient-to-br from-orange-50/30 to-transparent" />
     </div>
   )
