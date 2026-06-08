@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { createPortal } from "react-dom"
 import { X, ScrollText } from "lucide-react"
 
 export function PackageTermsBadge({ name, terms }: { name: string; terms: string }) {
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <button
@@ -15,9 +17,9 @@ export function PackageTermsBadge({ name, terms }: { name: string; terms: string
         <ScrollText className="w-3.5 h-3.5 text-[hsl(24,85%,50%)]" />
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
           onClick={() => setOpen(false)}
         >
           {/* Backdrop */}
@@ -64,7 +66,8 @@ export function PackageTermsBadge({ name, terms }: { name: string; terms: string
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
