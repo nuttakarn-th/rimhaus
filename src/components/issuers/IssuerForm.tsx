@@ -123,28 +123,28 @@ export function IssuerForm({ issuer }: { issuer?: IssuerProfile }) {
         <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ข้อมูลส่วนตัว</h3>
         <div className="space-y-1">
           <Label className="text-xs">ชื่อ-นามสกุล *</Label>
-          <Input value={form.name} onChange={set("name")} placeholder="ณัฐกานต์ ทาจันทร์" />
+          <Input value={form.name} onChange={set("name")} placeholder="ชื่อจริง นามสกุล" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs">เลขที่บัตรประชาชน</Label>
-          <Input value={form.id_card} onChange={set("id_card")} placeholder="1 4599 00204 81 1" maxLength={17} />
+          <Input value={form.id_card} onChange={set("id_card")} placeholder="X XXXX XXXXX XX X" maxLength={17} />
         </div>
         <div className="space-y-1">
           <Label className="text-xs">ที่อยู่</Label>
-          <Textarea rows={3} value={form.address} onChange={set("address")} placeholder="เลขที่ 99/41 หมู่4 ตำบลป่าแดด อำเภอเมือง จังหวัดเชียงใหม่ 50100" />
+          <Textarea rows={3} value={form.address} onChange={set("address")} placeholder="เลขที่ หมู่ ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์" />
         </div>
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">เบอร์โทรศัพท์</Label>
-            <Input value={form.phone} onChange={set("phone")} placeholder="081-998-5255" />
+            <Input value={form.phone} onChange={set("phone")} placeholder="0XX-XXX-XXXX" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">อีเมล</Label>
-            <Input value={form.email} onChange={set("email")} placeholder="example@email.com" type="email" />
+            <Input value={form.email} onChange={set("email")} placeholder="email@example.com" type="email" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Line ID</Label>
-            <Input value={form.contact_line} onChange={set("contact_line")} placeholder="@unfinishedhouse" />
+            <Input value={form.contact_line} onChange={set("contact_line")} placeholder="@lineid" />
           </div>
         </div>
       </div>
@@ -154,20 +154,20 @@ export function IssuerForm({ issuer }: { issuer?: IssuerProfile }) {
         <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">ข้อมูลบัญชีธนาคาร</h3>
         <div className="space-y-1">
           <Label className="text-xs">ชื่อบัญชี</Label>
-          <Input value={form.account_name} onChange={set("account_name")} placeholder="นายณัฐกานต์ ทาจันทร์" />
+          <Input value={form.account_name} onChange={set("account_name")} placeholder="ชื่อ-นามสกุล บนบัญชี" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs">เลขที่บัญชี</Label>
-          <Input value={form.account_number} onChange={set("account_number")} placeholder="663-2-12832-9" />
+          <Input value={form.account_number} onChange={set("account_number")} placeholder="XXX-X-XXXXX-X" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">ธนาคาร</Label>
-            <Input value={form.bank_name} onChange={set("bank_name")} placeholder="กสิกรไทย" />
+            <Input value={form.bank_name} onChange={set("bank_name")} placeholder="ชื่อธนาคาร" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">สาขา</Label>
-            <Input value={form.bank_branch} onChange={set("bank_branch")} placeholder="เซ็นทรัลแอร์พอร์ต เชียงใหม่" />
+            <Input value={form.bank_branch} onChange={set("bank_branch")} placeholder="ชื่อสาขา" />
           </div>
         </div>
       </div>
