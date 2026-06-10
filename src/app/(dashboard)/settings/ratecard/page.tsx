@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { getAllPackages, getSettings } from "@/actions/ratecard.actions"
 import { getPortfolioItems, getPartners } from "@/actions/portfolio.actions"
-import { getGalleryItems } from "@/actions/gallery.actions"
+import { getAlbums, getGalleryItems } from "@/actions/gallery.actions"
 import { AdminPackages } from "@/components/ratecard/AdminPackages"
 import { AdminSettings } from "@/components/ratecard/AdminSettings"
 import { AdminPortfolio } from "@/components/ratecard/AdminPortfolio"
@@ -10,12 +10,13 @@ import { AdminGallery } from "@/components/ratecard/AdminGallery"
 import { ExternalLink } from "lucide-react"
 
 export default async function AdminRateCardPage() {
-  const [packages, settings, portfolioItems, partners, galleryItems] = await Promise.all([
+  const [packages, settings, portfolioItems, partners, galleryItems, galleryAlbums] = await Promise.all([
     getAllPackages(),
     getSettings(),
     getPortfolioItems(),
     getPartners(),
     getGalleryItems(),
+    getAlbums(),
   ])
 
   return (
@@ -45,7 +46,7 @@ export default async function AdminRateCardPage() {
       </div>
 
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">
-        <AdminGallery items={galleryItems} />
+        <AdminGallery albums={galleryAlbums} items={galleryItems} />
       </div>
 
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-6">

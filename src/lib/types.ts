@@ -300,9 +300,19 @@ export interface PortfolioItem {
   created_at: string
 }
 
+export interface GalleryAlbum {
+  id: string
+  user_id: string
+  name: string
+  cover_image_url: string | null
+  sort_order: number
+  created_at: string
+}
+
 export interface GalleryItem {
   id: string
   user_id: string
+  album_id: string | null
   image_url: string
   caption: string | null
   sort_order: number
