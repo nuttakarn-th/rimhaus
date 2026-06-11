@@ -121,12 +121,15 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
           </div>
 
           {/* Floating dropdown card */}
-          {menuOpen && (
-            <div className={`sm:hidden absolute right-4 top-full mt-2 w-56 rounded-2xl shadow-2xl overflow-hidden z-50 ${
-              ghost
-                ? "bg-[hsl(25,20%,14%)]/95 backdrop-blur-xl border border-white/10"
-                : "bg-white border border-[hsl(35,20%,88%)]"
-            }`}>
+          <div className={`sm:hidden absolute right-4 top-full mt-2 w-56 rounded-2xl shadow-2xl overflow-hidden z-50 transition-all duration-200 ease-out origin-top-right ${
+            menuOpen
+              ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
+          } ${
+            ghost
+              ? "bg-[hsl(25,20%,14%)]/95 backdrop-blur-xl border border-white/10"
+              : "bg-white border border-[hsl(35,20%,88%)]"
+          }`}>
               {/* Nav items */}
               <div className="p-2 space-y-0.5">
                 {visibleItems.map(item => {
@@ -172,7 +175,6 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 </div>
               )}
             </div>
-          )}
         </div>
       </header>
 

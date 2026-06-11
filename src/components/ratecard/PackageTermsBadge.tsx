@@ -11,7 +11,7 @@ export function PackageTermsBadge({ name, terms }: { name: string; terms: string
     <>
       <button
         onClick={e => { e.preventDefault(); e.stopPropagation(); setOpen(true) }}
-        className="inline-flex items-center gap-1 text-[10px] font-semibold text-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,38%)] transition-colors"
+        className="inline-flex items-center gap-1 text-[10px] font-semibold text-[hsl(24,85%,35%)] hover:text-[hsl(24,85%,25%)] transition-colors"
       >
         <ScrollText className="w-3 h-3" />
         ดูเงื่อนไข

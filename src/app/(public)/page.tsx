@@ -108,7 +108,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
             {pkg.sub_items.map((item, i) => (
               <div key={i} className="flex justify-between items-center text-xs">
                 <span className="text-[hsl(25,10%,50%)]">{item.label}</span>
-                <span className="font-bold text-[hsl(24,85%,50%)]">{formatCurrency(item.price)}</span>
+                <span className="font-bold text-[hsl(24,85%,35%)]">{formatCurrency(item.price)}</span>
               </div>
             ))}
           </div>
@@ -150,7 +150,7 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
         {title}
       </h2>
       {sub && <p className="text-xs text-[hsl(25,10%,55%)]">{sub}</p>}
-      {tag && <span className="text-xs font-bold text-[hsl(24,85%,50%)] bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
+      {tag && <span className="text-xs font-bold text-[hsl(24,85%,35%)] bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
     </div>
   )
 }
