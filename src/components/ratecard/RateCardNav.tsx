@@ -35,6 +35,13 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
 
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false) }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [menuOpen])
+
   const ghost = isHome && !scrolled
 
   const navItems = [
@@ -101,6 +108,8 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
               <button
                 onClick={() => setMenuOpen(o => !o)}
                 aria-label="เมนู"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
                 className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 ${
                   menuOpen
                     ? ghost ? "bg-white/20 text-white" : "bg-secondary text-foreground"
@@ -121,7 +130,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
           </div>
 
           {/* Floating dropdown card */}
-          <div className={`sm:hidden absolute right-4 top-full mt-2 w-56 rounded-2xl shadow-2xl overflow-hidden z-50 transition-all duration-200 ease-out origin-top-right ${
+          <div id="mobile-menu" className={`sm:hidden absolute right-4 top-full mt-2 w-56 rounded-2xl shadow-2xl overflow-hidden z-50 transition-all duration-200 ease-out origin-top-right ${
             menuOpen
               ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
               : "opacity-0 scale-95 -translate-y-1 pointer-events-none"

@@ -56,6 +56,12 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-foreground focus:text-white focus:text-sm focus:font-bold focus:shadow-lg"
+      >
+        ข้ามไปยังเนื้อหาหลัก
+      </a>
       <RateCardNav
         pageName={settings?.page_name ?? "Rimhaus"}
         hasPortfolio={portfolioItems.length > 0}
@@ -63,7 +69,7 @@ export default async function PublicLayout({ children }: { children: React.React
         hasGallery={galleryItems.length > 0}
         contactLine={settings?.contact_line ?? null}
       />
-      {children}
+      <main id="main-content">{children}</main>
     </div>
   )
 }
