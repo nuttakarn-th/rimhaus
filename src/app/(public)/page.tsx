@@ -99,7 +99,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
           )}
         </div>
       )}
-      <div className="p-3 flex flex-col gap-1.5 flex-1 text-center">
+      <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1 text-center">
         <h3 className="font-black text-foreground text-sm leading-snug">{pkg.name}</h3>
         {pkg.description && (
           <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug sm:leading-relaxed">{pkg.description}</p>
@@ -395,8 +395,17 @@ export default async function HomePage() {
       )}
 
       <ScrollReveal>
+      <div className="py-2 sm:py-4 flex items-center gap-4" aria-hidden="true">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-border" />
+        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">ราคา</span>
+        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-border" />
+      </div>
+      </ScrollReveal>
+
+      <ScrollReveal>
       <section>
-        <div className="flex flex-col items-center mb-4 text-center">
+        <div className="flex flex-col items-center mb-4 text-center gap-2">
+          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
           <h2
             className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
             style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
