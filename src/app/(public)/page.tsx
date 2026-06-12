@@ -177,7 +177,7 @@ export default async function HomePage() {
     <>
       {/* ── Full-screen Hero ──────────────────────────────── */}
       <section
-        className="relative overflow-hidden w-full -mt-14 aspect-square sm:aspect-auto sm:min-h-screen bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white"
+        className="relative overflow-hidden w-full -mt-14 aspect-square sm:aspect-auto sm:min-h-[620px] sm:max-h-[72vh] lg:min-h-screen lg:max-h-none bg-gradient-to-br from-[hsl(25,20%,12%)] via-[hsl(22,25%,18%)] to-[hsl(30,20%,14%)] text-white"
         style={settings?.hero_bg_image_url ? { backgroundImage: `url(${settings.hero_bg_image_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
       >
         {settings?.hero_bg_image_url && (
@@ -190,7 +190,7 @@ export default async function HomePage() {
           </>
         )}
 
-        <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-14 space-y-3">
+        <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-12 sm:pb-14 lg:pb-20 space-y-3">
           <div className="hero-anim hero-anim-1">
             <h1
               className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
