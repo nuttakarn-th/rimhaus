@@ -2,7 +2,7 @@ import { PDFDocument, rgb } from "pdf-lib"
 import * as fontkit from "@pdf-lib/fontkit"
 import { getDocument } from "@/actions/documents.actions"
 import { buildDocFilename, bahtText } from "@/lib/utils"
-import { THAI_FONT_REGULAR, THAI_FONT_BOLD } from "@/lib/thai-fonts-woff2"
+import { NOTO_SANS_THAI_REGULAR, NOTO_SANS_THAI_BOLD } from "@/lib/pdf-fonts"
 
 const MM = 2.834645 // 1mm in points
 const W = 595.28   // A4 width
@@ -35,8 +35,10 @@ export async function GET(
     const pdfDoc = await PDFDocument.create()
     pdfDoc.registerFontkit(fontkit)
 
-    const font = await pdfDoc.embedFont(Buffer.from(THAI_FONT_REGULAR, "base64"))
-    const fontB = await pdfDoc.embedFont(Buffer.from(THAI_FONT_BOLD, "base64"))
+    const notoRegular = Buffer.from(NOTO_SANS_THAI_REGULAR.replace("data:font/truetype;base64,", ""), "base64")
+    const notoBold = Buffer.from(NOTO_SANS_THAI_BOLD.replace("data:font/truetype;base64,", ""), "base64")
+    const font = await pdfDoc.embedFont(notoRegular)
+    const fontB = await pdfDoc.embedFont(notoBold)
 
     const page = pdfDoc.addPage([W, H])
 

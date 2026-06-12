@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
-import { IBM_Plex_Sans_Thai, Inter } from "next/font/google"
+import { Noto_Sans_Thai, Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 
-const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-ibm-plex-thai",
+  variable: "--font-noto-thai",
 })
 
 const inter = Inter({
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`h-full ${ibmPlexSansThai.variable} ${inter.variable}`}>
+    <html lang="th" className={`h-full ${notoSansThai.variable} ${inter.variable}`}>
       <body className="h-full antialiased font-sans">
         {children}
         <Toaster richColors position="top-right" />
