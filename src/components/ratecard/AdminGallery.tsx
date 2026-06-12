@@ -9,7 +9,6 @@ import {
 } from "@/actions/gallery.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Trash2, Plus, Upload, GripVertical, ChevronLeft, FolderOpen, Pencil, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import type { GalleryAlbum, GalleryItem } from "@/lib/types"
@@ -299,10 +298,8 @@ function AlbumDetail({
   router: ReturnType<typeof useRouter>
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [caption, setCaption] = useState("")
-  const [previewUrl, setPreviewUrl] = useState("")
   const [uploading, setUploading] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
 
@@ -377,44 +374,46 @@ function AlbumDetail({
   }, [album.id, setItems])
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+
     setUploading(true)
-    const blob = await compressToTarget(file, MAX_BYTES)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setUploading(false); return }
-    const path = `${user.id}/gallery/${Date.now()}.jpg`
-    const { error } = await supabase.storage.from("rate-card").upload(path, blob, { upsert: false, contentType: "image/jpeg" })
-    if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploading(false); return }
-    const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
-    setPreviewUrl(publicUrl)
-    toast.success(`อัปโหลดสำเร็จ (${(blob.size / 1024).toFixed(0)}KB)`)
-    setUploading(false)
-  }
 
-  async function handleAdd() {
-    if (!previewUrl) { toast.error("กรุณาอัปโหลดรูปก่อน"); return }
-    setSaving(true)
-    const result = await upsertGalleryItem({
-      image_url: previewUrl,
-      caption: caption.trim() || null,
-      album_id: album.id,
-      sort_order: items.length,
-    })
-    setSaving(false)
-    if (!result.success) { toast.error(result.error); return }
-    toast.success("เพิ่มรูปสำเร็จ")
+    let successCount = 0
+    const baseOrder = itemsRef.current.filter(i => i.album_id === album.id).length
 
-    // Update cover if first image
-    if (items.length === 0) {
-      await upsertAlbum({ id: album.id, name: album.name, cover_image_url: previewUrl })
-      setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, cover_image_url: previewUrl } : a))
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress(`${i + 1}/${files.length}`)
+      const blob = await compressToTarget(files[i], MAX_BYTES)
+      const path = `${user.id}/gallery/${Date.now()}-${i}.jpg`
+      const { error: uploadErr } = await supabase.storage.from("rate-card").upload(path, blob, { upsert: false, contentType: "image/jpeg" })
+      if (uploadErr) { toast.error(`รูปที่ ${i + 1}: อัปโหลดไม่สำเร็จ`); continue }
+      const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
+
+      const result = await upsertGalleryItem({
+        image_url: publicUrl,
+        caption: null,
+        album_id: album.id,
+        sort_order: baseOrder + successCount,
+      })
+      if (!result.success) { toast.error(result.error); continue }
+
+      if (baseOrder === 0 && successCount === 0) {
+        await upsertAlbum({ id: album.id, name: album.name, cover_image_url: publicUrl })
+        setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, cover_image_url: publicUrl } : a))
+      }
+
+      setItems(prev => [...prev, result.data])
+      successCount++
     }
 
-    setItems(prev => [...prev, result.data])
-    setPreviewUrl("")
-    setCaption("")
+    if (successCount > 0)
+      toast.success(files.length === 1 ? "เพิ่มรูปสำเร็จ" : `เพิ่ม ${successCount}/${files.length} รูปสำเร็จ`)
+    setUploading(false)
+    setUploadProgress("")
     if (fileRef.current) fileRef.current.value = ""
     router.refresh()
   }
@@ -489,35 +488,29 @@ function AlbumDetail({
       )}
 
       <div className="border border-[hsl(35,20%,88%)] rounded-xl p-4 space-y-3 bg-white">
-        <p className="text-xs font-semibold text-[hsl(25,20%,25%)]">เพิ่มรูปใหม่</p>
-        <div className="space-y-1">
-          <Label className="text-xs">
-            รูปภาพ{" "}
-            <span className="text-[hsl(25,10%,55%)] font-normal">— บีบอัดให้ ≤100KB อัตโนมัติ</span>
-          </Label>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-          {previewUrl ? (
-            <div className="flex items-center gap-3 p-2 rounded-lg border border-[hsl(35,20%,88%)] bg-[hsl(35,30%,97%)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewUrl} alt="preview" className="h-12 w-12 object-cover border rounded" />
-              <span className="text-xs text-[hsl(25,10%,55%)] flex-1">อัปโหลดแล้ว</span>
-              <button onClick={() => { setPreviewUrl(""); if (fileRef.current) fileRef.current.value = "" }} className="text-xs text-red-500 hover:text-red-700">ลบ</button>
-            </div>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-[hsl(25,20%,25%)]">เพิ่มรูปใหม่</p>
+          <span className="text-[10px] text-[hsl(25,10%,55%)]">บีบอัดให้ ≤100KB อัตโนมัติ</span>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="w-full flex flex-col items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-[hsl(35,20%,85%)] hover:border-[hsl(24,85%,55%)] hover:bg-orange-50/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {uploading ? (
+            <>
+              <div className="w-6 h-6 rounded-full border-2 border-[hsl(24,85%,50%)] border-t-transparent animate-spin" />
+              <span className="text-xs font-medium text-[hsl(25,20%,40%)]">กำลังอัปโหลด {uploadProgress}...</span>
+            </>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              <Upload className="w-3.5 h-3.5 mr-1.5" />
-              {uploading ? "กำลังอัปโหลด..." : "อัปโหลดรูป"}
-            </Button>
+            <>
+              <Upload className="w-5 h-5 text-[hsl(25,10%,55%)]" />
+              <span className="text-xs font-medium text-[hsl(25,20%,40%)]">เลือกรูปภาพ</span>
+              <span className="text-[10px] text-[hsl(25,10%,60%)]">เลือกได้หลายรูปพร้อมกัน</span>
+            </>
           )}
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">คำอธิบาย (optional)</Label>
-          <Input value={caption} onChange={e => setCaption(e.target.value)} placeholder="คำบรรยายรูป" />
-        </div>
-        <Button size="sm" onClick={handleAdd} disabled={saving || !previewUrl}>
-          <Plus className="w-3.5 h-3.5 mr-1" />
-          {saving ? "กำลังบันทึก..." : "เพิ่มรูป"}
-        </Button>
+        </button>
       </div>
     </div>
   )
