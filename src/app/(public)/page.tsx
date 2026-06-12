@@ -430,9 +430,9 @@ export default async function HomePage() {
       {grouped.barter.length > 0 && (
         <section>
           <SectionHeader title="Barter" />
-          <div className="rounded-2xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5">
+          <div className="rounded-2xl border-2 border-[hsl(35,60%,80%)] bg-gradient-to-br from-[hsl(40,60%,97%)] to-[hsl(35,50%,93%)] p-5">
             {grouped.barter[0].description && (
-              <p className="text-sm text-violet-700 leading-relaxed">{grouped.barter[0].description}</p>
+              <p className="text-sm text-[hsl(25,30%,35%)] leading-relaxed">{grouped.barter[0].description}</p>
             )}
           </div>
         </section>
