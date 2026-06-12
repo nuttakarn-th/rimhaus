@@ -110,7 +110,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 aria-label="เมนู"
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"
-                className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 ${
+                className={`sm:hidden w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 ${
                   menuOpen
                     ? ghost ? "bg-white/20 text-white" : "bg-secondary text-foreground"
                     : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-secondary"

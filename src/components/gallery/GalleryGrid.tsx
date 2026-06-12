@@ -1,15 +1,26 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import type { GalleryItem } from "@/lib/types"
 
 export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [index, setIndex] = useState<number | null>(null)
+  const touchStartX = useRef<number | null>(null)
 
   const close = useCallback(() => setIndex(null), [])
   const prev = useCallback(() => setIndex(i => i !== null ? (i - 1 + items.length) % items.length : null), [items.length])
   const next = useCallback(() => setIndex(i => i !== null ? (i + 1) % items.length : null), [items.length])
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 48) dx > 0 ? prev() : next()
+    touchStartX.current = null
+  }
 
   useEffect(() => {
     if (index === null) return
@@ -32,7 +43,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {items.map((item, i) => (
           <button
             key={item.id}
@@ -59,6 +70,8 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={close}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close */}
           <button

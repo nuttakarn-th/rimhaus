@@ -132,7 +132,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         )}
       </div>
       {pkg.terms && (
-        <div className="border-t border-border px-3 py-2 flex justify-center">
+        <div className="border-t border-border px-3 flex items-center justify-center min-h-[44px]">
           <PackageTermsBadge name={pkg.name} terms={pkg.terms} />
         </div>
       )}
@@ -428,7 +428,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section>
           <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
