@@ -1,11 +1,14 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import type { ActionResult, GalleryAlbum, GalleryItem } from "@/lib/types"
 
 const PATHS = ["/", "/gallery", "/settings/ratecard"]
-function revalidateAll() { PATHS.forEach(p => revalidatePath(p)) }
+function revalidateAll() {
+  PATHS.forEach(p => revalidatePath(p))
+  revalidateTag("public-gallery", "default")
+}
 
 // ── Albums ────────────────────────────────────────────────────────
 

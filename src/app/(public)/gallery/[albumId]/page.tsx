@@ -1,14 +1,12 @@
-export const dynamic = "force-dynamic"
-
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getAlbumsWithItems } from "@/actions/gallery.actions"
+import { getPublicAlbumsWithItems } from "@/lib/public-data"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import { ChevronLeft } from "lucide-react"
 
 export default async function AlbumPage({ params }: { params: Promise<{ albumId: string }> }) {
   const { albumId } = await params
-  const albums = await getAlbumsWithItems()
+  const albums = await getPublicAlbumsWithItems()
   const album = albums.find(a => a.id === albumId)
   if (!album) notFound()
 

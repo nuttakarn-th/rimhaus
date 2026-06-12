@@ -1,9 +1,8 @@
-export const dynamic = "force-dynamic"
-
-import { getPartners } from "@/actions/portfolio.actions"
+import Image from "next/image"
+import { getPublicPartners } from "@/lib/public-data"
 
 export default async function PartnersPage() {
-  const partners = await getPartners()
+  const partners = await getPublicPartners()
 
   if (partners.length === 0) {
     return (
@@ -26,10 +25,11 @@ export default async function PartnersPage() {
             key={p.id}
             className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-4 flex flex-col items-center gap-2 hover:shadow-md transition-shadow"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={p.logo_url}
               alt={p.name ?? "Partner"}
+              width={112}
+              height={56}
               className="h-14 w-full object-contain"
             />
             {p.name && (

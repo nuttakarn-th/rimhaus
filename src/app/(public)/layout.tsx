@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
-import { getSettings } from "@/actions/ratecard.actions"
-import { getPortfolioItems, getPartners } from "@/actions/portfolio.actions"
-import { getGalleryItems } from "@/actions/gallery.actions"
+import { getPublicSettings, getPublicPortfolioItems, getPublicPartners, getPublicGalleryItems } from "@/lib/public-data"
 import { RateCardNav } from "@/components/ratecard/RateCardNav"
 
 const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -11,7 +9,7 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
     : "http://localhost:3000"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings()
+  const settings = await getPublicSettings()
 
   const title = settings?.og_title || settings?.page_name || "Rate Card"
   const description = settings?.og_description || `Rate Card ของ ${settings?.page_name ?? "Content Creator"}`
@@ -48,10 +46,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const [settings, portfolioItems, partners, galleryItems] = await Promise.all([
-    getSettings(),
-    getPortfolioItems(),
-    getPartners(),
-    getGalleryItems(),
+    getPublicSettings(),
+    getPublicPortfolioItems(),
+    getPublicPartners(),
+    getPublicGalleryItems(),
   ])
 
   return (
@@ -69,7 +67,7 @@ export default async function PublicLayout({ children }: { children: React.React
         hasGallery={galleryItems.length > 0}
         contactLine={settings?.contact_line ?? null}
       />
-      <main id="main-content">{children}</main>
+      <main id="main-content" className="page-enter">{children}</main>
     </div>
   )
 }

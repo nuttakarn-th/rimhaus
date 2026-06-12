@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import type { ActionResult, RateCardPackage, RateCardSettings } from "@/lib/types"
 
 export async function getPackages(): Promise<RateCardPackage[]> {
@@ -48,6 +48,7 @@ export async function upsertPackage(
   if (error) return { success: false, error: error.message }
   revalidatePath("/")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-packages", "default")
   return { success: true, data: pkg as RateCardPackage }
 }
 
@@ -60,6 +61,7 @@ export async function deletePackage(id: string): Promise<ActionResult<void>> {
   if (error) return { success: false, error: error.message }
   revalidatePath("/")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-packages", "default")
   return { success: true, data: undefined }
 }
 
@@ -77,6 +79,7 @@ export async function reorderPackages(
   )
   revalidatePath("/")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-packages", "default")
   return { success: true, data: undefined }
 }
 
@@ -96,5 +99,6 @@ export async function upsertSettings(
   if (error) return { success: false, error: error.message }
   revalidatePath("/")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-settings", "default")
   return { success: true, data: settings as RateCardSettings }
 }

@@ -236,9 +236,17 @@ body {
 .hero-anim-2 { animation-delay: 0.28s; }
 .hero-anim-3 { animation-delay: 0.44s; }
 
+/* Page transition */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: page-enter 0.35s ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   .hero-anim { animation: none; }
+  .page-enter { animation: none; }
 }
 
 /* Brief print styles */

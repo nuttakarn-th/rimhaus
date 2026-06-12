@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import type { ActionResult, PortfolioItem, Partner } from "@/lib/types"
 
 export async function getPortfolioItems(): Promise<PortfolioItem[]> {
@@ -27,8 +27,10 @@ export async function upsertPortfolioItem(
     : await supabase.from("portfolio_items").insert(payload).select().single()
 
   if (error) return { success: false, error: error.message }
+  revalidatePath("/")
   revalidatePath("/portfolio")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-portfolio", "default")
   return { success: true, data: item as PortfolioItem }
 }
 
@@ -42,6 +44,7 @@ export async function reorderPortfolioItems(
   for (const u of updates) {
     await supabase.from("portfolio_items").update({ sort_order: u.sort_order }).eq("id", u.id).eq("user_id", user.id)
   }
+  revalidatePath("/")
   revalidatePath("/portfolio")
   revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
@@ -54,6 +57,7 @@ export async function deletePortfolioItem(id: string): Promise<ActionResult<void
 
   const { error } = await supabase.from("portfolio_items").delete().eq("id", id).eq("user_id", user.id)
   if (error) return { success: false, error: error.message }
+  revalidatePath("/")
   revalidatePath("/portfolio")
   revalidatePath("/settings/ratecard")
   return { success: true, data: undefined }
@@ -81,8 +85,10 @@ export async function upsertPartner(
     : await supabase.from("partners").insert(payload).select().single()
 
   if (error) return { success: false, error: error.message }
+  revalidatePath("/")
   revalidatePath("/partners")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-partners", "default")
   return { success: true, data: partner as Partner }
 }
 
@@ -93,8 +99,10 @@ export async function deletePartner(id: string): Promise<ActionResult<void>> {
 
   const { error } = await supabase.from("partners").delete().eq("id", id).eq("user_id", user.id)
   if (error) return { success: false, error: error.message }
+  revalidatePath("/")
   revalidatePath("/partners")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-partners", "default")
   return { success: true, data: undefined }
 }
 
@@ -110,7 +118,9 @@ export async function reorderPartners(orderedIds: string[]): Promise<ActionResul
   const failed = results.find(r => r.error)
   if (failed?.error) return { success: false, error: failed.error.message }
 
+  revalidatePath("/")
   revalidatePath("/partners")
   revalidatePath("/settings/ratecard")
+  revalidateTag("public-partners", "default")
   return { success: true, data: undefined }
 }

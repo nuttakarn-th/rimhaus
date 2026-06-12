@@ -194,6 +194,8 @@ export interface RateCardSettings {
   og_description: string | null
   og_image_url: string | null
   show_calculator: boolean
+  stat_followers: string | null
+  stat_engagement: string | null
   updated_at: string
 }
 

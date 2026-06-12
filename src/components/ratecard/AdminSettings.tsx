@@ -41,6 +41,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     og_description: settings?.og_description ?? "",
     og_image_url: settings?.og_image_url ?? "",
     show_calculator: settings?.show_calculator ?? true,
+    stat_followers: settings?.stat_followers ?? "",
+    stat_engagement: settings?.stat_engagement ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -168,6 +170,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       og_description: form.og_description || null,
       og_image_url: form.og_image_url || null,
       show_calculator: form.show_calculator,
+      stat_followers: form.stat_followers || null,
+      stat_engagement: form.stat_engagement || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -302,6 +306,24 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         <div className="space-y-1">
           <Label className="text-xs">หัวข้อรอง</Label>
           <Input value={form.hero_subtitle} onChange={e => setForm(p => ({ ...p, hero_subtitle: e.target.value }))} placeholder="Home & Living Creator · แต่งบ้านไม่มีวันพอ" />
+        </div>
+      </div>
+
+      {/* Social proof stats */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
+        <div>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">สถิติ Social (แสดงใน Hero)</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ตัวเลขที่แสดงใต้หัวข้อ Banner เพื่อสร้าง social proof ให้ลูกค้า</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">จำนวนผู้ติดตาม</Label>
+            <Input value={form.stat_followers} onChange={e => setForm(p => ({ ...p, stat_followers: e.target.value }))} placeholder="44K ไลค์" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Engagement Rate</Label>
+            <Input value={form.stat_engagement} onChange={e => setForm(p => ({ ...p, stat_engagement: e.target.value }))} placeholder="5.2%" />
+          </div>
         </div>
       </div>
 

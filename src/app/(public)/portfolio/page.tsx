@@ -1,6 +1,5 @@
-export const dynamic = "force-dynamic"
-
-import { getPortfolioItems } from "@/actions/portfolio.actions"
+import Image from "next/image"
+import { getPublicPortfolioItems } from "@/lib/public-data"
 import type { PortfolioItem } from "@/lib/types"
 
 // ─── Video Card — 9:16, Inter ExtraBold title centered large ────────────────
@@ -16,8 +15,7 @@ function VideoCard({ item }: { item: PortfolioItem }) {
     >
       {/* Thumbnail */}
       {item.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.image_url} alt={item.title ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+        <Image src={item.image_url} alt={item.title ?? ""} fill className="object-cover" sizes="(max-width: 640px) 33vw, 25vw" />
       ) : (
         <div className="absolute inset-0 bg-[hsl(25,15%,14%)]" />
       )}
@@ -64,8 +62,7 @@ function PhotoCard({ item }: { item: PortfolioItem }) {
     >
       {/* Thumbnail */}
       {item.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.image_url} alt={item.title ?? ""} className="absolute inset-0 w-full h-full object-cover" />
+        <Image src={item.image_url} alt={item.title ?? ""} fill className="object-cover" sizes="(max-width: 640px) 33vw, 25vw" />
       ) : (
         <div className="absolute inset-0 bg-[hsl(35,20%,90%)] flex items-center justify-center">
           <svg className="w-8 h-8 text-[hsl(35,20%,75%)]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -94,7 +91,7 @@ function PhotoCard({ item }: { item: PortfolioItem }) {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function PortfolioPage() {
-  const items = await getPortfolioItems()
+  const items = await getPublicPortfolioItems()
   const videos = items.filter(i => i.type === "video")
   const photos = items.filter(i => i.type === "photo")
 

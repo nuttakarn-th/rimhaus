@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import Image from "next/image"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
 import type { GalleryItem } from "@/lib/types"
 
@@ -50,11 +51,12 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
             onClick={() => setIndex(i)}
             className="relative group overflow-hidden rounded-2xl aspect-square bg-[hsl(35,30%,93%)] cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-[hsl(24,85%,50%)]"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={item.image_url}
               alt={item.caption ?? ""}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 640px) 50vw, 33vw"
             />
             {item.caption && (
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,12 +1,11 @@
-export const dynamic = "force-dynamic"
-
 import Link from "next/link"
-import { getAlbumsWithItems } from "@/actions/gallery.actions"
+import Image from "next/image"
+import { getPublicAlbumsWithItems } from "@/lib/public-data"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import { FolderOpen } from "lucide-react"
 
 export default async function GalleryPage() {
-  const albums = await getAlbumsWithItems()
+  const albums = await getPublicAlbumsWithItems()
 
   if (albums.length === 0) {
     return (
@@ -41,11 +40,12 @@ export default async function GalleryPage() {
                 {/* Cover image */}
                 <div className="aspect-[4/3] bg-[hsl(35,30%,93%)] relative overflow-hidden">
                   {cover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={cover.image_url}
                       alt={album.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, 33vw"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -56,7 +56,6 @@ export default async function GalleryPage() {
                   {album.items.length > 1 && (
                     <div className="absolute bottom-0 inset-x-0 h-2 flex gap-0.5 px-1 pb-1">
                       {album.items.slice(1, 4).map((item, i) => (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           key={i}
                           src={item.image_url}

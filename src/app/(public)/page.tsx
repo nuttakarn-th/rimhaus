@@ -1,9 +1,6 @@
-export const dynamic = "force-dynamic"
-
 import Link from "next/link"
-import { getPackages, getSettings } from "@/actions/ratecard.actions"
-import { getPortfolioItems, getPartners } from "@/actions/portfolio.actions"
-import { getGalleryItems } from "@/actions/gallery.actions"
+import Image from "next/image"
+import { getPublicSettings, getPublicPackages, getPublicPortfolioItems, getPublicPartners, getPublicGalleryItems } from "@/lib/public-data"
 import { formatCurrency } from "@/lib/utils"
 import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
@@ -45,8 +42,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
                 const logo = platformLogos?.[p]
                 return logo ? (
                   <div key={p} className="w-6 h-6 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={logo} alt={p} className="w-full h-full object-cover" />
+                    <Image src={logo} alt={p} width={24} height={24} className="object-cover" />
                   </div>
                 ) : (
                   <PlatformBubble key={p} platform={p} size={24} noHover />
@@ -159,11 +155,11 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
 // ── Page ──────────────────────────────────────────────────────────
 export default async function HomePage() {
   const [packages, settings, portfolioItems, partners, galleryItems] = await Promise.all([
-    getPackages(),
-    getSettings(),
-    getPortfolioItems(),
-    getPartners(),
-    getGalleryItems(),
+    getPublicPackages(),
+    getPublicSettings(),
+    getPublicPortfolioItems(),
+    getPublicPartners(),
+    getPublicGalleryItems(),
   ])
 
   const grouped = {
@@ -209,27 +205,41 @@ export default async function HomePage() {
             )}
           </div>
 
-          <div className="flex justify-center gap-2 flex-wrap hero-anim hero-anim-2">
-            {PLATFORMS.map(p => {
-              const logoUrl = settings?.platform_logos?.[p]
-              const platformUrl = settings?.platform_urls?.[p]
-              const bubble = logoUrl ? (
-                <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={logoUrl} alt={p} className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
-              )
-              return platformUrl ? (
-                <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
-                   className="transition-transform hover:scale-110 rounded-full">
-                  {bubble}
-                </a>
-              ) : (
-                <span key={p}>{bubble}</span>
-              )
-            })}
+          <div className="hero-anim hero-anim-2 space-y-2">
+            {(settings?.stat_followers || settings?.stat_engagement) && (
+              <div className="flex items-center justify-center gap-3 text-white/75 text-xs font-medium flex-wrap">
+                {settings.stat_followers && (
+                  <span><span className="font-black text-white text-sm">{settings.stat_followers}</span> ผู้ติดตาม</span>
+                )}
+                {settings.stat_followers && settings.stat_engagement && (
+                  <span className="text-white/30">·</span>
+                )}
+                {settings.stat_engagement && (
+                  <span><span className="font-black text-white text-sm">{settings.stat_engagement}</span> engagement</span>
+                )}
+              </div>
+            )}
+            <div className="flex justify-center gap-2 flex-wrap">
+              {PLATFORMS.map(p => {
+                const logoUrl = settings?.platform_logos?.[p]
+                const platformUrl = settings?.platform_urls?.[p]
+                const bubble = logoUrl ? (
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
+                    <Image src={logoUrl} alt={p} width={28} height={28} className="object-cover" />
+                  </div>
+                ) : (
+                  <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
+                )
+                return platformUrl ? (
+                  <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
+                     className="transition-transform hover:scale-110 rounded-full">
+                    {bubble}
+                  </a>
+                ) : (
+                  <span key={p}>{bubble}</span>
+                )
+              })}
+            </div>
           </div>
 
 
@@ -256,8 +266,7 @@ export default async function HomePage() {
           >
             {partners.map(p => (
               <div key={p.id} className="flex flex-col items-center gap-1 w-14 sm:w-auto">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.logo_url} alt={p.name ?? ""} className="h-6 w-14 sm:w-full sm:max-w-[72px] object-contain mx-auto" />
+                <Image src={p.logo_url} alt={p.name ?? ""} width={72} height={24} className="h-6 w-14 sm:w-full sm:max-w-[72px] object-contain mx-auto" />
                 {p.name && (
                   <span className="text-[8px] text-ink-dim text-center leading-tight line-clamp-1">{p.name}</span>
                 )}
@@ -278,10 +287,9 @@ export default async function HomePage() {
             {videos.map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0 group block">
                 <div className="relative w-28 overflow-hidden rounded-2xl bg-foreground shadow-md">
-                  <div className="aspect-[9/16]">
+                  <div className="relative aspect-[9/16]">
                     {item.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.image_url} alt={item.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Image src={item.image_url} alt={item.title ?? ""} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="112px" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="white" opacity="0.5"><path d="M8 5v14l11-7z"/></svg>
@@ -304,7 +312,7 @@ export default async function HomePage() {
           </div>
           <div className="text-center mt-4">
             <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
-              ดูตัวอย่างเพิ่มเติม →
+              ดูผลงานวิดีโอทั้งหมด →
             </Link>
           </div>
         </section>
@@ -319,10 +327,9 @@ export default async function HomePage() {
             {photos.slice(0, 8).map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer"
                  className="group relative block overflow-hidden rounded-xl bg-secondary shadow-sm">
-                <div className="aspect-[3/4]">
+                <div className="relative aspect-[3/4]">
                   {item.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.image_url} alt={item.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <Image src={item.image_url} alt={item.title ?? ""} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 33vw, 25vw" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(25,10%,70%)" strokeWidth="1.5">
@@ -341,20 +348,11 @@ export default async function HomePage() {
               </a>
             ))}
           </div>
-          {photos.length > 8 && (
-            <div className="text-center mt-4">
-              <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
-                ดูเพิ่มเติม ({photos.length} รูป) →
-              </Link>
-            </div>
-          )}
-          {photos.length <= 8 && (
-            <div className="text-center mt-4">
-              <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
-                ดูตัวอย่าง Content ทั้งหมด →
-              </Link>
-            </div>
-          )}
+          <div className="text-center mt-4">
+            <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
+              {photos.length > 8 ? `ชม Content ทั้งหมด (${photos.length} รูป) →` : "ชม Portfolio ทั้งหมด →"}
+            </Link>
+          </div>
         </section>
         </ScrollReveal>
       )}
@@ -388,7 +386,7 @@ export default async function HomePage() {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
             </svg>
-            ติดต่อผ่าน LINE: {settings.contact_line}
+            สอบถามราคา / จองคิว ผ่าน LINE
           </a>
         </section>
         </ScrollReveal>
@@ -415,8 +413,7 @@ export default async function HomePage() {
         </div>
         {settings?.image_url && (
           <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
+            <Image src={settings.image_url} alt="Rate Card" width={800} height={600} className="w-full h-auto object-contain" />
           </div>
         )}
       </section>
