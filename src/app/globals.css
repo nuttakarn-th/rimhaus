@@ -71,7 +71,7 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   --radius: var(--radius);
-  --font-sans: var(--font-noto-thai), sans-serif;
+  --font-sans: var(--font-ibm-plex-thai), sans-serif;
 }
 
 * {
