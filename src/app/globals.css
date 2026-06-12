@@ -215,6 +215,32 @@ body {
 .ProseMirror th { background: hsl(35 25% 94%); font-weight: 600; }
 .ProseMirror .selectedCell { background: hsl(24 85% 95%); }
 
+/* ── Scroll reveal ─────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero entrance */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-anim { animation: hero-fade-up 0.7s ease-out both; }
+.hero-anim-1 { animation-delay: 0.1s; }
+.hero-anim-2 { animation-delay: 0.28s; }
+.hero-anim-3 { animation-delay: 0.44s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .hero-anim { animation: none; }
+}
+
 /* Brief print styles */
 .brief-print h1 { font-size: 1.4rem; font-weight: 700; margin: 1rem 0 0.5rem; }
 .brief-print h2 { font-size: 1.15rem; font-weight: 700; margin: 1.2rem 0 0.4rem; color: hsl(24 85% 40%); border-bottom: 1px solid hsl(35 20% 80%); padding-bottom: 3px; }

@@ -9,6 +9,7 @@ import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
 import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import type { RateCardPackage } from "@/lib/types"
 
 const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
@@ -194,7 +195,7 @@ export default async function HomePage() {
         )}
 
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-14 space-y-3">
-          <div>
+          <div className="hero-anim hero-anim-1">
             <h1
               className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
@@ -208,7 +209,7 @@ export default async function HomePage() {
             )}
           </div>
 
-          <div className="flex justify-center gap-2 flex-wrap">
+          <div className="flex justify-center gap-2 flex-wrap hero-anim hero-anim-2">
             {PLATFORMS.map(p => {
               const logoUrl = settings?.platform_logos?.[p]
               const platformUrl = settings?.platform_urls?.[p]
@@ -244,6 +245,7 @@ export default async function HomePage() {
       <div className="bg-background">
 
       {partners.length > 0 && (
+        <ScrollReveal>
         <section className="pt-4 sm:pt-5">
           <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">
             แบรนด์ที่เคยร่วมงาน
@@ -263,11 +265,13 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5">
 
       {videos.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" />
           <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
@@ -304,9 +308,11 @@ export default async function HomePage() {
             </Link>
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {photos.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" />
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -350,9 +356,11 @@ export default async function HomePage() {
             </div>
           )}
         </section>
+        </ScrollReveal>
       )}
 
       {previewGallery.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Gallery" />
           <GalleryGrid items={previewGallery} />
@@ -365,9 +373,11 @@ export default async function HomePage() {
             </div>
           )}
         </section>
+        </ScrollReveal>
       )}
 
       {settings?.contact_line && (
+        <ScrollReveal>
         <section>
           <a
             href={`https://line.me/ti/p/~${settings.contact_line}`}
@@ -381,8 +391,10 @@ export default async function HomePage() {
             ติดต่อผ่าน LINE: {settings.contact_line}
           </a>
         </section>
+        </ScrollReveal>
       )}
 
+      <ScrollReveal>
       <section>
         <div className="flex flex-col items-center mb-4 text-center">
           <h2
@@ -399,35 +411,43 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+      </ScrollReveal>
 
       {grouped.per_platform.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Single Platform" />
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.bundle.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.addon.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Additional Services" />
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.barter.length > 0 && (
+        <ScrollReveal>
         <section>
           <SectionHeader title="Barter" />
           <div className="rounded-2xl border-2 border-[hsl(35,60%,80%)] bg-gradient-to-br from-[hsl(40,60%,97%)] to-[hsl(35,50%,93%)] p-5">
@@ -436,19 +456,23 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {/* ── Package Calculator ────────────────────────────── */}
       {settings?.show_calculator !== false && packages.filter(p => p.category !== "barter" && p.price != null).length > 0 && (
+        <ScrollReveal>
         <PackageCalculator
           packages={packages}
           contactLine={settings?.contact_line ?? null}
           pageName={settings?.page_name ?? null}
           platformLogos={settings?.platform_logos ?? {}}
         />
+        </ScrollReveal>
       )}
 
       {settings?.notes && settings.notes.length > 0 && (
+        <ScrollReveal>
         <section className="bg-white rounded-2xl border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-sm">📋</span>
@@ -463,9 +487,11 @@ export default async function HomePage() {
             ))}
           </ul>
         </section>
+        </ScrollReveal>
       )}
 
       {settings && (
+        <ScrollReveal>
         <section className="relative overflow-hidden bg-foreground rounded-2xl p-5 text-white space-y-3">
           <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
           <div className="absolute bottom-0 right-16 w-16 h-16 rounded-full bg-white/5" />
@@ -504,6 +530,7 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       <p className="text-center text-xs text-ink-dim pb-4">
