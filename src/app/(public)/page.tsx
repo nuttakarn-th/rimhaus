@@ -125,7 +125,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
             </div>
           </div>
         ) : (
-          <div className="mt-auto pt-2 border-t border-[hsl(35,25%,92%)] text-sm font-bold text-violet-600">
+          <div className="mt-auto pt-2 border-t border-[hsl(35,25%,92%)] text-sm font-bold text-[hsl(25,20%,20%)]">
             ติดต่อสอบถาม →
           </div>
         )}
