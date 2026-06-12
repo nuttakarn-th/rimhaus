@@ -23,6 +23,8 @@
     --border: 35 20% 88%;
     --input: 35 20% 88%;
     --ring: 24 85% 50%;
+    --brand-tx: 24, 85%, 35%;
+    --ink-dim: 25, 10%, 65%;
     --radius: 0.625rem;
   }
 
@@ -47,6 +49,8 @@
     --border: 220 13% 22%;
     --input: 220 13% 22%;
     --ring: 24 90% 58%;
+    --brand-tx: 24, 85%, 70%;
+    --ink-dim: 0, 0%, 45%;
   }
 }
 
@@ -70,6 +74,8 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-brand-tx: hsl(var(--brand-tx));
+  --color-ink-dim: hsl(var(--ink-dim));
   --radius: var(--radius);
   --font-sans: var(--font-noto-thai), sans-serif;
 }

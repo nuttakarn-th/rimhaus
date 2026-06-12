@@ -50,14 +50,14 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
       <header className={`sticky top-0 z-50 transition-all duration-500 ${
         ghost
           ? "bg-transparent"
-          : "bg-white/95 backdrop-blur-md border-b border-[hsl(35,20%,88%)] shadow-sm"
+          : "bg-white/95 backdrop-blur-md border-b border-border shadow-sm"
       }`}>
         <div className="max-w-4xl mx-auto px-4 relative">
           <div className="h-14 flex items-center justify-between gap-2">
 
             {/* Brand */}
             <span
-              className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-[hsl(25,20%,15%)]"}`}
+              className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-foreground"}`}
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
             >
               unfinished house
@@ -73,8 +73,8 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                     href={item.href}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-300 ${
                       isActive
-                        ? ghost ? "bg-white/20 text-white" : "bg-[hsl(24,85%,50%)] text-white"
-                        : ghost ? "text-white/75 hover:text-white hover:bg-white/10" : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,15%)] hover:bg-[hsl(35,30%,97%)]"
+                        ? ghost ? "bg-white/20 text-white" : "bg-primary text-white"
+                        : ghost ? "text-white/75 hover:text-white hover:bg-white/10" : "text-muted-foreground hover:text-foreground hover:bg-background"
                     }`}
                   >
                     {item.label}
@@ -103,8 +103,8 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                 aria-label="เมนู"
                 className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 ${
                   menuOpen
-                    ? ghost ? "bg-white/20 text-white" : "bg-[hsl(35,25%,92%)] text-[hsl(25,20%,15%)]"
-                    : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)]"
+                    ? ghost ? "bg-white/20 text-white" : "bg-secondary text-foreground"
+                    : ghost ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-secondary"
                 }`}
               >
                 {menuOpen ? (
@@ -127,8 +127,8 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
               : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
           } ${
             ghost
-              ? "bg-[hsl(25,20%,14%)]/95 backdrop-blur-xl border border-white/10"
-              : "bg-white border border-[hsl(35,20%,88%)]"
+              ? "bg-foreground/95 backdrop-blur-xl border border-white/10"
+              : "bg-white border border-border"
           }`}>
               {/* Nav items */}
               <div className="p-2 space-y-0.5">
@@ -143,10 +143,10 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
                         isActive
                           ? ghost
                             ? "bg-white/15 text-white"
-                            : "bg-[hsl(24,85%,50%)] text-white"
+                            : "bg-primary text-white"
                           : ghost
                             ? "text-white/75 hover:bg-white/10 hover:text-white"
-                            : "text-[hsl(25,10%,40%)] hover:bg-[hsl(35,25%,95%)] hover:text-[hsl(25,20%,15%)]"
+                            : "text-muted-foreground hover:bg-background hover:text-foreground"
                       }`}
                     >
                       {item.label}
@@ -162,7 +162,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
 
               {/* Footer: LINE */}
               {contactLine && (
-                <div className={`px-2 pb-2 pt-1 ${ghost ? "border-t border-white/10" : "border-t border-[hsl(35,20%,92%)]"}`}>
+                <div className={`px-2 pb-2 pt-1 ${ghost ? "border-t border-white/10" : "border-t border-border"}`}>
                   <a
                     href={`https://line.me/ti/p/~${contactLine}`}
                     target="_blank"

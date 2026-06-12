@@ -274,12 +274,12 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
       {/* Header */}
       <div className="flex flex-col items-center gap-1 mb-3 text-center">
         <h2
-          className="text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+          className="text-2xl tracking-tight leading-tight text-foreground"
           style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
         >
           Calculate Cost
         </h2>
-        <p className="text-xs text-[hsl(25,10%,55%)]">เลือกแพ็กเกจที่สนใจเพื่อดูราคาล่วงหน้า</p>
+        <p className="text-xs text-muted-foreground">เลือกแพ็กเกจที่สนใจเพื่อดูราคาล่วงหน้า</p>
       </div>
 
       <div className="sm:grid sm:grid-cols-[1fr_300px] sm:gap-5 sm:items-start space-y-4 sm:space-y-0">
@@ -289,7 +289,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
             if (!pkgs.length) return null
             return (
               <div key={cat}>
-                <p className="text-[10px] font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-2 px-1">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">
                   {CATEGORY_LABELS[cat]}
                 </p>
                 <div className="space-y-2">
@@ -301,13 +301,13 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
                         onClick={() => toggle(pkg.id)}
                         className={`w-full text-left flex items-center gap-3 px-4 py-3 sm:py-2 rounded-2xl border-2 transition-all duration-150 ${
                           isOn
-                            ? "border-[hsl(24,85%,50%)] bg-orange-50 shadow-sm"
-                            : "border-[hsl(35,20%,90%)] bg-white hover:border-[hsl(24,85%,60%)] hover:bg-orange-50/30"
+                            ? "border-primary bg-orange-50 shadow-sm"
+                            : "border-border bg-white hover:border-[hsl(24,85%,60%)] hover:bg-orange-50/30"
                         }`}
                       >
                         {/* Checkbox */}
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                          isOn ? "border-[hsl(24,85%,50%)] bg-[hsl(24,85%,50%)]" : "border-[hsl(35,20%,80%)]"
+                          isOn ? "border-primary bg-primary" : "border-border"
                         }`}>
                           {isOn && (
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
@@ -317,7 +317,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
                         </div>
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-bold leading-snug ${isOn ? "text-[hsl(24,85%,40%)]" : "text-[hsl(25,20%,15%)]"}`}>
+                          <p className={`text-sm font-bold leading-snug ${isOn ? "text-brand-tx" : "text-foreground"}`}>
                             {pkg.name}
                           </p>
                           {(pkg.platforms?.length || pkg.content_type) && (
@@ -325,7 +325,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
                               {pkg.platforms?.map(p => {
                                 const logo = platformLogos?.[p]
                                 return logo ? (
-                                  <div key={p} className="w-4 h-4 rounded-full overflow-hidden bg-white border border-[hsl(35,20%,85%)] shrink-0">
+                                  <div key={p} className="w-4 h-4 rounded-full overflow-hidden bg-white border border-border shrink-0">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={logo} alt={p} className="w-full h-full object-cover" />
                                   </div>
@@ -338,18 +338,18 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
                             </div>
                           )}
                           {pkg.description && (
-                            <p className="text-[11px] text-[hsl(25,10%,55%)] mt-0.5 line-clamp-1">{pkg.description}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{pkg.description}</p>
                           )}
                         </div>
                         {/* Price */}
                         <div className="shrink-0 text-right">
                           {pkg.original_price && (
-                            <p className="text-[10px] text-[hsl(25,10%,65%)] line-through">{formatCurrency(pkg.original_price)}</p>
+                            <p className="text-[10px] text-ink-dim line-through">{formatCurrency(pkg.original_price)}</p>
                           )}
-                          <p className={`text-sm font-black ${isOn ? "text-[hsl(24,85%,50%)]" : "text-[hsl(25,20%,25%)]"}`}>
+                          <p className={`text-sm font-black ${isOn ? "text-primary" : "text-muted-foreground"}`}>
                             {formatCurrency(pkg.price!)}
                           </p>
-                          {pkg.unit && <p className="text-[9px] text-[hsl(25,10%,60%)]">{pkg.unit}</p>}
+                          {pkg.unit && <p className="text-[9px] text-ink-dim">{pkg.unit}</p>}
                         </div>
                       </button>
                     )
@@ -361,7 +361,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
 
           {/* Running total bar — mobile only */}
           <div className={`sticky bottom-4 z-10 sm:hidden transition-all duration-300 ${selectedPkgs.length > 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            <div className="bg-[hsl(25,20%,12%)] text-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-2xl">
+            <div className="bg-foreground text-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-2xl">
               <div>
                 <p className="text-[10px] text-white/60">{selectedPkgs.length} แพ็กเกจที่เลือก</p>
                 <p className="text-lg font-black">{formatCurrency(total)}</p>
@@ -396,9 +396,9 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
         {/* RIGHT: Summary card — desktop only, always visible */}
         <div className="hidden sm:block sm:sticky sm:top-4">
           {selectedPkgs.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-[hsl(35,20%,85%)] p-8 text-center">
-              <p className="text-sm text-[hsl(25,10%,60%)]">เลือกแพ็กเกจที่สนใจ</p>
-              <p className="text-xs text-[hsl(25,10%,70%)] mt-1">ราคารวมจะแสดงที่นี่</p>
+            <div className="rounded-2xl border-2 border-dashed border-border p-8 text-center">
+              <p className="text-sm text-ink-dim">เลือกแพ็กเกจที่สนใจ</p>
+              <p className="text-xs text-ink-dim mt-1">ราคารวมจะแสดงที่นี่</p>
             </div>
           ) : (
             <SummaryCard selectedPkgs={selectedPkgs} total={total} pageName={pageName} contactLine={contactLine} />

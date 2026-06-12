@@ -23,10 +23,10 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
       "group relative flex flex-col rounded-2xl border-2 bg-white overflow-hidden",
       "transition-all duration-200 hover:-translate-y-1 hover:shadow-xl",
       pkg.is_featured
-        ? "border-[hsl(24,85%,50%)] shadow-md shadow-orange-100"
+        ? "border-primary shadow-md shadow-orange-100"
         : isPerPlatform
           ? "border-blue-400 shadow-md shadow-blue-50"
-          : "border-[hsl(35,20%,90%)] hover:border-[hsl(24,85%,55%)]",
+          : "border-border hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
         <div className="bg-gradient-to-r from-[hsl(24,85%,50%)] to-[hsl(35,85%,55%)] px-3 pt-1.5 pb-2 sm:px-3 sm:pt-1.5 sm:pb-2 flex flex-col items-center gap-1">
@@ -58,7 +58,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         </div>
       )}
       {isPerPlatform && (
-        <div className={`px-3 py-1.5 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-[hsl(25,20%,14%)]" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
+        <div className={`px-3 py-1.5 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-foreground" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
           {hasPlatforms ? (
             <>
               <div className="flex items-center gap-1.5">
@@ -99,39 +99,39 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         </div>
       )}
       <div className="p-3 flex flex-col gap-1.5 flex-1 text-center">
-        <h3 className="font-black text-[hsl(25,20%,12%)] text-sm leading-snug">{pkg.name}</h3>
+        <h3 className="font-black text-foreground text-sm leading-snug">{pkg.name}</h3>
         {pkg.description && (
-          <p className="text-[11px] sm:text-xs text-[hsl(25,10%,52%)] leading-snug sm:leading-relaxed">{pkg.description}</p>
+          <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug sm:leading-relaxed">{pkg.description}</p>
         )}
         {pkg.sub_items && pkg.sub_items.length > 0 ? (
-          <div className="mt-auto pt-2 space-y-1 border-t border-[hsl(35,25%,92%)]">
+          <div className="mt-auto pt-2 space-y-1 border-t border-border">
             {pkg.sub_items.map((item, i) => (
               <div key={i} className="flex justify-between items-center text-xs">
-                <span className="text-[hsl(25,10%,50%)]">{item.label}</span>
-                <span className="font-bold text-[hsl(24,85%,35%)]">{formatCurrency(item.price)}</span>
+                <span className="text-muted-foreground">{item.label}</span>
+                <span className="font-bold text-brand-tx">{formatCurrency(item.price)}</span>
               </div>
             ))}
           </div>
         ) : pkg.price != null ? (
-          <div className="mt-auto pt-2 border-t border-[hsl(35,25%,92%)]">
+          <div className="mt-auto pt-2 border-t border-border">
             {pkg.original_price && (
-              <div className="text-[10px] sm:text-xs text-[hsl(25,10%,60%)] line-through mb-0.5">
+              <div className="text-[10px] sm:text-xs text-ink-dim line-through mb-0.5">
                 {formatCurrency(pkg.original_price)}
               </div>
             )}
             <div className="flex items-baseline justify-center gap-1">
-              <span className="text-lg sm:text-lg font-black text-[hsl(24,85%,50%)]">{formatCurrency(pkg.price)}</span>
-              {pkg.unit && <span className="text-[9px] sm:text-[10px] text-[hsl(25,10%,55%)]">{pkg.unit}</span>}
+              <span className="text-lg sm:text-lg font-black text-primary">{formatCurrency(pkg.price)}</span>
+              {pkg.unit && <span className="text-[9px] sm:text-[10px] text-muted-foreground">{pkg.unit}</span>}
             </div>
           </div>
         ) : (
-          <div className="mt-auto pt-2 border-t border-[hsl(35,25%,92%)] text-sm font-bold text-[hsl(25,20%,20%)]">
+          <div className="mt-auto pt-2 border-t border-border text-sm font-bold text-foreground">
             ติดต่อสอบถาม →
           </div>
         )}
       </div>
       {pkg.terms && (
-        <div className="border-t border-[hsl(35,25%,92%)] px-3 py-2 flex justify-center">
+        <div className="border-t border-border px-3 py-2 flex justify-center">
           <PackageTermsBadge name={pkg.name} terms={pkg.terms} />
         </div>
       )}
@@ -144,13 +144,13 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
   return (
     <div className="flex flex-col items-center gap-1 mb-2 text-center">
       <h2
-        className="text-xl sm:text-2xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+        className="text-xl sm:text-2xl tracking-tight leading-tight text-foreground"
         style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
       >
         {title}
       </h2>
-      {sub && <p className="text-xs text-[hsl(25,10%,55%)]">{sub}</p>}
-      {tag && <span className="text-xs font-bold text-[hsl(24,85%,35%)] bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
+      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+      {tag && <span className="text-xs font-bold text-brand-tx bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">{tag}</span>}
     </div>
   )
 }
@@ -241,11 +241,11 @@ export default async function HomePage() {
       </section>
 
       {/* ── Below-hero content ────────────────────────────── */}
-      <div className="bg-[hsl(35,30%,97%)]">
+      <div className="bg-background">
 
       {partners.length > 0 && (
         <section className="pt-4 sm:pt-5">
-          <p className="text-center text-xs font-bold text-[hsl(25,10%,55%)] uppercase tracking-widest mb-3 px-4">
+          <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">
             แบรนด์ที่เคยร่วมงาน
           </p>
           <div
@@ -257,7 +257,7 @@ export default async function HomePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.logo_url} alt={p.name ?? ""} className="h-6 w-14 sm:w-full sm:max-w-[72px] object-contain mx-auto" />
                 {p.name && (
-                  <span className="text-[8px] text-[hsl(25,10%,60%)] text-center leading-tight line-clamp-1">{p.name}</span>
+                  <span className="text-[8px] text-ink-dim text-center leading-tight line-clamp-1">{p.name}</span>
                 )}
               </div>
             ))}
@@ -273,7 +273,7 @@ export default async function HomePage() {
           <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {videos.map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0 group block">
-                <div className="relative w-28 overflow-hidden rounded-2xl bg-[hsl(25,20%,20%)] shadow-md">
+                <div className="relative w-28 overflow-hidden rounded-2xl bg-foreground shadow-md">
                   <div className="aspect-[9/16]">
                     {item.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -299,7 +299,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="text-center mt-4">
-            <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
+            <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
               ดูตัวอย่างเพิ่มเติม →
             </Link>
           </div>
@@ -312,7 +312,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {photos.slice(0, 8).map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer"
-                 className="group relative block overflow-hidden rounded-xl bg-[hsl(35,30%,93%)] shadow-sm">
+                 className="group relative block overflow-hidden rounded-xl bg-secondary shadow-sm">
                 <div className="aspect-[3/4]">
                   {item.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -337,14 +337,14 @@ export default async function HomePage() {
           </div>
           {photos.length > 8 && (
             <div className="text-center mt-4">
-              <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
+              <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
                 ดูเพิ่มเติม ({photos.length} รูป) →
               </Link>
             </div>
           )}
           {photos.length <= 8 && (
             <div className="text-center mt-4">
-              <Link href="/portfolio" className="text-xs font-bold text-[hsl(24,85%,50%)] hover:underline">
+              <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
                 ดูตัวอย่าง Content ทั้งหมด →
               </Link>
             </div>
@@ -359,7 +359,7 @@ export default async function HomePage() {
           {galleryItems.length > 6 && (
             <div className="text-center mt-5">
               <Link href="/gallery"
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-[hsl(25,20%,12%)] text-sm font-bold text-[hsl(25,20%,12%)] hover:bg-[hsl(25,20%,12%)] hover:text-white transition-all">
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-foreground text-sm font-bold text-foreground hover:bg-foreground hover:text-white transition-all">
                 ดูทั้งหมด ({galleryItems.length} รูป)
               </Link>
             </div>
@@ -386,14 +386,14 @@ export default async function HomePage() {
       <section>
         <div className="flex flex-col items-center mb-4 text-center">
           <h2
-            className="text-5xl sm:text-6xl tracking-tight leading-tight text-[hsl(25,20%,12%)]"
+            className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
             style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
           >
             Rate Card
           </h2>
         </div>
         {settings?.image_url && (
-          <div className="rounded-2xl overflow-hidden border border-[hsl(35,20%,88%)] shadow-sm">
+          <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={settings.image_url} alt="Rate Card" className="w-full object-contain" />
           </div>
@@ -432,7 +432,7 @@ export default async function HomePage() {
           <SectionHeader title="Barter" />
           <div className="rounded-2xl border-2 border-[hsl(35,60%,80%)] bg-gradient-to-br from-[hsl(40,60%,97%)] to-[hsl(35,50%,93%)] p-5">
             {grouped.barter[0].description && (
-              <p className="text-sm text-[hsl(25,30%,35%)] leading-relaxed">{grouped.barter[0].description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{grouped.barter[0].description}</p>
             )}
           </div>
         </section>
@@ -449,15 +449,15 @@ export default async function HomePage() {
       )}
 
       {settings?.notes && settings.notes.length > 0 && (
-        <section className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-4">
+        <section className="bg-white rounded-2xl border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-sm">📋</span>
-            <h3 className="font-bold text-sm text-[hsl(25,20%,25%)]">เงื่อนไข</h3>
+            <h3 className="font-bold text-sm text-muted-foreground">เงื่อนไข</h3>
           </div>
           <ul className="space-y-2">
             {settings.notes.map((note, i) => (
-              <li key={i} className="text-xs text-[hsl(25,10%,50%)] flex gap-2 leading-relaxed">
-                <span className="shrink-0 text-[hsl(24,85%,50%)] font-bold">·</span>
+              <li key={i} className="text-xs text-muted-foreground flex gap-2 leading-relaxed">
+                <span className="shrink-0 text-primary font-bold">·</span>
                 {note}
               </li>
             ))}
@@ -466,7 +466,7 @@ export default async function HomePage() {
       )}
 
       {settings && (
-        <section className="relative overflow-hidden bg-[hsl(25,20%,12%)] rounded-2xl p-5 text-white space-y-3">
+        <section className="relative overflow-hidden bg-foreground rounded-2xl p-5 text-white space-y-3">
           <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
           <div className="absolute bottom-0 right-16 w-16 h-16 rounded-full bg-white/5" />
           <h3 className="font-black text-lg">ติดต่อเรา 👋</h3>
@@ -506,7 +506,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <p className="text-center text-xs text-[hsl(25,10%,65%)] pb-4">
+      <p className="text-center text-xs text-ink-dim pb-4">
         {settings?.page_name} · un.finished.house
       </p>
 
