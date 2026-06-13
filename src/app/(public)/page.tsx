@@ -231,7 +231,7 @@ export default async function HomePage() {
                   key={i}
                   className="inline-block hero-word"
                   style={{
-                    animationDelay: `${0.08 + i * 0.13}s`,
+                    animationDelay: `${0.08 + i * 0.10}s`,
                     marginRight: i < arr.length - 1 ? "0.25em" : undefined,
                   }}
                 >
