@@ -330,14 +330,14 @@ export default async function HomePage() {
             แบรนด์ที่เคยร่วมงาน
           </p>
           <div
-            className="grid grid-rows-2 grid-flow-col gap-x-7 gap-y-3 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-6 sm:px-8"
+            className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-4 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-6 sm:px-8"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {partners.map(p => (
-              <div key={p.id} className="flex flex-col items-center gap-1 w-14 sm:w-auto">
-                <Image src={p.logo_url} alt={p.name ?? ""} width={72} height={24} className="h-6 w-14 sm:w-full sm:max-w-[72px] object-contain mx-auto" />
+              <div key={p.id} className="flex flex-col items-center gap-1.5 w-20 sm:w-auto">
+                <Image src={p.logo_url} alt={p.name ?? ""} width={80} height={28} className="h-7 w-20 sm:w-full sm:max-w-[80px] object-contain mx-auto" />
                 {p.name && (
-                  <span className="text-[8px] text-ink-dim text-center leading-tight line-clamp-1">{p.name}</span>
+                  <span className="text-[9px] text-ink-dim text-center leading-tight line-clamp-1">{p.name}</span>
                 )}
               </div>
             ))}
