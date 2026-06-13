@@ -640,7 +640,7 @@ export default async function HomePage() {
           <h3
             className="text-2xl sm:text-3xl font-black text-[hsl(25,20%,12%)] mb-1"
             style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
-          >สนใจร่วมงาน?</h3>
+          >Let&apos;s work together</h3>
           <p className="text-sm text-[hsl(25,10%,50%)] mb-6">พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย</p>
 
           {/* LINE — primary CTA */}
