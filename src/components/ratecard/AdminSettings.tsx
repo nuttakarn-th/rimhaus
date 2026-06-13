@@ -223,8 +223,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         {/* Heading + subtitle */}
         <div className="grid grid-cols-1 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">หัวข้อหลัก</Label>
-            <Input value={form.hero_heading} onChange={e => setForm(p => ({ ...p, hero_heading: e.target.value }))} placeholder="still building." />
+            <Label className="text-xs">หัวข้อหลัก <span className="font-normal text-[hsl(25,10%,60%)]">— ล้อมคำด้วย *ดาว* เพื่อทำตัวเอียง</span></Label>
+            <Input value={form.hero_heading} onChange={e => setForm(p => ({ ...p, hero_heading: e.target.value }))} placeholder="still *building.*" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">หัวข้อรอง</Label>

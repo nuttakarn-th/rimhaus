@@ -10,6 +10,16 @@ import { HeadingReveal } from "@/components/ui/HeadingReveal"
 import { StatCounter } from "@/components/ui/StatCounter"
 import type { RateCardPackage } from "@/lib/types"
 
+function parseHeroWords(text: string): { word: string; italic: boolean }[] {
+  const parts = text.split(/\*([^*]+)\*/)
+  const result: { word: string; italic: boolean }[] = []
+  parts.forEach((part, i) => {
+    const italic = i % 2 === 1
+    part.trim().split(/\s+/).filter(Boolean).forEach(w => result.push({ word: w, italic }))
+  })
+  return result
+}
+
 function parseStatText(text: string): { num: number; suffix: string; decimals: number } | null {
   const m = text.trim().match(/^([0-9,]+(?:\.[0-9]+)?)(.*)$/)
   if (!m) return null
@@ -224,15 +234,15 @@ export default async function HomePage() {
             className="text-5xl sm:text-6xl leading-tight text-white"
             style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400 }}
           >
-            {(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
-              .split(" ")
-              .map((word: string, i: number, arr: string[]) => (
+            {parseHeroWords(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
+              .map(({ word, italic }, i, arr) => (
                 <span
                   key={i}
                   className="inline-block hero-word"
                   style={{
                     animationDelay: `${0.08 + i * 0.10}s`,
                     marginRight: i < arr.length - 1 ? "0.25em" : undefined,
+                    fontStyle: italic ? "italic" : "normal",
                   }}
                 >
                   {word}

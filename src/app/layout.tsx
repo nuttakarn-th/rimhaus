@@ -18,6 +18,7 @@ const inter = Inter({
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
   weight: ["400"],
+  style: ["normal", "italic"],
   variable: "--font-dm-serif",
 })
 
