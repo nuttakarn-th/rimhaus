@@ -234,7 +234,7 @@ export default async function HomePage() {
           {/* Center group — title + subtitle + icons */}
           <div className="flex-1 flex flex-col items-center justify-center">
             <h1
-              className="text-5xl sm:text-6xl leading-tight text-white"
+              className="text-5xl sm:text-8xl leading-tight text-white"
               style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400 }}
             >
               {parseHeroWords(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
@@ -255,22 +255,25 @@ export default async function HomePage() {
             </h1>
             {(settings?.hero_subtitle ?? settings?.page_category) && (
               <div className="hero-anim hero-anim-1 mt-1">
-                <p className="text-sm text-white/65 font-medium">
+                <p className="text-xs text-white/60 font-medium">
                   {settings?.hero_subtitle ?? settings?.page_category}
                 </p>
               </div>
             )}
             <div className="hero-anim hero-anim-2 mt-3">
-              <div className="flex justify-center gap-2 flex-wrap">
+              <div className="flex justify-center gap-2 sm:gap-1.5 flex-wrap">
                 {PLATFORMS.map(p => {
                   const logoUrl = settings?.platform_logos?.[p]
                   const platformUrl = settings?.platform_urls?.[p]
                   const bubble = logoUrl ? (
-                    <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
-                      <Image src={logoUrl} alt={p} width={28} height={28} className="object-cover" />
+                    <div className="w-7 h-7 sm:w-5 sm:h-5 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
+                      <Image src={logoUrl} alt={p} width={28} height={28} className="object-cover w-full h-full" />
                     </div>
                   ) : (
-                    <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
+                    <>
+                      <span className="sm:hidden"><PlatformBubble platform={p} size={28} noHover={!!platformUrl} /></span>
+                      <span className="hidden sm:inline-flex"><PlatformBubble platform={p} size={20} noHover={!!platformUrl} /></span>
+                    </>
                   )
                   return platformUrl ? (
                     <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
