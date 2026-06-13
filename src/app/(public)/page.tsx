@@ -189,12 +189,6 @@ export default async function HomePage() {
     const p = parseStatText(settings.stat_followers)
     if (p) heroStats.push({ ...p, label: "ผู้ติดตาม" })
   }
-  if (partners.length > 0) {
-    heroStats.push({ num: partners.length, suffix: "+", decimals: 0, label: "แบรนด์" })
-  }
-  if (portfolioItems.length > 0) {
-    heroStats.push({ num: portfolioItems.length, suffix: "", decimals: 0, label: "ผลงาน" })
-  }
   if (settings?.stat_reach) {
     const p = parseStatText(settings.stat_reach)
     if (p) heroStats.push({ ...p, label: "Avg. Reach" })
