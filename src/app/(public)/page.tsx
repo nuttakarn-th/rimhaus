@@ -138,7 +138,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
               </div>
             )}
             <div className="flex items-baseline justify-center gap-1">
-              <span className="text-lg sm:text-lg font-black text-primary">{formatCurrency(pkg.price)}</span>
+              <span className="text-xl font-black text-brand-tx">{formatCurrency(pkg.price)}</span>
               {pkg.unit && <span className="text-[9px] sm:text-[10px] text-muted-foreground">{pkg.unit}</span>}
             </div>
           </div>
@@ -382,7 +382,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="text-center mt-4">
-            <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
+            <Link href="/portfolio" className="text-xs font-bold text-brand-tx hover:underline">
               ดูผลงานวิดีโอทั้งหมด →
             </Link>
           </div>
@@ -422,7 +422,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="text-center mt-4">
-            <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
+            <Link href="/portfolio" className="text-xs font-bold text-brand-tx hover:underline">
               ชม Portfolio ทั้งหมด →
             </Link>
           </div>
@@ -520,13 +520,13 @@ export default async function HomePage() {
         </section>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 pt-5 pb-4 sm:pb-6 space-y-5">
+      <div className="max-w-3xl mx-auto px-4 pt-5 pb-4 sm:pb-6 space-y-6 sm:space-y-8">
 
 <ScrollReveal>
-      <div className="py-2 sm:py-4 flex items-center gap-4" aria-hidden="true">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-border" />
-        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">ราคา</span>
-        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-border" />
+      <div className="py-10 sm:py-14 flex items-center gap-5" aria-hidden="true">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-border" />
+        <span className="text-[10px] font-black uppercase tracking-[0.45em] text-muted-foreground/50 px-1">ราคา</span>
+        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-border to-border" />
       </div>
       </ScrollReveal>
 
@@ -534,7 +534,7 @@ export default async function HomePage() {
       <section>
         <HeadingReveal>
           <div className="flex flex-col items-center mb-4 text-center gap-2">
-            <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
+            <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
             <h2
               className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
@@ -625,7 +625,7 @@ export default async function HomePage() {
           <ul className="space-y-2">
             {settings.notes.map((note, i) => (
               <li key={i} className="text-xs text-muted-foreground flex gap-2 leading-relaxed">
-                <span className="shrink-0 text-primary font-bold">·</span>
+                <span className="shrink-0 text-brand-tx font-bold">·</span>
                 {note}
               </li>
             ))}
