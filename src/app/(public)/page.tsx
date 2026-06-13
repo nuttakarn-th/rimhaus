@@ -220,19 +220,33 @@ export default async function HomePage() {
         )}
 
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-12 sm:pb-14 lg:pb-20 space-y-3">
-          <div className="hero-anim hero-anim-1">
-            <h1
-              className="text-4xl sm:text-5xl tracking-tight leading-tight text-white"
-              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
-            >
-              {settings?.hero_heading ?? settings?.page_name ?? "Rate Card"}
-            </h1>
-            {(settings?.hero_subtitle ?? settings?.page_category) && (
-              <p className="mt-2 text-sm text-white/65 font-medium">
+          <h1
+            className="text-5xl sm:text-6xl tracking-tight leading-tight text-white"
+            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 800 }}
+          >
+            {(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
+              .split(" ")
+              .map((word: string, i: number, arr: string[]) => (
+                <span
+                  key={i}
+                  className="inline-block hero-word"
+                  style={{
+                    animationDelay: `${0.08 + i * 0.13}s`,
+                    marginRight: i < arr.length - 1 ? "0.25em" : undefined,
+                  }}
+                >
+                  {word}
+                </span>
+              ))
+            }
+          </h1>
+          {(settings?.hero_subtitle ?? settings?.page_category) && (
+            <div className="hero-anim hero-anim-1 mt-2">
+              <p className="text-sm text-white/65 font-medium">
                 {settings?.hero_subtitle ?? settings?.page_category}
               </p>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="hero-anim hero-anim-2">
             <div className="flex justify-center gap-2 flex-wrap">
