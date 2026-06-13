@@ -308,6 +308,7 @@ export interface GalleryAlbum {
   id: string
   user_id: string
   name: string
+  description: string | null
   cover_image_url: string | null
   sort_order: number
   created_at: string

@@ -129,30 +129,36 @@ function AlbumList({
 }) {
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState("")
+  const [newDesc, setNewDesc] = useState("")
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
+  const [editDesc, setEditDesc] = useState("")
 
   async function handleCreate() {
     if (!newName.trim()) return
     setSaving(true)
-    const result = await upsertAlbum({ name: newName.trim(), sort_order: albums.length })
+    const result = await upsertAlbum({ name: newName.trim(), description: newDesc.trim() || null, sort_order: albums.length })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
     toast.success("สร้าง Album สำเร็จ")
     setAlbums(prev => [...prev, result.data])
     setNewName("")
+    setNewDesc("")
     setCreating(false)
     router.refresh()
   }
 
   async function handleRename(album: GalleryAlbum) {
-    if (!editName.trim() || editName.trim() === album.name) { setEditingId(null); return }
-    const result = await upsertAlbum({ id: album.id, name: editName.trim() })
+    if (!editName.trim()) { setEditingId(null); return }
+    const nameChanged = editName.trim() !== album.name
+    const descChanged = editDesc.trim() !== (album.description ?? "")
+    if (!nameChanged && !descChanged) { setEditingId(null); return }
+    const result = await upsertAlbum({ id: album.id, name: editName.trim(), description: editDesc.trim() || null })
     if (!result.success) { toast.error(result.error); return }
-    toast.success("แก้ไขชื่อแล้ว")
-    setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, name: editName.trim() } : a))
+    toast.success("แก้ไขแล้ว")
+    setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, name: editName.trim(), description: editDesc.trim() || null } : a))
     setEditingId(null)
     router.refresh()
   }
@@ -197,10 +203,11 @@ function AlbumList({
                 {/* Info */}
                 <div className="px-3 py-2 flex items-center justify-between gap-2">
                   {editingId === album.id ? (
-                    <div className="flex items-center gap-1.5 flex-1" onClick={e => e.stopPropagation()}>
+                    <div className="flex flex-col gap-1 flex-1" onClick={e => e.stopPropagation()}>
                       <Input
                         value={editName}
                         onChange={e => setEditName(e.target.value)}
+                        placeholder="ชื่อ Album"
                         className="h-6 text-xs px-2 py-0"
                         autoFocus
                         onKeyDown={e => {
@@ -208,24 +215,36 @@ function AlbumList({
                           if (e.key === "Escape") setEditingId(null)
                         }}
                       />
-                      <button onClick={() => handleRename(album)} className="text-green-600 hover:text-green-700">
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => setEditingId(null)} className="text-[hsl(25,10%,50%)] hover:text-[hsl(25,10%,30%)]">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          value={editDesc}
+                          onChange={e => setEditDesc(e.target.value)}
+                          placeholder="คำอธิบาย (ไม่บังคับ)"
+                          className="h-6 text-xs px-2 py-0"
+                          onKeyDown={e => {
+                            if (e.key === "Enter") handleRename(album)
+                            if (e.key === "Escape") setEditingId(null)
+                          }}
+                        />
+                        <button onClick={() => handleRename(album)} className="text-green-600 hover:text-green-700 shrink-0">
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="text-[hsl(25,10%,50%)] hover:text-[hsl(25,10%,30%)] shrink-0">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-[hsl(25,20%,15%)] truncate">{album.name}</p>
-                      <p className="text-[10px] text-[hsl(25,10%,55%)]">{count} รูป</p>
+                      <p className="text-[10px] text-[hsl(25,10%,55%)] truncate">{album.description ?? `${count} รูป`}</p>
                     </div>
                   )}
 
                   {editingId !== album.id && (
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                       <button
-                        onClick={() => { setEditingId(album.id); setEditName(album.name) }}
+                        onClick={() => { setEditingId(album.id); setEditName(album.name); setEditDesc(album.description ?? "") }}
                         className="p-1 rounded hover:bg-[hsl(35,20%,90%)] text-[hsl(25,10%,50%)] transition-colors"
                       >
                         <Pencil className="w-3 h-3" />
@@ -249,7 +268,7 @@ function AlbumList({
       )}
 
       {creating ? (
-        <div className="flex items-center gap-2 p-3 rounded-xl border border-[hsl(24,85%,50%)] bg-orange-50/30">
+        <div className="flex flex-col gap-2 p-3 rounded-xl border border-[hsl(24,85%,50%)] bg-orange-50/30">
           <Input
             value={newName}
             onChange={e => setNewName(e.target.value)}
@@ -258,15 +277,27 @@ function AlbumList({
             autoFocus
             onKeyDown={e => {
               if (e.key === "Enter") handleCreate()
-              if (e.key === "Escape") { setCreating(false); setNewName("") }
+              if (e.key === "Escape") { setCreating(false); setNewName(""); setNewDesc("") }
             }}
           />
-          <Button size="sm" onClick={handleCreate} disabled={saving || !newName.trim()}>
-            {saving ? "..." : "สร้าง"}
-          </Button>
-          <button onClick={() => { setCreating(false); setNewName("") }} className="text-[hsl(25,10%,50%)]">
-            <X className="w-4 h-4" />
-          </button>
+          <Input
+            value={newDesc}
+            onChange={e => setNewDesc(e.target.value)}
+            placeholder="คำอธิบาย เช่น รีวิวเฟอร์นิเจอร์และของตกแต่ง (ไม่บังคับ)"
+            className="text-sm"
+            onKeyDown={e => {
+              if (e.key === "Enter") handleCreate()
+              if (e.key === "Escape") { setCreating(false); setNewName(""); setNewDesc("") }
+            }}
+          />
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleCreate} disabled={saving || !newName.trim()}>
+              {saving ? "..." : "สร้าง"}
+            </Button>
+            <button onClick={() => { setCreating(false); setNewName(""); setNewDesc("") }} className="text-[hsl(25,10%,50%)]">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       ) : (
         <Button size="sm" variant="outline" onClick={() => setCreating(true)}>

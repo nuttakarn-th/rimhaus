@@ -42,7 +42,7 @@ export async function getAlbumsWithItems(): Promise<(GalleryAlbum & { items: Gal
 }
 
 export async function upsertAlbum(
-  data: { id?: string; name: string; cover_image_url?: string | null; sort_order?: number }
+  data: { id?: string; name: string; description?: string | null; cover_image_url?: string | null; sort_order?: number }
 ): Promise<ActionResult<GalleryAlbum>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
