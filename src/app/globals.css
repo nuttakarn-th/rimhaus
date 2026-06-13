@@ -78,6 +78,7 @@
   --color-ink-dim: hsl(var(--ink-dim));
   --radius: var(--radius);
   --font-sans: var(--font-noto-thai), sans-serif;
+  --font-display: var(--font-dm-serif), 'DM Serif Display', Georgia, serif;
 }
 
 * {

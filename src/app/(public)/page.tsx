@@ -33,7 +33,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
       pkg.is_featured
         ? "border-primary shadow-md shadow-orange-100"
         : isPerPlatform
-          ? "border-blue-400 shadow-md shadow-blue-50"
+          ? "border-[hsl(35,25%,75%)] shadow-md"
           : "border-border hover:border-[hsl(24,85%,55%)]",
     ].join(" ")}>
       {pkg.is_featured && (
@@ -65,7 +65,7 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
         </div>
       )}
       {isPerPlatform && (
-        <div className={`px-3 py-1.5 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-foreground" : "bg-gradient-to-r from-blue-500 to-blue-400"}`}>
+        <div className={`px-3 py-1.5 flex items-center justify-center gap-2 ${hasPlatforms ? "bg-foreground" : "bg-[hsl(25,20%,20%)]"}`}>
           {hasPlatforms ? (
             <>
               <div className="flex items-center gap-1.5">
@@ -221,8 +221,8 @@ export default async function HomePage() {
 
         <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-12 sm:pb-14 lg:pb-20 space-y-3">
           <h1
-            className="text-5xl sm:text-6xl tracking-tight leading-tight text-white"
-            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 800 }}
+            className="text-5xl sm:text-6xl leading-tight text-white"
+            style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400 }}
           >
             {(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
               .split(" ")
