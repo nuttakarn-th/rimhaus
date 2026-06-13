@@ -104,18 +104,28 @@ export function PitchScriptForm({
       {/* Script content */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
         <div>
-          <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">เนื้อหา *</h3>
-          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">ประโยคที่จะคัดลอกส่งให้ลูกค้า</p>
+          <h3 className="font-semibold text-sm text-[hsl(25,20%,15%)]">เนื้อหา Template *</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">
+            ใส่{" "}
+            <span className="font-mono bg-orange-50 text-orange-700 px-1 rounded">[ชื่อแบรนด์]</span>{" "}
+            <span className="font-mono bg-orange-50 text-orange-700 px-1 rounded">[สินค้า]</span>{" "}
+            ตรงไหนที่ต้องเปลี่ยนแต่ละครั้ง — ระบบจะสร้าง input ให้อัตโนมัติ
+          </p>
         </div>
         <Textarea
           rows={8}
           value={form.content}
           onChange={set("content")}
-          placeholder={"สวัสดีครับ ผมชื่อ [ชื่อ] เพจ [ชื่อเพจ]\nมีผู้ติดตาม [X]K คนบน Facebook...\n\nอยากนำเสนอความร่วมมือกับแบรนด์ของคุณครับ"}
+          placeholder={"สวัสดีครับ ผมเพจ [ชื่อเพจ] มีผู้ติดตาม [จำนวน follower] คน\n\nสนใจรีวิว [สินค้า] ของ [ชื่อแบรนด์] ครับ\n\nสอบถามรายละเอียดได้เลยนะครับ"}
           className="font-mono text-sm resize-y"
         />
         <p className="text-xs text-[hsl(25,10%,60%)]">
           {form.content.length} ตัวอักษร
+          {form.content.match(/\[[^\]]+\]/g) && (
+            <span className="ml-2 text-orange-600 font-medium">
+              · placeholder: {[...new Set(form.content.match(/\[[^\]]+\]/g) ?? [])].join(", ")}
+            </span>
+          )}
         </p>
       </div>
 
