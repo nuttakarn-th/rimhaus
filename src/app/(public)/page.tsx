@@ -8,6 +8,7 @@ import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { HeadingReveal } from "@/components/ui/HeadingReveal"
 import { StatCounter } from "@/components/ui/StatCounter"
+import { TextScramble } from "@/components/ui/TextScramble"
 import type { RateCardPackage } from "@/lib/types"
 
 function parseHeroWords(text: string): { word: string; italic: boolean }[] {
@@ -637,10 +638,12 @@ export default async function HomePage() {
         <ScrollReveal>
         <section className="px-4 py-12 sm:py-16 text-center">
           <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
-          <h3
-            className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight"
-            style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400, fontStyle: "italic" }}
-          >Let&apos;s work together</h3>
+          <h3 className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight">
+            <TextScramble
+              text="Let's work together"
+              style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400, fontStyle: "italic" }}
+            />
+          </h3>
           <p className="text-sm text-[hsl(25,10%,55%)] mb-8">พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย</p>
 
           {/* LINE — primary CTA */}
