@@ -21,6 +21,7 @@ import {
   MessageSquare,
   BarChart2,
   PieChart,
+  Megaphone,
 } from "lucide-react"
 
 const navItems = [
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/commission", icon: PieChart, label: "จัดสรรรายได้" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
   { href: "/customers", icon: Building2, label: "ลูกค้า" },
+  { href: "/pitch-scripts", icon: Megaphone, label: "คีย์โน้ต" },
   { href: "/documents", icon: FileText, label: "เอกสาร" },
   { href: "/settings/issuers", icon: User, label: "ผู้ออกเอกสาร" },
   { href: "/settings/ratecard", icon: CreditCard, label: "Rate Card" },

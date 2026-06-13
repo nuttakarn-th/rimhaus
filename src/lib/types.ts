@@ -237,6 +237,20 @@ export interface Customer {
   created_at: string
 }
 
+export type PitchCategory = 'cold_outreach' | 'follow_up' | 'barter' | 'collab' | 'general'
+
+export interface PitchScript {
+  id: string
+  user_id: string
+  name: string
+  content: string
+  category: PitchCategory
+  customer_id: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface DocumentItem {
   id: string
   document_id: string
