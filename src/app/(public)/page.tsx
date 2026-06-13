@@ -635,13 +635,13 @@ export default async function HomePage() {
 
       {settings && (settings.contact_line || settings.contact_email || settings.contact_phone) && (
         <ScrollReveal>
-        <section className="rounded-2xl border-2 border-[hsl(24,85%,82%)] bg-[hsl(35,55%,97%)] px-6 py-8 sm:py-10 text-center">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-2">ติดต่อ</p>
+        <section className="px-4 py-12 sm:py-16 text-center">
+          <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
           <h3
-            className="text-2xl sm:text-3xl font-black text-[hsl(25,20%,12%)] mb-1"
-            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
+            className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight"
+            style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400, fontStyle: "italic" }}
           >Let&apos;s work together</h3>
-          <p className="text-sm text-[hsl(25,10%,50%)] mb-6">พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย</p>
+          <p className="text-sm text-[hsl(25,10%,55%)] mb-8">พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย</p>
 
           {/* LINE — primary CTA */}
           {settings.contact_line && (
