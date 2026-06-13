@@ -152,7 +152,7 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
     <div className="flex flex-col items-center gap-1 mb-2 text-center">
       <h2
         className="text-3xl sm:text-4xl tracking-tight leading-tight text-foreground"
-        style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 800 }}
+        style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 900 }}
       >
         {title}
       </h2>
@@ -406,7 +406,7 @@ export default async function HomePage() {
           <div className="max-w-3xl mx-auto px-4 space-y-4">
             <HeadingReveal>
               <div className="text-center">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Gallery</h2>
+                <h2 className="text-3xl sm:text-4xl font-black text-primary tracking-tight">Gallery</h2>
                 <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
               </div>
             </HeadingReveal>
