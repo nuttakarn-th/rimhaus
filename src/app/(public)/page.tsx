@@ -259,11 +259,11 @@ export default async function HomePage() {
           </div>
 
           {heroStats.length >= 2 && (
-            <div className="hero-anim hero-anim-3 w-full max-w-xs sm:max-w-sm">
+            <div className="hero-anim hero-anim-3 w-full">
               <div className="flex items-stretch justify-center bg-black/25 backdrop-blur-sm rounded-2xl overflow-hidden divide-x divide-white/15">
                 {heroStats.map((stat, i) => (
-                  <div key={i} className="flex flex-col items-center flex-1 px-2 sm:px-4 py-3 gap-0.5 min-w-0">
-                    <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                  <div key={i} className="flex flex-col items-center flex-1 px-3 py-4 gap-1 min-w-0">
+                    <span className="text-2xl sm:text-3xl font-black text-white leading-none">
                       <StatCounter
                         to={stat.num}
                         decimals={stat.decimals}
@@ -272,7 +272,7 @@ export default async function HomePage() {
                         duration={1600}
                       />
                     </span>
-                    <span className="text-[8px] sm:text-[9px] text-white/55 font-medium leading-tight text-center">{stat.label}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/55 font-medium leading-tight text-center">{stat.label}</span>
                   </div>
                 ))}
               </div>
