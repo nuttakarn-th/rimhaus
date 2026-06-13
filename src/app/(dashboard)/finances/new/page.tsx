@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { TransactionForm } from "@/components/finances/TransactionForm"
 import { getJobs } from "@/actions/jobs.actions"
 
@@ -7,6 +8,7 @@ export default async function NewTransactionPage() {
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "การเงิน", href: "/finances" }, { label: "เพิ่มรายการ" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">เพิ่มรายการ</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">บันทึกรายรับหรือรายจ่าย</p>
       </div>

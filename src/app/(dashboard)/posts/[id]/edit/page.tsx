@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getPost } from "@/actions/posts.actions"
 import { getJobs } from "@/actions/jobs.actions"
@@ -25,6 +26,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "โพส", href: "/posts" }, { label: "แก้ไขโพส" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขโพส</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">{post.post_title}</p>
       </div>

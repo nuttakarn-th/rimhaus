@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { ContentForm } from "@/components/content/ContentForm"
 import { getJobs } from "@/actions/jobs.actions"
 import { createClient } from "@/lib/supabase/server"
@@ -20,6 +21,7 @@ export default async function NewContentPage({
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "วางแผนคอนเทนต์", href: "/content" }, { label: "สร้างคอนเทนต์ใหม่" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">สร้างคอนเทนต์ใหม่</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">วางแผนและจัดการคอนเทนต์</p>
       </div>

@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { JobForm } from "@/components/jobs/JobForm"
 import { createClient } from "@/lib/supabase/server"
 import { getDocument } from "@/actions/documents.actions"
@@ -31,6 +32,7 @@ export default async function NewJobPage({
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "งานรีวิว", href: "/jobs" }, { label: "สร้างงานใหม่" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">สร้างงานรีวิวใหม่</h1>
         {quotation && (
           <p className="text-sm text-[hsl(24,85%,50%)] mt-1">

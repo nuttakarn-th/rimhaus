@@ -2,7 +2,9 @@ import Link from "next/link"
 import { getTransactions, getFinanceSummary } from "@/actions/transactions.actions"
 import { DeleteTransactionButton } from "@/components/finances/DeleteTransactionButton"
 import { MonthSelector } from "@/components/finances/MonthSelector"
+import { EmptyState } from "@/components/ui/EmptyState"
 import { formatCurrency, formatDate } from "@/lib/utils"
+import { Receipt } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Plus, Pencil } from "lucide-react"
 
@@ -89,9 +91,7 @@ export default async function FinancesPage({
       {/* Mobile: transaction cards */}
       <div className="md:hidden space-y-2">
         {transactions.length === 0 ? (
-          <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] text-center py-12">
-            <p className="text-[hsl(25,10%,50%)]">ไม่มีรายการในเดือนนี้</p>
-          </div>
+          <EmptyState icon={Receipt} title="ไม่มีรายการในเดือนนี้" description="เพิ่มรายรับหรือรายจ่ายสำหรับเดือนนี้" action={{ label: "เพิ่มรายการ", href: "/finances/new" }} />
         ) : transactions.map(tx => (
           <div key={tx.id} className="bg-white rounded-xl border border-[hsl(35,20%,88%)] px-4 py-3.5">
             <div className="flex items-start justify-between gap-2">
@@ -125,9 +125,7 @@ export default async function FinancesPage({
       {/* Desktop: transactions table */}
       <div className="hidden md:block bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden">
         {transactions.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-[hsl(25,10%,50%)]">ไม่มีรายการในเดือนนี้</p>
-          </div>
+          <EmptyState icon={Receipt} title="ไม่มีรายการในเดือนนี้" description="เพิ่มรายรับหรือรายจ่ายสำหรับเดือนนี้" action={{ label: "เพิ่มรายการ", href: "/finances/new" }} />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-[hsl(35,25%,95%)] text-[hsl(25,10%,50%)]">

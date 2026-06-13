@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getCustomer } from "@/actions/customers.actions"
 import { CustomerForm } from "@/components/customers/CustomerForm"
@@ -10,6 +11,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "ลูกค้า", href: "/customers" }, { label: "แก้ไขลูกค้า" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขลูกค้า</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">{customer.name}</p>
       </div>

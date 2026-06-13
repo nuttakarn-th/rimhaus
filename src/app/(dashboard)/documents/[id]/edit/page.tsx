@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getDocument, getQuotations } from "@/actions/documents.actions"
 import { getCustomers } from "@/actions/customers.actions"
@@ -24,6 +25,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "เอกสาร", href: "/documents" }, { label: "แก้ไขเอกสาร" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขเอกสาร</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">{doc.doc_number}</p>
       </div>

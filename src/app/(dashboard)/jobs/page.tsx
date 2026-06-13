@@ -4,8 +4,9 @@ import { JobStatusBadge } from "@/components/jobs/JobStatusBadge"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { DEAL_TYPE_LABELS, DEAL_TYPE_COLORS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/EmptyState"
 import { PlatformChip } from "@/components/ui/PlatformIcon"
-import { Plus } from "lucide-react"
+import { Plus, ClipboardList } from "lucide-react"
 
 export default async function JobsPage({
   searchParams,
@@ -63,13 +64,12 @@ export default async function JobsPage({
 
       {/* Job cards */}
       {jobs.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] text-center py-16 space-y-3">
-          <div className="text-4xl">🏠</div>
-          <p className="text-[hsl(25,10%,50%)] font-medium">ยังไม่มีงานรีวิว</p>
-          <Link href="/jobs/new">
-            <Button variant="outline" size="sm" className="rounded-xl">สร้างงานแรก</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title="ยังไม่มีงานรีวิว"
+          description="เพิ่มงานแรกเพื่อเริ่มจัดการ review jobs จากแบรนด์"
+          action={{ label: "สร้างงานแรก", href: "/jobs/new" }}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {jobs.map(job => {

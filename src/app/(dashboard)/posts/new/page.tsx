@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { PostForm } from "@/components/posts/PostForm"
 import { getJobs } from "@/actions/jobs.actions"
 import { getContentItems } from "@/actions/content.actions"
@@ -25,6 +26,7 @@ export default async function NewPostPage({
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "โพส", href: "/posts" }, { label: "บันทึกโพส" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">บันทึกโพส</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">บันทึกโพสและสถิติ Social Media</p>
       </div>

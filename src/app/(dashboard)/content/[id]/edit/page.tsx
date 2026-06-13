@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getContentItem } from "@/actions/content.actions"
 import { getJobs } from "@/actions/jobs.actions"
@@ -19,6 +20,7 @@ export default async function EditContentPage({ params }: { params: Promise<{ id
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "วางแผนคอนเทนต์", href: "/content" }, { label: "แก้ไขคอนเทนต์" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขคอนเทนต์</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">{item.title}</p>
       </div>

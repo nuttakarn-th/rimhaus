@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getTransaction } from "@/actions/transactions.actions"
 import { getJobs } from "@/actions/jobs.actions"
@@ -12,6 +13,7 @@ export default async function EditTransactionPage({ params }: { params: Promise<
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "การเงิน", href: "/finances" }, { label: "แก้ไขรายการ" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขรายการ</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">
           {transaction.type === "income" ? "รายรับ" : "รายจ่าย"} {formatCurrency(transaction.amount)}

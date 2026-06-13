@@ -2,9 +2,10 @@ import Link from "next/link"
 import { getContentItems } from "@/actions/content.actions"
 import { DeleteContentButton } from "@/components/content/DeleteContentButton"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/EmptyState"
 import {
   Plus, Pencil, ExternalLink,
-  Clapperboard, Film, ImageIcon, Layers, Video, FileText,
+  Clapperboard, Film, ImageIcon, Layers, Video, FileText, CalendarDays,
 } from "lucide-react"
 import { CONTENT_STATUS_COLORS, CONTENT_STATUS_LABELS } from "@/lib/constants"
 import { formatDate, cn } from "@/lib/utils"
@@ -160,12 +161,12 @@ export default async function ContentPage({
 
       {/* List */}
       {items.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-[hsl(35,20%,88%)]">
-          <p className="text-[hsl(25,10%,50%)] mb-4">ยังไม่มีคอนเทนต์</p>
-          <Link href="/content/new">
-            <Button variant="outline" size="sm">สร้างคอนเทนต์แรก</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="ยังไม่มีคอนเทนต์"
+          description="วางแผนคอนเทนต์แรกเพื่อติดตาม schedule และ status การโพส"
+          action={{ label: "สร้างคอนเทนต์แรก", href: "/content/new" }}
+        />
       ) : (
         <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] overflow-hidden divide-y divide-[hsl(35,20%,93%)]">
           {/* Column header */}

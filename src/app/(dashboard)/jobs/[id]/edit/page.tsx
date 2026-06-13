@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { notFound } from "next/navigation"
 import { getJob } from "@/actions/jobs.actions"
 import { JobForm } from "@/components/jobs/JobForm"
@@ -18,6 +19,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
   return (
     <div className="space-y-6">
       <div>
+        <Breadcrumb items={[{ label: "งานรีวิว", href: "/jobs" }, { label: "แก้ไขงาน" }]} />
         <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">แก้ไขงานรีวิว</h1>
         <p className="text-sm text-[hsl(25,10%,50%)] mt-1">{job.brand_name} — {job.product_name}</p>
       </div>

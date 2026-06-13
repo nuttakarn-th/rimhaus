@@ -2,7 +2,8 @@ import Link from "next/link"
 import { getPosts } from "@/actions/posts.actions"
 import { PostCard } from "@/components/posts/PostCard"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { EmptyState } from "@/components/ui/EmptyState"
+import { Plus, FileImage } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import type { Platform } from "@/lib/types"
 
@@ -56,12 +57,12 @@ export default async function PostsPage({
 
       {/* Posts grid */}
       {posts.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-[hsl(35,20%,88%)]">
-          <p className="text-[hsl(25,10%,50%)]">ยังไม่มีโพส</p>
-          <Link href="/posts/new" className="mt-4 inline-block">
-            <Button variant="outline" size="sm">บันทึกโพสแรก</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={FileImage}
+          title="ยังไม่มีโพส"
+          description="บันทึกโพสที่โพสไปแล้วเพื่อติดตาม engagement และ reach"
+          action={{ label: "บันทึกโพสแรก", href: "/posts/new" }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {posts.map(post => (
