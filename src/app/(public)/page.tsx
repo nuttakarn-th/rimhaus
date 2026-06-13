@@ -386,7 +386,7 @@ export default async function HomePage() {
           </div>
           <div className="text-center mt-4">
             <Link href="/portfolio" className="text-xs font-bold text-primary hover:underline">
-              {photos.length > 8 ? `ชม Content ทั้งหมด (${photos.length} รูป) →` : "ชม Portfolio ทั้งหมด →"}
+              ชม Portfolio ทั้งหมด →
             </Link>
           </div>
         </section>
