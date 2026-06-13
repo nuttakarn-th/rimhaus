@@ -539,7 +539,7 @@ export default async function HomePage() {
       )}
 
 <ScrollReveal>
-      <div className="py-6 sm:py-14 flex items-center gap-5" aria-hidden="true">
+      <div className="py-4 sm:py-8 flex items-center gap-5" aria-hidden="true">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-border" />
         <span className="text-[10px] font-black uppercase tracking-[0.45em] text-muted-foreground/50 px-1">ราคา</span>
         <div className="flex-1 h-px bg-gradient-to-l from-transparent via-border to-border" />
