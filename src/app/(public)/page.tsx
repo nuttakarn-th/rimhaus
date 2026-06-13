@@ -197,7 +197,7 @@ export default async function HomePage() {
   const heroStats: HeroStat[] = []
   if (settings?.stat_followers) {
     const p = parseStatText(settings.stat_followers)
-    if (p) heroStats.push({ ...p, label: "ผู้ติดตาม" })
+    if (p) heroStats.push({ ...p, label: "Followers" })
   }
   if (settings?.stat_reach) {
     const p = parseStatText(settings.stat_reach)
@@ -284,9 +284,10 @@ export default async function HomePage() {
 
           {heroStats.length >= 2 && (
             <div className="hero-anim hero-anim-3 w-full">
-              <div className="flex items-stretch justify-center bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden divide-x divide-white/15">
+              <div className="flex items-center justify-center">
                 {heroStats.map((stat, i) => (
-                  <div key={i} className="flex flex-col items-center flex-1 px-3 py-4 gap-1 min-w-0">
+                  <div key={i} className="flex flex-col items-center flex-1 px-4 py-3 gap-1 min-w-0 relative">
+                    {i > 0 && <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-px bg-white/20" />}
                     <span className="text-2xl sm:text-3xl font-black text-white leading-none">
                       <StatCounter
                         to={stat.num}
