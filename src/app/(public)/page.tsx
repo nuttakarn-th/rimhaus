@@ -267,7 +267,7 @@ export default async function HomePage() {
                         to={stat.num}
                         decimals={stat.decimals}
                         suffix={stat.suffix}
-                        delay={350 + i * 120}
+                        delay={150}
                         duration={1600}
                       />
                     </span>
