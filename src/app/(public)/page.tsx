@@ -210,7 +210,7 @@ export default async function HomePage() {
         style={settings?.hero_bg_image_url ? { backgroundImage: `url(${settings.hero_bg_image_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
       >
         {settings?.hero_bg_image_url && (
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90" />
         )}
         {!settings?.hero_bg_image_url && (
           <>
@@ -260,7 +260,7 @@ export default async function HomePage() {
 
           {heroStats.length >= 2 && (
             <div className="hero-anim hero-anim-3 w-full">
-              <div className="flex items-stretch justify-center bg-black/25 backdrop-blur-sm rounded-2xl overflow-hidden divide-x divide-white/15">
+              <div className="flex items-stretch justify-center bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden divide-x divide-white/15">
                 {heroStats.map((stat, i) => (
                   <div key={i} className="flex flex-col items-center flex-1 px-3 py-4 gap-1 min-w-0">
                     <span className="text-2xl sm:text-3xl font-black text-white leading-none">
@@ -272,7 +272,7 @@ export default async function HomePage() {
                         duration={1600}
                       />
                     </span>
-                    <span className="text-[9px] sm:text-[10px] text-white/55 font-medium leading-tight text-center">{stat.label}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/75 font-medium leading-tight text-center">{stat.label}</span>
                   </div>
                 ))}
               </div>
