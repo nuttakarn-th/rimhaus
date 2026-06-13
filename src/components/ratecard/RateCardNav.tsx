@@ -67,7 +67,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
               className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-foreground"}`}
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
             >
-              unfinished house
+              {pageName}
             </span>
 
             {/* Desktop nav (center) */}
