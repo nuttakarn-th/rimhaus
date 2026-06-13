@@ -394,7 +394,12 @@ function AlbumDetail({
         return [...otherItems, ...next]
       })
       const result = await reorderGalleryItems(next.map(p => p.id))
-      if (!result.success) toast.error("บันทึกลำดับไม่สำเร็จ")
+      if (!result.success) { toast.error("บันทึกลำดับไม่สำเร็จ"); return }
+      // Update album cover to match new first image
+      if (next.length > 0 && next[0].image_url !== album.cover_image_url) {
+        await upsertAlbum({ id: album.id, name: album.name, cover_image_url: next[0].image_url })
+        setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, cover_image_url: next[0].image_url } : a))
+      }
     }
     document.addEventListener("pointermove", onMove)
     document.addEventListener("pointerup", onUp)

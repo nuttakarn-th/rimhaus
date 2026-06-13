@@ -469,11 +469,11 @@ export default async function HomePage() {
               {albums.map((album, i) => {
                 const cover = album.cover_image_url ?? album.items[0]?.image_url
                 return (
-                  <div key={album.id} className="shrink-0 w-[72vw] sm:w-56 snap-start">
+                  <div key={album.id} className="shrink-0 w-[58vw] sm:w-52 snap-start">
                     <ScrollReveal delay={i * 60}>
                       <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/4]">
                         {cover ? (
-                          <Image src={cover} alt={album.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 72vw, 224px" />
+                          <Image src={cover} alt={album.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 58vw, 208px" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
