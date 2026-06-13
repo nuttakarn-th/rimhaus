@@ -395,8 +395,11 @@ export default async function HomePage() {
 
       {albums.length > 0 && (
         <ScrollReveal>
-        <section>
-          <SectionHeader title="Gallery" sub="มุมต่างๆ ของบ้าน" />
+        <section className="bg-[hsl(25,20%,12%)] -mx-4 px-4 py-6 space-y-4">
+          <div className="text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Gallery</h2>
+            <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {albums.map(album => {
               const cover = album.cover_image_url ?? album.items[0]?.image_url
@@ -404,7 +407,7 @@ export default async function HomePage() {
                 <Link
                   key={album.id}
                   href="/gallery"
-                  className="group relative block overflow-hidden rounded-2xl bg-secondary aspect-square shadow-sm"
+                  className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-square"
                 >
                   {cover ? (
                     <Image
@@ -416,7 +419,7 @@ export default async function HomePage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(25,10%,70%)" strokeWidth="1.5">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
                       </svg>
                     </div>
@@ -429,14 +432,12 @@ export default async function HomePage() {
               )
             })}
           </div>
-          {totalGalleryItems > 0 && (
-            <div className="text-center mt-4">
-              <Link href="/gallery"
-                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-foreground text-sm font-bold text-foreground hover:bg-foreground hover:text-white transition-all">
-                ดูทั้งหมด
-              </Link>
-            </div>
-          )}
+          <div className="text-center">
+            <Link href="/gallery"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-white/50 text-sm font-bold text-white hover:bg-white hover:text-[hsl(25,20%,12%)] transition-all">
+              ดูทั้งหมด
+            </Link>
+          </div>
         </section>
         </ScrollReveal>
       )}
