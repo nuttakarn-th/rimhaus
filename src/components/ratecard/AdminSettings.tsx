@@ -66,8 +66,9 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: true })
     if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploading(false); return }
     const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
-    setForm(p => ({ ...p, image_url: publicUrl }))
-    await upsertSettings({ image_url: publicUrl })
+    const bustUrl = `${publicUrl}?t=${Date.now()}`
+    setForm(p => ({ ...p, image_url: bustUrl }))
+    await upsertSettings({ image_url: bustUrl })
     toast.success("อัปโหลดรูปสำเร็จ")
     setUploading(false)
     router.refresh()
@@ -85,8 +86,9 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     const { error } = await supabase.storage.from("rate-card").upload(path, file, { upsert: true })
     if (error) { toast.error("อัปโหลดไม่สำเร็จ: " + error.message); setUploadingHeroBg(false); return }
     const { data: { publicUrl } } = supabase.storage.from("rate-card").getPublicUrl(path)
-    setForm(p => ({ ...p, hero_bg_image_url: publicUrl }))
-    await upsertSettings({ hero_bg_image_url: publicUrl })
+    const bustUrl = `${publicUrl}?t=${Date.now()}`
+    setForm(p => ({ ...p, hero_bg_image_url: bustUrl }))
+    await upsertSettings({ hero_bg_image_url: bustUrl })
     toast.success("อัปโหลดภาพ Banner สำเร็จ")
     setUploadingHeroBg(false)
     router.refresh()
