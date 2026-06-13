@@ -422,11 +422,8 @@ export default async function HomePage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
                     <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
-                    {album.items.length > 0 && (
-                      <p className="text-[10px] text-white/65 mt-0.5">{album.items.length} รูป</p>
-                    )}
                   </div>
                 </Link>
               )
