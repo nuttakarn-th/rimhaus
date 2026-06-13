@@ -43,6 +43,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     show_calculator: settings?.show_calculator ?? true,
     stat_followers: settings?.stat_followers ?? "",
     stat_engagement: settings?.stat_engagement ?? "",
+    stat_reach: settings?.stat_reach ?? "",
+    stat_views: settings?.stat_views ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -172,6 +174,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       show_calculator: form.show_calculator,
       stat_followers: form.stat_followers || null,
       stat_engagement: form.stat_engagement || null,
+      stat_reach: form.stat_reach || null,
+      stat_views: form.stat_views || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -317,14 +321,23 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">จำนวนผู้ติดตาม</Label>
-            <Input value={form.stat_followers} onChange={e => setForm(p => ({ ...p, stat_followers: e.target.value }))} placeholder="44K ไลค์" />
+            <Label className="text-xs">ผู้ติดตาม / ไลค์เพจ</Label>
+            <Input value={form.stat_followers} onChange={e => setForm(p => ({ ...p, stat_followers: e.target.value }))} placeholder="44K" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Engagement Rate</Label>
             <Input value={form.stat_engagement} onChange={e => setForm(p => ({ ...p, stat_engagement: e.target.value }))} placeholder="5.2%" />
           </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Avg. Reach / โพส</Label>
+            <Input value={form.stat_reach} onChange={e => setForm(p => ({ ...p, stat_reach: e.target.value }))} placeholder="15K" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Total Views (รวม)</Label>
+            <Input value={form.stat_views} onChange={e => setForm(p => ({ ...p, stat_views: e.target.value }))} placeholder="2M+" />
+          </div>
         </div>
+        <p className="text-[10px] text-[hsl(25,10%,65%)]">ใส่เฉพาะที่มีข้อมูลจริง — ตัวเลขจะ animate count-up ตอนเปิดหน้า</p>
       </div>
 
       {/* Page info */}

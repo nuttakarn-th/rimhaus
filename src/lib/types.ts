@@ -196,6 +196,8 @@ export interface RateCardSettings {
   show_calculator: boolean
   stat_followers: string | null
   stat_engagement: string | null
+  stat_reach: string | null
+  stat_views: string | null
   updated_at: string
 }
 

@@ -195,9 +195,17 @@ export default async function HomePage() {
   if (portfolioItems.length > 0) {
     heroStats.push({ num: portfolioItems.length, suffix: "", decimals: 0, label: "ผลงาน" })
   }
+  if (settings?.stat_reach) {
+    const p = parseStatText(settings.stat_reach)
+    if (p) heroStats.push({ ...p, label: "Avg. Reach" })
+  }
   if (settings?.stat_engagement) {
     const p = parseStatText(settings.stat_engagement)
     if (p) heroStats.push({ ...p, label: "Engagement" })
+  }
+  if (settings?.stat_views) {
+    const p = parseStatText(settings.stat_views)
+    if (p) heroStats.push({ ...p, label: "Total Views" })
   }
 
   return (
