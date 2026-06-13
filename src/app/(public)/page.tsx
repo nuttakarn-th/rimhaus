@@ -1,11 +1,10 @@
 import Link from "next/link"
 import Image from "next/image"
-import { getPublicSettings, getPublicPackages, getPublicPortfolioItems, getPublicPartners, getPublicGalleryItems } from "@/lib/public-data"
+import { getPublicSettings, getPublicPackages, getPublicPortfolioItems, getPublicPartners, getPublicAlbumsWithItems } from "@/lib/public-data"
 import { formatCurrency } from "@/lib/utils"
 import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
 import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
-import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { StatCounter } from "@/components/ui/StatCounter"
 import type { RateCardPackage } from "@/lib/types"
@@ -164,12 +163,12 @@ function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?:
 
 // ── Page ──────────────────────────────────────────────────────────
 export default async function HomePage() {
-  const [packages, settings, portfolioItems, partners, galleryItems] = await Promise.all([
+  const [packages, settings, portfolioItems, partners, albums] = await Promise.all([
     getPublicPackages(),
     getPublicSettings(),
     getPublicPortfolioItems(),
     getPublicPartners(),
-    getPublicGalleryItems(),
+    getPublicAlbumsWithItems(),
   ])
 
   const grouped = {
@@ -181,7 +180,7 @@ export default async function HomePage() {
 
   const videos = portfolioItems.filter(i => i.type === "video")
   const photos = portfolioItems.filter(i => i.type === "photo")
-  const previewGallery = galleryItems.slice(0, 6)
+  const totalGalleryItems = albums.reduce((sum, a) => sum + a.items.length, 0)
 
   type HeroStat = { num: number; decimals: number; suffix: string; label: string }
   const heroStats: HeroStat[] = []
@@ -394,16 +393,50 @@ export default async function HomePage() {
         </ScrollReveal>
       )}
 
-      {previewGallery.length > 0 && (
+      {albums.length > 0 && (
         <ScrollReveal>
         <section>
-          <SectionHeader title="Gallery" />
-          <GalleryGrid items={previewGallery} />
-          {galleryItems.length > 6 && (
-            <div className="text-center mt-5">
+          <SectionHeader title="Gallery" sub="มุมต่างๆ ของบ้าน" />
+          <div className="grid grid-cols-2 gap-2">
+            {albums.map(album => {
+              const cover = album.cover_image_url ?? album.items[0]?.image_url
+              return (
+                <Link
+                  key={album.id}
+                  href="/gallery"
+                  className="group relative block overflow-hidden rounded-2xl bg-secondary aspect-square shadow-sm"
+                >
+                  {cover ? (
+                    <Image
+                      src={cover}
+                      alt={album.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(25,10%,70%)" strokeWidth="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
+                    {album.items.length > 0 && (
+                      <p className="text-[10px] text-white/65 mt-0.5">{album.items.length} รูป</p>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+          {totalGalleryItems > 0 && (
+            <div className="text-center mt-4">
               <Link href="/gallery"
                 className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-foreground text-sm font-bold text-foreground hover:bg-foreground hover:text-white transition-all">
-                ดูทั้งหมด ({galleryItems.length} รูป)
+                ดูทั้งหมด {totalGalleryItems > 0 ? `(${totalGalleryItems} รูป)` : ""}
               </Link>
             </div>
           )}
