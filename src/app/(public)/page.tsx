@@ -325,12 +325,12 @@ export default async function HomePage() {
 
       {partners.length > 0 && (
         <ScrollReveal>
-        <section className="pt-4 sm:pt-5">
+        <section className="pt-4 sm:pt-5 pb-4 sm:pb-6">
           <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">
             แบรนด์ที่เคยร่วมงาน
           </p>
           <div
-            className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-3 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-4 sm:px-8"
+            className="grid grid-rows-2 grid-flow-col gap-x-7 gap-y-3 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-6 sm:px-8"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {partners.map(p => (
@@ -346,7 +346,7 @@ export default async function HomePage() {
         </ScrollReveal>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 pt-4 sm:pt-6 pb-5 space-y-5">
+      <div className="max-w-3xl mx-auto px-4 pt-2 sm:pt-6 pb-5 space-y-5">
 
       {videos.length > 0 && (
         <ScrollReveal>
