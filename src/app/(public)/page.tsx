@@ -430,7 +430,10 @@ export default async function HomePage() {
           <div className="max-w-3xl mx-auto px-4 space-y-4">
             <HeadingReveal>
               <div className="text-center">
-                <h2 className="text-3xl sm:text-4xl font-black text-primary tracking-tight">Gallery</h2>
+                <h2
+                  className="text-3xl sm:text-4xl font-black text-primary tracking-tight"
+                  style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
+                >Gallery</h2>
                 <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
               </div>
             </HeadingReveal>
