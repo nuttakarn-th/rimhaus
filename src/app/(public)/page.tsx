@@ -432,37 +432,18 @@ export default async function HomePage() {
       </div>{/* end first container */}
 
       {albums.length > 0 && (
-        <section className="bg-[hsl(25,20%,12%)] w-full py-6 overflow-hidden">
-          {/* Header */}
-          <div className="px-4 mb-4">
-            <HeadingReveal>
-              <div className="text-center">
-                <h2
-                  className="text-3xl sm:text-4xl font-black text-primary tracking-tight"
-                  style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
-                >Gallery</h2>
-                <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
-              </div>
-            </HeadingReveal>
-          </div>
+        <section className="bg-[hsl(25,20%,12%)] w-full pt-8 pb-0 overflow-hidden">
 
-          {/* Album cards — horizontal scroll when many, full-width stretch when few */}
+          {/* Album cards — portrait, horizontal scroll */}
           {albums.length <= 2 ? (
-            /* 1–2 albums: stretch to fill full width */
             <div className="flex gap-3 px-4">
               {albums.map((album, i) => {
                 const cover = album.cover_image_url ?? album.items[0]?.image_url
                 return (
                   <ScrollReveal key={album.id} delay={i * 80} className="flex-1 min-w-0">
-                    <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/2]">
+                    <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/4]">
                       {cover ? (
-                        <Image
-                          src={cover}
-                          alt={album.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 640px) 90vw, 50vw"
-                        />
+                        <Image src={cover} alt={album.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 90vw, 45vw" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
@@ -470,12 +451,10 @@ export default async function HomePage() {
                           </svg>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
-                        {album.description && (
-                          <p className="text-xs text-white/60 mt-0.5 line-clamp-1">{album.description}</p>
-                        )}
+                        {album.description && <p className="text-xs text-white/55 mt-0.5 line-clamp-1">{album.description}</p>}
                       </div>
                     </Link>
                   </ScrollReveal>
@@ -483,25 +462,18 @@ export default async function HomePage() {
               })}
             </div>
           ) : (
-            /* 3+ albums: horizontal scroll carousel */
             <div
-              className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scroll-smooth"
+              className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory scroll-smooth"
               style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
             >
               {albums.map((album, i) => {
                 const cover = album.cover_image_url ?? album.items[0]?.image_url
                 return (
-                  <div key={album.id} className="shrink-0 w-[78vw] sm:w-80 snap-start">
+                  <div key={album.id} className="shrink-0 w-[72vw] sm:w-56 snap-start">
                     <ScrollReveal delay={i * 60}>
-                      <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/2]">
+                      <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/4]">
                         {cover ? (
-                          <Image
-                            src={cover}
-                            alt={album.name}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="(max-width: 640px) 78vw, 320px"
-                          />
+                          <Image src={cover} alt={album.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 72vw, 224px" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
@@ -509,12 +481,10 @@ export default async function HomePage() {
                             </svg>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-4">
                           <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
-                          {album.description && (
-                            <p className="text-xs text-white/60 mt-0.5 line-clamp-1">{album.description}</p>
-                          )}
+                          {album.description && <p className="text-xs text-white/55 mt-0.5 line-clamp-1">{album.description}</p>}
                         </div>
                       </Link>
                     </ScrollReveal>
@@ -524,13 +494,28 @@ export default async function HomePage() {
             </div>
           )}
 
-          {/* View all link */}
-          <div className="text-center mt-4 px-4">
-            <Link href="/gallery"
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-white/50 text-sm font-bold text-white hover:bg-white hover:text-[hsl(25,20%,12%)] transition-all">
-              ดูทั้งหมด
-            </Link>
-          </div>
+          {/* Editorial footer — big "Gallery" label + CTA */}
+          <HeadingReveal>
+            <div className="flex items-end justify-between px-4 pt-2 pb-4">
+              <div className="leading-none">
+                <h2
+                  className="text-[4.5rem] sm:text-[7rem] font-black text-primary tracking-tighter leading-none"
+                  style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
+                >Gallery</h2>
+                <p className="text-xs text-white/35 mt-1 tracking-widest uppercase">มุมต่างๆ ของบ้าน</p>
+              </div>
+              <div className="pb-3 shrink-0">
+                <Link
+                  href="/gallery"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/30 text-xs font-bold text-white/70 hover:border-white/60 hover:text-white transition-all"
+                >
+                  ดูทั้งหมด
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </Link>
+              </div>
+            </div>
+          </HeadingReveal>
+
         </section>
       )}
 
