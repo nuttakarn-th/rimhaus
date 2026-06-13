@@ -327,8 +327,8 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-3">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ข้อมูลเพจ</h3>
         <div className="space-y-1">
-          <Label className="text-xs">ชื่อเพจ</Label>
-          <Input value={form.page_name} onChange={e => setForm(p => ({ ...p, page_name: e.target.value }))} placeholder="เมื่อไหร่บ้านจะเสร็จ?" />
+          <Label className="text-xs">ชื่อแบรนด์ <span className="text-[hsl(25,10%,60%)] font-normal">(แสดงที่มุมบนซ้ายของ nav bar)</span></Label>
+          <Input value={form.page_name} onChange={e => setForm(p => ({ ...p, page_name: e.target.value }))} placeholder="unfinished house" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs">หมวดหมู่</Label>
