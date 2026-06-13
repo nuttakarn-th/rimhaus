@@ -694,11 +694,68 @@ export default async function HomePage() {
         </ScrollReveal>
       )}
 
-      <p className="text-center text-xs text-ink-dim pb-4">
-        {settings?.page_name} · un.finished.house
-      </p>
 
       </div>
+
+      {/* ── Site Footer ───────────────────────────────────────── */}
+      <footer className="bg-[hsl(22,18%,10%)] border-t border-white/5">
+        <div className="max-w-5xl mx-auto px-5 py-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+
+          {/* Brand */}
+          <span
+            className="font-black text-white text-sm shrink-0"
+            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)" }}
+          >
+            {settings?.page_name ?? "Rate Card"}
+          </span>
+
+          {/* Divider — desktop only */}
+          <div className="hidden sm:block w-px h-7 bg-white/15 shrink-0" />
+
+          {/* Nav links + copyright */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link href="/" className="text-xs text-white/50 hover:text-white/90 transition-colors">Rate Card</Link>
+              {portfolioItems.length > 0 && (
+                <Link href="/portfolio" className="text-xs text-white/50 hover:text-white/90 transition-colors">ตัวอย่าง Content</Link>
+              )}
+              {albums.length > 0 && (
+                <Link href="/gallery" className="text-xs text-white/50 hover:text-white/90 transition-colors">Gallery</Link>
+              )}
+              {partners.length > 0 && (
+                <Link href="/partners" className="text-xs text-white/50 hover:text-white/90 transition-colors">All Partner</Link>
+              )}
+            </div>
+            <p className="text-[10px] text-white/25">© {new Date().getFullYear()} {settings?.page_name} · All rights reserved.</p>
+          </div>
+
+          {/* Contact — right side */}
+          {(settings?.contact_line || settings?.contact_email) && (
+            <div className="flex flex-col gap-0.5 sm:text-right shrink-0">
+              {settings.contact_line && (
+                <a
+                  href={`https://line.me/ti/p/~${settings.contact_line}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-white/45 hover:text-white/80 transition-colors"
+                >
+                  LINE: {settings.contact_line}
+                </a>
+              )}
+              {settings.contact_email && (
+                <a
+                  href={`mailto:${settings.contact_email}`}
+                  className="text-[11px] text-white/45 hover:text-white/80 transition-colors"
+                >
+                  {settings.contact_email}
+                </a>
+              )}
+            </div>
+          )}
+
+        </div>
+      </footer>
+
       </div>
     </>
   )
