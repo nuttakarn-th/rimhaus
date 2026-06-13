@@ -438,7 +438,7 @@ export default async function HomePage() {
           {albums.length <= 2 ? (
             <div className="flex gap-3 px-4">
               {albums.map((album, i) => {
-                const cover = album.cover_image_url ?? album.items[0]?.image_url
+                const cover = album.items[0]?.image_url ?? album.cover_image_url
                 return (
                   <ScrollReveal key={album.id} delay={i * 80} className="flex-1 min-w-0">
                     <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-[3/4]">
@@ -467,7 +467,7 @@ export default async function HomePage() {
               style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
             >
               {albums.map((album, i) => {
-                const cover = album.cover_image_url ?? album.items[0]?.image_url
+                const cover = album.items[0]?.image_url ?? album.cover_image_url
                 return (
                   <div key={album.id} className="shrink-0 w-[58vw] sm:w-52 snap-start">
                     <ScrollReveal delay={i * 60}>
