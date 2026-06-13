@@ -145,6 +145,13 @@ body {
 .dark [class~='hover:bg-[hsl(35,25%,98%)]']:hover { background-color: hsl(220, 13%, 17%); }
 .dark [class~='hover:bg-[hsl(35,20%,92%)]']:hover { background-color: hsl(220, 13%, 22%); }
 
+/* ── Dark mode: hardcoded warm-cream backgrounds (skeleton + lists) */
+.dark [class~='bg-[hsl(35,20%,88%)]'] { background-color: hsl(220, 13%, 20%); }
+.dark [class~='bg-[hsl(35,20%,86%)]'] { background-color: hsl(220, 13%, 22%); }
+.dark [class~='bg-[hsl(35,20%,90%)]'] { background-color: hsl(220, 13%, 19%); }
+.dark [class~='bg-[hsl(35,20%,91%)]'] { background-color: hsl(220, 13%, 19%); }
+.dark [class~='hover:bg-[hsl(35,25%,97%)]']:hover { background-color: hsl(220, 13%, 17%); }
+
 /* ── Dark mode: hardcoded warm borders → neutral dark borders ─── */
 .dark [class~='border-[hsl(35,20%,88%)]'] { border-color: hsl(220, 13%, 22%); }
 .dark [class~='border-[hsl(35,20%,90%)]'] { border-color: hsl(220, 13%, 22%); }

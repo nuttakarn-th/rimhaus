@@ -158,9 +158,12 @@ function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; platformLog
   )
 }
 
-function SectionHeader({ title, tag, sub }: { title: string; tag?: string; sub?: string }) {
+function SectionHeader({ title, tag, sub, num }: { title: string; tag?: string; sub?: string; num?: string }) {
   return (
     <div className="flex flex-col items-center gap-1 mb-2 text-center">
+      {num && (
+        <span className="text-[10px] font-black tracking-[0.35em] uppercase text-brand-tx/60 mb-0.5">{num}</span>
+      )}
       <h2
         className="text-3xl sm:text-4xl tracking-tight leading-tight text-foreground"
         style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 900 }}
@@ -352,7 +355,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section>
           <HeadingReveal>
-            <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" />
+            <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" num="VDO" />
           </HeadingReveal>
           <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {videos.map(item => (
@@ -394,7 +397,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section>
           <HeadingReveal>
-            <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" />
+            <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" num="PHOTO" />
           </HeadingReveal>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {photos.slice(0, 8).map(item => (
@@ -568,8 +571,9 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {grouped.per_platform.length > 0 && (
+        <ScrollReveal>
         <section>
-          <HeadingReveal><SectionHeader title="Single Platform" /></HeadingReveal>
+          <HeadingReveal><SectionHeader title="Single Platform" num="01" /></HeadingReveal>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.per_platform.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 75}>
@@ -578,11 +582,13 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.bundle.length > 0 && (
+        <ScrollReveal>
         <section>
-          <HeadingReveal><SectionHeader title="All Platforms" tag="ประหยัดกว่า" /></HeadingReveal>
+          <HeadingReveal><SectionHeader title="All Platforms" tag="ประหยัดกว่า" num="02" /></HeadingReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {grouped.bundle.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 75}>
@@ -591,11 +597,13 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.addon.length > 0 && (
+        <ScrollReveal>
         <section>
-          <HeadingReveal><SectionHeader title="Additional Services" /></HeadingReveal>
+          <HeadingReveal><SectionHeader title="Additional Services" num="03" /></HeadingReveal>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {grouped.addon.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 75}>
@@ -604,6 +612,7 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {grouped.barter.length > 0 && (

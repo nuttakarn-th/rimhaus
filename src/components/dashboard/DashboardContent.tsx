@@ -32,13 +32,13 @@ export async function DashboardContent() {
   const upcomingContent = contentItems.filter(c =>
     c.planned_date && c.planned_date >= today && c.planned_date <= nextWeek && c.status !== "posted"
   )
-  const recentJobs = jobs.slice(0, 5)
+  const recentJobs = jobs.slice(0, 4)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KpiCard
           title="รายรับเดือนนี้"
           value={formatCurrency(summary.income)}
@@ -69,8 +69,8 @@ export async function DashboardContent() {
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Charts + Top Pillar — 3-col on large screens */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] p-4">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-[hsl(24,85%,50%)]" />
@@ -85,9 +85,8 @@ export async function DashboardContent() {
           </div>
           <PlatformSummary data={platformCounts} />
         </div>
+        <TopPillarWidget stats={pillarStats} />
       </div>
-
-      <TopPillarWidget stats={pillarStats} />
 
       {/* Recent Jobs */}
       <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] overflow-hidden">
