@@ -6,6 +6,7 @@ import { PlatformBubble, PlatformIcon } from "@/components/ui/PlatformIcon"
 import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
 import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { HeadingReveal } from "@/components/ui/HeadingReveal"
 import { StatCounter } from "@/components/ui/StatCounter"
 import type { RateCardPackage } from "@/lib/types"
 
@@ -318,7 +319,9 @@ export default async function HomePage() {
       {videos.length > 0 && (
         <ScrollReveal>
         <section>
-          <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" />
+          <HeadingReveal>
+            <SectionHeader title="Short VDO" sub="คลิก! เพื่อดูโพสต้นทาง" />
+          </HeadingReveal>
           <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {videos.map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="shrink-0 group block">
@@ -358,7 +361,9 @@ export default async function HomePage() {
       {photos.length > 0 && (
         <ScrollReveal>
         <section>
-          <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" />
+          <HeadingReveal>
+            <SectionHeader title="Photo Content" sub="คลิก! เพื่อดูโพสต้นทาง" />
+          </HeadingReveal>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {photos.slice(0, 8).map(item => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer"
@@ -399,10 +404,12 @@ export default async function HomePage() {
         <ScrollReveal>
         <section className="bg-[hsl(25,20%,12%)] w-full py-6">
           <div className="max-w-3xl mx-auto px-4 space-y-4">
-            <div className="text-center">
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Gallery</h2>
-              <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
-            </div>
+            <HeadingReveal>
+              <div className="text-center">
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Gallery</h2>
+                <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
+              </div>
+            </HeadingReveal>
             <div className="grid grid-cols-2 gap-2">
               {albums.map(album => {
                 const cover = album.cover_image_url ?? album.items[0]?.image_url
@@ -476,15 +483,17 @@ export default async function HomePage() {
 
       <ScrollReveal>
       <section>
-        <div className="flex flex-col items-center mb-4 text-center gap-2">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
-          <h2
-            className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
-            style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
-          >
-            Rate Card
-          </h2>
-        </div>
+        <HeadingReveal>
+          <div className="flex flex-col items-center mb-4 text-center gap-2">
+            <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
+            <h2
+              className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
+              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
+            >
+              Rate Card
+            </h2>
+          </div>
+        </HeadingReveal>
         {settings?.image_url && (
           <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
             <Image src={settings.image_url} alt="Rate Card" width={800} height={600} className="w-full h-auto object-contain" />

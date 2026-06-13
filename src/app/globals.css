@@ -226,6 +226,22 @@ body {
   transform: translateY(0);
 }
 
+/* Section heading reveal — blur-to-clear snap */
+.heading-reveal {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(8px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.heading-reveal.in-view {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
 /* Hero entrance */
 @keyframes hero-fade-up {
   from { opacity: 0; transform: translateY(20px); }
@@ -245,6 +261,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
+  .heading-reveal { opacity: 1; filter: none; transform: none; transition: none; }
   .hero-anim { animation: none; }
   .page-enter { animation: none; }
 }
