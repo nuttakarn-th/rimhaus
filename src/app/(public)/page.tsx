@@ -7,7 +7,17 @@ import { PackageCalculator } from "@/components/ratecard/PackageCalculator"
 import { PackageTermsBadge } from "@/components/ratecard/PackageTermsBadge"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { StatCounter } from "@/components/ui/StatCounter"
 import type { RateCardPackage } from "@/lib/types"
+
+function parseStatText(text: string): { num: number; suffix: string; decimals: number } | null {
+  const m = text.trim().match(/^([0-9,]+(?:\.[0-9]+)?)(.*)$/)
+  if (!m) return null
+  const num = parseFloat(m[1].replace(/,/g, ""))
+  if (isNaN(num) || num === 0) return null
+  const decimals = m[1].includes(".") ? m[1].split(".")[1].length : 0
+  return { num, suffix: m[2].trim(), decimals }
+}
 
 const PLATFORMS = ["facebook", "tiktok", "instagram", "lemon8"]
 
@@ -173,6 +183,23 @@ export default async function HomePage() {
   const photos = portfolioItems.filter(i => i.type === "photo")
   const previewGallery = galleryItems.slice(0, 6)
 
+  type HeroStat = { num: number; decimals: number; suffix: string; label: string }
+  const heroStats: HeroStat[] = []
+  if (settings?.stat_followers) {
+    const p = parseStatText(settings.stat_followers)
+    if (p) heroStats.push({ ...p, label: "ผู้ติดตาม" })
+  }
+  if (partners.length > 0) {
+    heroStats.push({ num: partners.length, suffix: "+", decimals: 0, label: "แบรนด์" })
+  }
+  if (portfolioItems.length > 0) {
+    heroStats.push({ num: portfolioItems.length, suffix: "", decimals: 0, label: "ผลงาน" })
+  }
+  if (settings?.stat_engagement) {
+    const p = parseStatText(settings.stat_engagement)
+    if (p) heroStats.push({ ...p, label: "Engagement" })
+  }
+
   return (
     <>
       {/* ── Full-screen Hero ──────────────────────────────── */}
@@ -205,20 +232,7 @@ export default async function HomePage() {
             )}
           </div>
 
-          <div className="hero-anim hero-anim-2 space-y-2">
-            {(settings?.stat_followers || settings?.stat_engagement) && (
-              <div className="flex items-center justify-center gap-3 text-white/75 text-xs font-medium flex-wrap">
-                {settings.stat_followers && (
-                  <span><span className="font-black text-white text-sm">{settings.stat_followers}</span> ผู้ติดตาม</span>
-                )}
-                {settings.stat_followers && settings.stat_engagement && (
-                  <span className="text-white/30">·</span>
-                )}
-                {settings.stat_engagement && (
-                  <span><span className="font-black text-white text-sm">{settings.stat_engagement}</span> engagement</span>
-                )}
-              </div>
-            )}
+          <div className="hero-anim hero-anim-2">
             <div className="flex justify-center gap-2 flex-wrap">
               {PLATFORMS.map(p => {
                 const logoUrl = settings?.platform_logos?.[p]
@@ -241,6 +255,27 @@ export default async function HomePage() {
               })}
             </div>
           </div>
+
+          {heroStats.length >= 2 && (
+            <div className="hero-anim hero-anim-3 w-full max-w-xs sm:max-w-sm">
+              <div className="flex items-stretch justify-center bg-black/25 backdrop-blur-sm rounded-2xl overflow-hidden divide-x divide-white/15">
+                {heroStats.map((stat, i) => (
+                  <div key={i} className="flex flex-col items-center flex-1 px-2 sm:px-4 py-3 gap-0.5 min-w-0">
+                    <span className="text-lg sm:text-2xl font-black text-white leading-none">
+                      <StatCounter
+                        to={stat.num}
+                        decimals={stat.decimals}
+                        suffix={stat.suffix}
+                        delay={350 + i * 120}
+                        duration={1600}
+                      />
+                    </span>
+                    <span className="text-[8px] sm:text-[9px] text-white/55 font-medium leading-tight text-center">{stat.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
