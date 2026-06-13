@@ -248,9 +248,9 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 .hero-anim { animation: hero-fade-up 0.8s cubic-bezier(0.25, 1, 0.5, 1) both; }
-.hero-anim-1 { animation-delay: 0.15s; }
-.hero-anim-2 { animation-delay: 0.15s; }
-.hero-anim-3 { animation-delay: 0.15s; }
+.hero-anim-1 { animation-delay: 0.40s; }
+.hero-anim-2 { animation-delay: 0.55s; }
+.hero-anim-3 { animation-delay: 0.70s; }
 
 /* Hero title — word-by-word stagger */
 @keyframes word-rise {

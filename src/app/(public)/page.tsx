@@ -282,7 +282,7 @@ export default async function HomePage() {
                         to={stat.num}
                         decimals={stat.decimals}
                         suffix={stat.suffix}
-                        delay={150}
+                        delay={700}
                         duration={1600}
                       />
                     </span>
@@ -425,11 +425,11 @@ export default async function HomePage() {
               </div>
             </HeadingReveal>
             <div className="grid grid-cols-2 gap-2">
-              {albums.map(album => {
+              {albums.map((album, i) => {
                 const cover = album.cover_image_url ?? album.items[0]?.image_url
                 return (
+                  <ScrollReveal key={album.id} delay={i * 80}>
                   <Link
-                    key={album.id}
                     href="/gallery"
                     className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-square"
                   >
@@ -453,6 +453,7 @@ export default async function HomePage() {
                       <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
                     </div>
                   </Link>
+                  </ScrollReveal>
                 )
               })}
             </div>
@@ -517,36 +518,42 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {grouped.per_platform.length > 0 && (
-        <ScrollReveal>
         <section>
-          <SectionHeader title="Single Platform" />
+          <HeadingReveal><SectionHeader title="Single Platform" /></HeadingReveal>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {grouped.per_platform.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
+            {grouped.per_platform.map((p, i) => (
+              <ScrollReveal key={p.id} delay={i * 75}>
+                <PackageCard pkg={p} platformLogos={settings?.platform_logos ?? {}} />
+              </ScrollReveal>
+            ))}
           </div>
         </section>
-        </ScrollReveal>
       )}
 
       {grouped.bundle.length > 0 && (
-        <ScrollReveal>
         <section>
-          <SectionHeader title="All Platforms" tag="ประหยัดกว่า" />
+          <HeadingReveal><SectionHeader title="All Platforms" tag="ประหยัดกว่า" /></HeadingReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            {grouped.bundle.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
+            {grouped.bundle.map((p, i) => (
+              <ScrollReveal key={p.id} delay={i * 75}>
+                <PackageCard pkg={p} platformLogos={settings?.platform_logos ?? {}} />
+              </ScrollReveal>
+            ))}
           </div>
         </section>
-        </ScrollReveal>
       )}
 
       {grouped.addon.length > 0 && (
-        <ScrollReveal>
         <section>
-          <SectionHeader title="Additional Services" />
+          <HeadingReveal><SectionHeader title="Additional Services" /></HeadingReveal>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {grouped.addon.map(p => <PackageCard key={p.id} pkg={p} platformLogos={settings?.platform_logos ?? {}} />)}
+            {grouped.addon.map((p, i) => (
+              <ScrollReveal key={p.id} delay={i * 75}>
+                <PackageCard pkg={p} platformLogos={settings?.platform_logos ?? {}} />
+              </ScrollReveal>
+            ))}
           </div>
         </section>
-        </ScrollReveal>
       )}
 
       {grouped.barter.length > 0 && (
