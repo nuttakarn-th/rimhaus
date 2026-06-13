@@ -229,59 +229,63 @@ export default async function HomePage() {
           </>
         )}
 
-        <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-8 pt-14 pb-12 sm:pb-14 lg:pb-20 space-y-3">
-          <h1
-            className="text-5xl sm:text-6xl leading-tight text-white"
-            style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400 }}
-          >
-            {parseHeroWords(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
-              .map(({ word, italic }, i, arr) => (
-                <span
-                  key={i}
-                  className="inline-block hero-word"
-                  style={{
-                    animationDelay: `${0.08 + i * 0.10}s`,
-                    marginRight: i < arr.length - 1 ? "0.25em" : undefined,
-                    fontStyle: italic ? "italic" : "normal",
-                  }}
-                >
-                  {word}
-                </span>
-              ))
-            }
-          </h1>
-          {(settings?.hero_subtitle ?? settings?.page_category) && (
-            <div className="hero-anim hero-anim-1 mt-2">
-              <p className="text-sm text-white/65 font-medium">
-                {settings?.hero_subtitle ?? settings?.page_category}
-              </p>
-            </div>
-          )}
+        <div className="absolute inset-0 flex flex-col items-center text-center px-8 pt-14 pb-10 sm:pb-12">
 
-          <div className="hero-anim hero-anim-2">
-            <div className="flex justify-center gap-2 flex-wrap">
-              {PLATFORMS.map(p => {
-                const logoUrl = settings?.platform_logos?.[p]
-                const platformUrl = settings?.platform_urls?.[p]
-                const bubble = logoUrl ? (
-                  <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
-                    <Image src={logoUrl} alt={p} width={28} height={28} className="object-cover" />
-                  </div>
-                ) : (
-                  <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
-                )
-                return platformUrl ? (
-                  <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
-                     className="transition-transform hover:scale-110 rounded-full">
-                    {bubble}
-                  </a>
-                ) : (
-                  <span key={p}>{bubble}</span>
-                )
-              })}
+          {/* Center group — title + subtitle + icons */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <h1
+              className="text-5xl sm:text-6xl leading-tight text-white"
+              style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400 }}
+            >
+              {parseHeroWords(settings?.hero_heading ?? settings?.page_name ?? "Rate Card")
+                .map(({ word, italic }, i, arr) => (
+                  <span
+                    key={i}
+                    className="inline-block hero-word"
+                    style={{
+                      animationDelay: `${0.08 + i * 0.10}s`,
+                      marginRight: i < arr.length - 1 ? "0.25em" : undefined,
+                      fontStyle: italic ? "italic" : "normal",
+                    }}
+                  >
+                    {word}
+                  </span>
+                ))
+              }
+            </h1>
+            {(settings?.hero_subtitle ?? settings?.page_category) && (
+              <div className="hero-anim hero-anim-1 mt-1">
+                <p className="text-sm text-white/65 font-medium">
+                  {settings?.hero_subtitle ?? settings?.page_category}
+                </p>
+              </div>
+            )}
+            <div className="hero-anim hero-anim-2 mt-3">
+              <div className="flex justify-center gap-2 flex-wrap">
+                {PLATFORMS.map(p => {
+                  const logoUrl = settings?.platform_logos?.[p]
+                  const platformUrl = settings?.platform_urls?.[p]
+                  const bubble = logoUrl ? (
+                    <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow border border-white/30 flex items-center justify-center">
+                      <Image src={logoUrl} alt={p} width={28} height={28} className="object-cover" />
+                    </div>
+                  ) : (
+                    <PlatformBubble platform={p} size={28} noHover={!!platformUrl} />
+                  )
+                  return platformUrl ? (
+                    <a key={p} href={platformUrl} target="_blank" rel="noopener noreferrer" title={p}
+                       className="transition-transform hover:scale-110 rounded-full">
+                      {bubble}
+                    </a>
+                  ) : (
+                    <span key={p}>{bubble}</span>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
+          {/* Stats — pinned to bottom */}
           {heroStats.length >= 2 && (
             <div className="hero-anim hero-anim-3 w-full">
               <div className="flex items-center justify-center">
@@ -303,7 +307,6 @@ export default async function HomePage() {
               </div>
             </div>
           )}
-
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-50 animate-bounce">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
