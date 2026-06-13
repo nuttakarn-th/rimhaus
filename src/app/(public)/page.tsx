@@ -433,7 +433,7 @@ export default async function HomePage() {
             <div className="text-center mt-4">
               <Link href="/gallery"
                 className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-foreground text-sm font-bold text-foreground hover:bg-foreground hover:text-white transition-all">
-                ดูทั้งหมด {totalGalleryItems > 0 ? `(${totalGalleryItems} รูป)` : ""}
+                ดูทั้งหมด
               </Link>
             </div>
           )}
