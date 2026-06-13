@@ -313,7 +313,7 @@ export default async function HomePage() {
         </ScrollReveal>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5">
+      <div className="max-w-3xl mx-auto px-4 pt-4 sm:pt-6 pb-5 space-y-5">
 
       {videos.length > 0 && (
         <ScrollReveal>
@@ -393,54 +393,60 @@ export default async function HomePage() {
         </ScrollReveal>
       )}
 
+      </div>{/* end first container */}
+
       {albums.length > 0 && (
         <ScrollReveal>
-        <section className="bg-[hsl(25,20%,12%)] -mx-4 px-4 py-6 space-y-4">
-          <div className="text-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Gallery</h2>
-            <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {albums.map(album => {
-              const cover = album.cover_image_url ?? album.items[0]?.image_url
-              return (
-                <Link
-                  key={album.id}
-                  href="/gallery"
-                  className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-square"
-                >
-                  {cover ? (
-                    <Image
-                      src={cover}
-                      alt={album.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 50vw, 25vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
-                      </svg>
+        <section className="bg-[hsl(25,20%,12%)] w-full py-6">
+          <div className="max-w-3xl mx-auto px-4 space-y-4">
+            <div className="text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Gallery</h2>
+              <p className="text-xs text-white/45 mt-0.5">มุมต่างๆ ของบ้าน</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {albums.map(album => {
+                const cover = album.cover_image_url ?? album.items[0]?.image_url
+                return (
+                  <Link
+                    key={album.id}
+                    href="/gallery"
+                    className="group relative block overflow-hidden rounded-2xl bg-white/10 aspect-square"
+                  >
+                    {cover ? (
+                      <Image
+                        src={cover}
+                        alt={album.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
+                      <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
-                    <p className="text-sm font-bold text-white leading-tight line-clamp-1">{album.name}</p>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-          <div className="text-center">
-            <Link href="/gallery"
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-white/50 text-sm font-bold text-white hover:bg-white hover:text-[hsl(25,20%,12%)] transition-all">
-              ดูทั้งหมด
-            </Link>
+                  </Link>
+                )
+              })}
+            </div>
+            <div className="text-center">
+              <Link href="/gallery"
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-white/50 text-sm font-bold text-white hover:bg-white hover:text-[hsl(25,20%,12%)] transition-all">
+                ดูทั้งหมด
+              </Link>
+            </div>
           </div>
         </section>
         </ScrollReveal>
       )}
+
+      <div className="max-w-3xl mx-auto px-4 pt-5 pb-4 sm:pb-6 space-y-5">
 
       {settings?.contact_line && (
         <ScrollReveal>
