@@ -198,6 +198,10 @@ export interface RateCardSettings {
   stat_engagement: string | null
   stat_reach: string | null
   stat_views: string | null
+  copy_partners_label: string | null
+  copy_ratecard_eyebrow: string | null
+  copy_contact_heading: string | null
+  copy_contact_subtitle: string | null
   updated_at: string
 }
 

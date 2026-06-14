@@ -330,7 +330,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section className="pt-4 sm:pt-5 pb-4 sm:pb-6">
           <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-4">
-            แบรนด์ที่เคยร่วมงาน
+            {settings?.copy_partners_label ?? "แบรนด์ที่เคยร่วมงาน"}
           </p>
           <div
             className="grid grid-rows-2 grid-flow-col gap-x-5 gap-y-4 overflow-x-auto sm:overflow-x-visible sm:auto-cols-fr pb-2 px-6 sm:px-8"
@@ -553,7 +553,7 @@ export default async function HomePage() {
       <section>
         <HeadingReveal>
           <div className="flex flex-col items-center mb-4 text-center gap-2">
-            <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.3em]">แพ็กเกจ & ราคา</p>
+            <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.3em]">{settings?.copy_ratecard_eyebrow ?? "แพ็กเกจ & ราคา"}</p>
             <h2
               className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
@@ -665,11 +665,11 @@ export default async function HomePage() {
           <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
           <h3 className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight">
             <TextScramble
-              text="Let's work together"
+              text={settings.copy_contact_heading ?? "Let's work together"}
               style={{ fontFamily: "var(--font-display, 'DM Serif Display', Georgia, serif)", fontWeight: 400, fontStyle: "italic" }}
             />
           </h3>
-          <p className="text-sm text-[hsl(25,10%,55%)] mb-8">พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย</p>
+          <p className="text-sm text-[hsl(25,10%,55%)] mb-8">{settings.copy_contact_subtitle ?? "พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย"}</p>
 
           {/* LINE — primary CTA */}
           {settings.contact_line && (

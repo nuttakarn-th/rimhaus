@@ -45,6 +45,10 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
     stat_engagement: settings?.stat_engagement ?? "",
     stat_reach: settings?.stat_reach ?? "",
     stat_views: settings?.stat_views ?? "",
+    copy_partners_label: settings?.copy_partners_label ?? "",
+    copy_ratecard_eyebrow: settings?.copy_ratecard_eyebrow ?? "",
+    copy_contact_heading: settings?.copy_contact_heading ?? "",
+    copy_contact_subtitle: settings?.copy_contact_subtitle ?? "",
   })
   const [platformLogos, setPlatformLogos] = useState<Record<string, string>>(
     settings?.platform_logos ?? {}
@@ -178,6 +182,10 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
       stat_engagement: form.stat_engagement || null,
       stat_reach: form.stat_reach || null,
       stat_views: form.stat_views || null,
+      copy_partners_label: form.copy_partners_label || null,
+      copy_ratecard_eyebrow: form.copy_ratecard_eyebrow || null,
+      copy_contact_heading: form.copy_contact_heading || null,
+      copy_contact_subtitle: form.copy_contact_subtitle || null,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -394,7 +402,56 @@ export function AdminSettings({ settings }: { settings: RateCardSettings | null 
         </div>
       </div>
 
-      {/* ── 7. Notes ───────────────────────────────────────── */}
+      {/* ── 7. Page copy ──────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-4">
+        <div>
+          <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">ข้อความในหน้า</h3>
+          <p className="text-xs text-[hsl(25,10%,55%)] mt-0.5">แก้ข้อความที่แสดงในหน้า Rate Card สาธารณะ — ถ้าปล่อยว่างจะใช้ค่า default</p>
+        </div>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Label เหนือโลโก้แบรนด์</Label>
+            <Input
+              value={form.copy_partners_label}
+              onChange={e => setForm(p => ({ ...p, copy_partners_label: e.target.value }))}
+              placeholder="แบรนด์ที่เคยร่วมงาน"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">ข้อความเล็กเหนือ "Rate Card"</Label>
+            <Input
+              value={form.copy_ratecard_eyebrow}
+              onChange={e => setForm(p => ({ ...p, copy_ratecard_eyebrow: e.target.value }))}
+              placeholder="แพ็กเกจ & ราคา"
+              className="text-sm"
+            />
+          </div>
+          <div className="border-t border-[hsl(35,20%,93%)] pt-3 space-y-3">
+            <p className="text-[10px] font-semibold text-[hsl(25,10%,55%)] uppercase tracking-wider">ส่วนติดต่อ (ด้านล่างสุด)</p>
+            <div className="space-y-1">
+              <Label className="text-xs">หัวข้อใหญ่</Label>
+              <Input
+                value={form.copy_contact_heading}
+                onChange={e => setForm(p => ({ ...p, copy_contact_heading: e.target.value }))}
+                placeholder="Let's work together"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">ข้อความรอง</Label>
+              <Input
+                value={form.copy_contact_subtitle}
+                onChange={e => setForm(p => ({ ...p, copy_contact_subtitle: e.target.value }))}
+                placeholder="พูดคุยเรื่องราคา คอนเทนต์ และไอเดียได้เลย"
+                className="text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 8. Notes ───────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-[hsl(35,20%,88%)] p-5 space-y-2">
         <h3 className="font-semibold text-[hsl(25,20%,15%)] text-sm">เงื่อนไข <span className="font-normal text-[hsl(25,10%,55%)]">(1 บรรทัด = 1 ข้อ)</span></h3>
         <Textarea rows={4} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder={"เก็บค่าบริการ 2 งวด...\nราคาสุทธิ (Net)..."} />
