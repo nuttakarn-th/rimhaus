@@ -50,13 +50,15 @@ export default async function PartnersPage() {
           {partners.map((p, i) => (
             <ScrollReveal key={p.id} delay={Math.min(i, 11) * 40} variant="scale">
               <div className="flex flex-col items-center gap-2 p-3 hover:scale-105 transition-transform duration-200">
-                <Image
-                  src={p.logo_url}
-                  alt={p.name ?? "Partner"}
-                  width={80}
-                  height={36}
-                  className="h-9 w-full object-contain"
-                />
+                <div className="relative h-10 w-full">
+                  <Image
+                    src={p.logo_url}
+                    alt={p.name ?? "Partner"}
+                    fill
+                    className="object-contain px-2 py-1"
+                    sizes="(max-width: 640px) 33vw, 25vw"
+                  />
+                </div>
                 {p.name && (
                   <p className="text-[10px] text-foreground/55 text-center font-bold leading-tight">{p.name}</p>
                 )}
