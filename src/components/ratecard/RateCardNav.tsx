@@ -37,7 +37,20 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
 
   useEffect(() => {
     if (!menuOpen) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false) }
+    const menuEl = document.getElementById("mobile-menu")
+    const focusable = menuEl?.querySelectorAll<HTMLElement>("a, button")
+    const first = focusable?.[0]
+    const last = focusable?.[focusable.length - 1]
+    first?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setMenuOpen(false); return }
+      if (e.key !== "Tab") return
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last?.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first?.focus()
+      }
+    }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
   }, [menuOpen])

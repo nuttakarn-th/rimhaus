@@ -574,7 +574,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section>
           <HeadingReveal><SectionHeader title="Single Platform" num="01" /></HeadingReveal>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {grouped.per_platform.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 75}>
                 <PackageCard pkg={p} platformLogos={settings?.platform_logos ?? {}} />
@@ -604,7 +604,7 @@ export default async function HomePage() {
         <ScrollReveal>
         <section>
           <HeadingReveal><SectionHeader title="Additional Services" num="03" /></HeadingReveal>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {grouped.addon.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 75}>
                 <PackageCard pkg={p} platformLogos={settings?.platform_logos ?? {}} />
