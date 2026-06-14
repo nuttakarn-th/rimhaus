@@ -64,13 +64,10 @@ export function PackageFilter({
   return (
     <>
       {showTabs && (
-        <div
-          className="flex overflow-x-auto gap-1.5 mb-4 pb-1"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
-        >
+        <div className="flex flex-wrap justify-center gap-1.5 mb-4">
           <button
             onClick={() => setActive(null)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${
+            className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${
               !active
                 ? "bg-foreground text-background border-foreground"
                 : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
@@ -82,7 +79,7 @@ export function PackageFilter({
             <button
               key={p}
               onClick={() => setActive(p)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${
+              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${
                 active === p
                   ? "bg-foreground text-background border-foreground"
                   : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
