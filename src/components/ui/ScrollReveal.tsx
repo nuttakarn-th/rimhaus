@@ -6,10 +6,12 @@ export function ScrollReveal({
   children,
   className = "",
   delay = 0,
+  variant = "default",
 }: {
   children: React.ReactNode
   className?: string
   delay?: number
+  variant?: "default" | "scale"
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -30,8 +32,10 @@ export function ScrollReveal({
     return () => observer.disconnect()
   }, [delay])
 
+  const baseClass = variant === "scale" ? "reveal-scale" : "reveal"
+
   return (
-    <div ref={ref} className={`reveal ${className}`}>
+    <div ref={ref} className={`${baseClass} ${className}`}>
       {children}
     </div>
   )

@@ -48,7 +48,7 @@ export default async function PartnersPage() {
       <div className="max-w-3xl mx-auto px-4 pb-10">
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
           {partners.map((p, i) => (
-            <ScrollReveal key={p.id} delay={Math.min(i, 11) * 40}>
+            <ScrollReveal key={p.id} delay={Math.min(i, 11) * 40} variant="scale">
               <div className="flex flex-col items-center gap-2 p-3 hover:scale-105 transition-transform duration-200">
                 <Image
                   src={p.logo_url}

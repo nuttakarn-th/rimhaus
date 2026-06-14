@@ -234,6 +234,17 @@ body {
   transform: translateY(0);
 }
 
+/* Logo / bubble scale-in reveal */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.reveal-scale.in-view {
+  opacity: 1;
+  transform: scale(1);
+}
+
 /* Section heading reveal — blur-to-clear snap */
 .heading-reveal {
   opacity: 0;
@@ -278,6 +289,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal-scale { opacity: 1; transform: none; transition: none; }
   .heading-reveal { opacity: 1; filter: none; transform: none; transition: none; }
   .hero-anim { animation: none; }
   .hero-word { animation: none; }
