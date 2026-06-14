@@ -95,6 +95,18 @@ export default async function GalleryPage() {
         </p>
       </div>
 
+      {/* ── Editorial statement ──────────────────────────── */}
+      <ScrollReveal>
+        <div className="py-10 sm:py-14 px-6 text-center">
+          <p
+            className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 max-w-lg mx-auto"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
+          >
+            A visual diary of a home in progress.
+          </p>
+        </div>
+      </ScrollReveal>
+
       {/* ── Featured album (full-bleed hero) ────────────── */}
       <ScrollReveal>
         <AlbumCard album={featured} featured />

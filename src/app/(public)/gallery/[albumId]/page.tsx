@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getPublicAlbumsWithItems } from "@/lib/public-data"
 import { GalleryGrid } from "@/components/gallery/GalleryGrid"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { ChevronLeft } from "lucide-react"
 
 export default async function AlbumPage({ params }: { params: Promise<{ albumId: string }> }) {
@@ -36,6 +37,20 @@ export default async function AlbumPage({ params }: { params: Promise<{ albumId:
           <p className="text-xs text-muted-foreground mt-1">{album.items.length} ภาพ</p>
         </div>
       </div>
+
+      {/* ── Editorial statement ────────────────────────────── */}
+      {album.items.length > 0 && (
+        <ScrollReveal>
+          <div className="py-8 sm:py-12 px-6 text-center">
+            <p
+              className="text-2xl sm:text-[2rem] leading-snug text-foreground/50 max-w-sm mx-auto"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
+            >
+              Shot in real light. Lived in real time.
+            </p>
+          </div>
+        </ScrollReveal>
+      )}
 
       {/* ── Grid ───────────────────────────────────────────── */}
       {album.items.length === 0 ? (
