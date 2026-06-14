@@ -17,9 +17,11 @@ function detectPlatform(url: string): string | null {
   return null
 }
 
-const ARROW = (
-  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 17L17 7M7 7h10v10" />
+const LINK_ICON = (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
   </svg>
 )
 
@@ -47,8 +49,8 @@ function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
 
       {/* ↗ arrow */}
-      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black opacity-60 sm:opacity-0 sm:group-hover:opacity-100 sm:-translate-y-0.5 sm:group-hover:translate-y-0 transition-all duration-200">
-        {ARROW}
+      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/40 flex items-center justify-center opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+        {LINK_ICON}
       </div>
 
       {/* VDO badge — top left */}
