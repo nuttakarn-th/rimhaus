@@ -21,7 +21,7 @@ function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem
       rel="noopener noreferrer"
       className={`group relative block overflow-hidden ${
         isFeatured
-          ? "col-span-3 sm:col-span-4 aspect-square sm:aspect-[4/3]"
+          ? "col-span-3 sm:col-span-2 aspect-square"
           : "aspect-square"
       } ${dark ? "bg-[hsl(25,20%,18%)]" : "bg-[hsl(35,20%,88%)]"}`}
     >
