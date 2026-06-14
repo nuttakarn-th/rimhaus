@@ -346,7 +346,7 @@ export function PackageCalculator({ packages, contactLine, pageName, platformLog
                           {pkg.original_price && (
                             <p className="text-[10px] text-ink-dim line-through">{formatCurrency(pkg.original_price)}</p>
                           )}
-                          <p className={`text-sm font-black ${isOn ? "text-primary" : "text-muted-foreground"}`}>
+                          <p className={`text-sm font-black ${isOn ? "text-brand-tx" : "text-muted-foreground"}`}>
                             {formatCurrency(pkg.price!)}
                           </p>
                           {pkg.unit && <p className="text-[9px] text-ink-dim">{pkg.unit}</p>}

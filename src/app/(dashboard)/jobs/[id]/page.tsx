@@ -114,7 +114,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           {job.product_value != null && (
             <div>
               <dt className="text-[hsl(25,10%,50%)]">{isBarter ? "มูลค่า Barter" : "มูลค่าสินค้า"}</dt>
-              <dd className={`font-semibold mt-0.5 text-base ${isBarter ? "text-violet-600" : "text-[hsl(25,20%,25%)]"}`}>
+              <dd className={`font-semibold mt-0.5 text-base ${isBarter ? "text-[hsl(35,60%,40%)]" : "text-[hsl(25,20%,25%)]"}`}>
                 {formatCurrency(job.product_value)}
               </dd>
             </div>

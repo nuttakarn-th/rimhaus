@@ -662,7 +662,7 @@ export default async function HomePage() {
       {settings && (settings.contact_line || settings.contact_email || settings.contact_phone) && (
         <ScrollReveal>
         <section className="px-4 py-12 sm:py-16 text-center">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
+          <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
           <h3 className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight">
             <TextScramble
               text={settings.copy_contact_heading ?? "Let's work together"}

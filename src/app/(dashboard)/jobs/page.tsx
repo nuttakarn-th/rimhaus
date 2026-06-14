@@ -100,7 +100,7 @@ export default async function JobsPage({
 
                   {/* Bottom row: amount + deadline */}
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-[hsl(35,25%,93%)]">
-                    <span className={`text-sm font-black ${isCash ? "text-[hsl(24,85%,50%)]" : "text-violet-600"}`}>
+                    <span className={`text-sm font-black ${isCash ? "text-[hsl(24,85%,50%)]" : "text-[hsl(35,60%,40%)]"}`}>
                       {isCash ? formatCurrency(job.payment_amount) : `มูลค่า ${formatCurrency(job.product_value ?? 0)}`}
                     </span>
                     {job.deadline && (
