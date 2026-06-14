@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { PlatformBubble } from "@/components/ui/PlatformIcon"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import type { PortfolioItem } from "@/lib/types"
 
 const INIT = 9
@@ -97,52 +98,57 @@ export function PortfolioSection({
     <section className={dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}>
 
       {/* Label */}
-      <div className="px-4 pt-5 pb-3 flex items-center gap-3">
-        <p className={`text-sm font-bold tracking-[0.3em] uppercase ${
-          dark ? "text-white/50" : "text-brand-tx/70"
-        }`}>
-          {label}
-        </p>
-        <span className={`text-xs font-bold ${dark ? "text-white/25" : "text-muted-foreground"}`}>
-          {items.length}
-        </span>
-        {platforms.length > 0 && (
-          <div className="flex items-center gap-1 ml-1">
-            {platforms.map(p => (
-              <PlatformBubble key={p} platform={p} size={18} noHover />
-            ))}
-          </div>
-        )}
-      </div>
+      <ScrollReveal>
+        <div className="px-4 pt-5 pb-3 flex items-center gap-3">
+          <p className={`text-sm font-bold tracking-[0.3em] uppercase ${
+            dark ? "text-white/50" : "text-brand-tx/70"
+          }`}>
+            {label}
+          </p>
+          <span className={`text-xs font-bold ${dark ? "text-white/25" : "text-muted-foreground"}`}>
+            {items.length}
+          </span>
+          {platforms.length > 0 && (
+            <div className="flex items-center gap-1 ml-1">
+              {platforms.map(p => (
+                <PlatformBubble key={p} platform={p} size={18} noHover />
+              ))}
+            </div>
+          )}
+        </div>
+      </ScrollReveal>
 
       {/* Grid */}
       <div className={`grid grid-cols-3 sm:grid-cols-4 gap-px ${
         dark ? "bg-[hsl(25,20%,22%)]" : "bg-border"
       }`}>
         {visible.map((item, index) => (
-          <PortfolioCard
-            key={item.id}
-            item={item}
-            dark={dark}
-            isFeatured={hasFeatured && index === 0}
-          />
+          <ScrollReveal key={item.id} delay={Math.min(index, 8) * 50}>
+            <PortfolioCard
+              item={item}
+              dark={dark}
+              isFeatured={hasFeatured && index === 0}
+            />
+          </ScrollReveal>
         ))}
       </div>
 
       {/* Load More */}
       {remaining > 0 && (
-        <div className={`flex justify-center py-5 ${dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}`}>
-          <button
-            onClick={() => setLimit(l => l + PAGE)}
-            className={`px-5 py-2 rounded-full text-xs font-bold border transition-colors ${
-              dark
-                ? "border-white/20 text-white/50 hover:border-white/40 hover:text-white/80"
-                : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-            }`}
-          >
-            ดูเพิ่ม {Math.min(remaining, PAGE)} รายการ
-          </button>
-        </div>
+        <ScrollReveal>
+          <div className={`flex justify-center py-5 ${dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}`}>
+            <button
+              onClick={() => setLimit(l => l + PAGE)}
+              className={`px-5 py-2 rounded-full text-xs font-bold border transition-colors ${
+                dark
+                  ? "border-white/20 text-white/50 hover:border-white/40 hover:text-white/80"
+                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+              }`}
+            >
+              ดูเพิ่ม {Math.min(remaining, PAGE)} รายการ
+            </button>
+          </div>
+        </ScrollReveal>
       )}
 
     </section>
