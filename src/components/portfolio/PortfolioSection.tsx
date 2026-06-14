@@ -37,7 +37,7 @@ function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
 
       {/* ↗ arrow */}
-      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black opacity-0 group-hover:opacity-100 -translate-y-0.5 group-hover:translate-y-0 transition-all duration-200">
+      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black opacity-60 sm:opacity-0 sm:group-hover:opacity-100 sm:-translate-y-0.5 sm:group-hover:translate-y-0 transition-all duration-200">
         {ARROW}
       </div>
 
