@@ -6,8 +6,8 @@ import { PlatformBubble } from "@/components/ui/PlatformIcon"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import type { PortfolioItem } from "@/lib/types"
 
-const INIT = 9
-const PAGE = 9
+const INIT = 12
+const PAGE = 12
 
 function detectPlatform(url: string): string | null {
   if (url.includes("facebook.com") || url.includes("fb.com")) return "facebook"
