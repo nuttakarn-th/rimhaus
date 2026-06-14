@@ -1,5 +1,7 @@
 import { getPublicPortfolioItems } from "@/lib/public-data"
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { HeadingReveal } from "@/components/ui/HeadingReveal"
 
 export default async function PortfolioPage() {
   const items = await getPublicPortfolioItems()
@@ -25,18 +27,24 @@ export default async function PortfolioPage() {
 
       {/* ── Header ─────────────────────────────────────── */}
       <div className="px-4 pt-10 pb-6 text-center bg-background">
-        <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-tx/60 mb-2">CONTENT</p>
-        <h1
-          className="text-5xl sm:text-7xl text-foreground leading-tight"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
-        >
-          Portfolio
-        </h1>
-        <p className="text-xs text-muted-foreground mt-2">
-          {videos.length > 0 && `${videos.length} VDO`}
-          {videos.length > 0 && photos.length > 0 && " · "}
-          {photos.length > 0 && `${photos.length} Photo`}
-        </p>
+        <ScrollReveal>
+          <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-tx/60 mb-2">CONTENT</p>
+        </ScrollReveal>
+        <HeadingReveal>
+          <h1
+            className="text-5xl sm:text-7xl text-foreground leading-tight"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
+          >
+            Portfolio
+          </h1>
+        </HeadingReveal>
+        <ScrollReveal delay={150}>
+          <p className="text-xs text-muted-foreground mt-2">
+            {videos.length > 0 && `${videos.length} VDO`}
+            {videos.length > 0 && photos.length > 0 && " · "}
+            {photos.length > 0 && `${photos.length} Photo`}
+          </p>
+        </ScrollReveal>
       </div>
 
       {/* ── VDO — dark ─────────────────────────────────── */}
