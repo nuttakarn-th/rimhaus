@@ -13,15 +13,17 @@ const ARROW = (
   </svg>
 )
 
-function PortfolioCard({ item, dark }: { item: PortfolioItem; dark: boolean }) {
+function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem; dark: boolean; isFeatured?: boolean }) {
   return (
     <a
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group relative block aspect-square overflow-hidden ${
-        dark ? "bg-[hsl(25,20%,18%)]" : "bg-[hsl(35,20%,88%)]"
-      }`}
+      className={`group relative block overflow-hidden ${
+        isFeatured
+          ? "col-span-3 sm:col-span-4 aspect-video"
+          : "aspect-square"
+      } ${dark ? "bg-[hsl(25,20%,18%)]" : "bg-[hsl(35,20%,88%)]"}`}
     >
       {item.image_url && (
         <Image
@@ -29,21 +31,30 @@ function PortfolioCard({ item, dark }: { item: PortfolioItem; dark: boolean }) {
           alt={item.title ?? ""}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 33vw, 25vw"
+          sizes={isFeatured ? "100vw" : "(max-width: 640px) 33vw, 25vw"}
         />
       )}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300" />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
 
       {/* ↗ arrow */}
       <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black opacity-0 group-hover:opacity-100 -translate-y-0.5 group-hover:translate-y-0 transition-all duration-200">
         {ARROW}
       </div>
 
-      {/* VDO badge */}
+      {/* VDO badge — top left */}
       {item.type === "video" && (
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+        <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-0.5">
           <svg width="6" height="7" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
           <span className="text-[8px] text-white font-bold tracking-widest">VDO</span>
+        </div>
+      )}
+
+      {/* Title overlay — appears on hover */}
+      {item.title && (
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-2.5 pt-6 bg-gradient-to-t from-black/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <p className={`text-white font-bold leading-tight line-clamp-2 ${isFeatured ? "text-sm" : "text-[9px]"}`}>
+            {item.title}
+          </p>
         </div>
       )}
     </a>
@@ -54,10 +65,12 @@ export function PortfolioSection({
   items,
   dark,
   label,
+  hasFeatured = false,
 }: {
   items: PortfolioItem[]
   dark: boolean
   label: string
+  hasFeatured?: boolean
 }) {
   const [limit, setLimit] = useState(INIT)
   const visible = items.slice(0, limit)
@@ -82,8 +95,13 @@ export function PortfolioSection({
       <div className={`grid grid-cols-3 sm:grid-cols-4 gap-px ${
         dark ? "bg-[hsl(25,20%,22%)]" : "bg-border"
       }`}>
-        {visible.map(item => (
-          <PortfolioCard key={item.id} item={item} dark={dark} />
+        {visible.map((item, index) => (
+          <PortfolioCard
+            key={item.id}
+            item={item}
+            dark={dark}
+            isFeatured={hasFeatured && index === 0}
+          />
         ))}
       </div>
 

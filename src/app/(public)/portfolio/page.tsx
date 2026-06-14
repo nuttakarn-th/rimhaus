@@ -48,17 +48,17 @@ export default async function PortfolioPage() {
       {videos.length > 0 && photos.length > 0 && (
         <div className="py-10 sm:py-14 px-6 text-center bg-background">
           <p
-            className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 max-w-sm mx-auto"
+            className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 mx-auto"
             style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
           >
-            Content that moves. Content that stays.
+            Content that moves.<br />Content that stays.
           </p>
         </div>
       )}
 
       {/* ── Photo — light ──────────────────────────────── */}
       {photos.length > 0 && (
-        <PortfolioSection items={photos} dark={false} label="PHOTO" />
+        <PortfolioSection items={photos} dark={false} label="PHOTO" hasFeatured />
       )}
 
       <div className="pb-10 bg-background" />
