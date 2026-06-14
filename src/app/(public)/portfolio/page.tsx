@@ -58,7 +58,7 @@ export default async function PortfolioPage() {
 
       {/* ── Photo — light ──────────────────────────────── */}
       {photos.length > 0 && (
-        <PortfolioSection items={photos} dark={false} label="PHOTO" hasFeatured />
+        <PortfolioSection items={photos} dark={false} label="PHOTO" />
       )}
 
       <div className="pb-10 bg-background" />
