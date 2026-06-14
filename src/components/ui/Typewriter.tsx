@@ -68,15 +68,24 @@ export function Typewriter({
   }, [typingLine, lines, speed, pauseBetween])
 
   return (
-    <div ref={ref} className={className} style={style}>
-      {lines.map((_, i) => (
-        <span key={i} className="block">
-          {displayed[i]}
-          {typingLine === i && (
-            <span className="inline-block w-[2px] h-[0.85em] bg-current mx-0.5 align-middle animate-pulse" />
-          )}
-        </span>
-      ))}
+    <div ref={ref} className={`relative ${className ?? ""}`} style={style}>
+      {/* Invisible spacer — reserves full height from the start */}
+      <div aria-hidden className="invisible">
+        {lines.map((line, i) => (
+          <span key={i} className="block">{line}</span>
+        ))}
+      </div>
+      {/* Animated text — absolutely positioned on top */}
+      <div className="absolute inset-0">
+        {lines.map((_, i) => (
+          <span key={i} className="block">
+            {displayed[i]}
+            {typingLine === i && (
+              <span className="inline-block w-[2px] h-[0.85em] bg-current mx-0.5 align-middle animate-pulse" />
+            )}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
