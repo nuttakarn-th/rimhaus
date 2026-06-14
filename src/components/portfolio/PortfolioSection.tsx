@@ -21,7 +21,7 @@ function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem
       rel="noopener noreferrer"
       className={`group relative block overflow-hidden ${
         isFeatured
-          ? "col-span-3 sm:col-span-4 aspect-video"
+          ? "col-span-3 sm:col-span-4 aspect-square sm:aspect-[4/3]"
           : "aspect-square"
       } ${dark ? "bg-[hsl(25,20%,18%)]" : "bg-[hsl(35,20%,88%)]"}`}
     >
@@ -49,9 +49,13 @@ function PortfolioCard({ item, dark, isFeatured = false }: { item: PortfolioItem
         </div>
       )}
 
-      {/* Title overlay — appears on hover */}
+      {/* Title overlay — VDO: always visible / Photo: hover only */}
       {item.title && (
-        <div className="absolute inset-x-0 bottom-0 px-3 pb-2.5 pt-6 bg-gradient-to-t from-black/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className={`absolute inset-x-0 bottom-0 px-3 pb-2.5 pt-6 bg-gradient-to-t from-black/75 to-transparent transition-opacity duration-300 ${
+          item.type === "video"
+            ? "opacity-100"
+            : "opacity-0 group-hover:opacity-100"
+        }`}>
           <p className={`text-white font-bold leading-tight line-clamp-2 ${isFeatured ? "text-sm" : "text-[9px]"}`}>
             {item.title}
           </p>
