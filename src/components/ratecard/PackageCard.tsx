@@ -87,13 +87,13 @@ export function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; plat
           )}
         </div>
       )}
-      <div className="p-3 sm:p-4 flex flex-col gap-1.5 sm:gap-2 flex-1 text-center">
-        <h3 className="font-black text-foreground text-sm leading-snug">{pkg.name}</h3>
-        {pkg.description && (
-          <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug sm:leading-relaxed">{pkg.description}</p>
-        )}
-        {pkg.sub_items && pkg.sub_items.length > 0 ? (
-          <div className="mt-auto pt-2 space-y-1 border-t border-border">
+      {pkg.sub_items && pkg.sub_items.length > 0 ? (
+        <div className="p-3 flex flex-col gap-1 flex-1">
+          <h3 className="font-black text-foreground text-sm leading-snug">{pkg.name}</h3>
+          {pkg.description && (
+            <p className="text-[10px] text-muted-foreground leading-snug line-clamp-2">{pkg.description}</p>
+          )}
+          <div className="mt-1 pt-2 border-t border-border space-y-1">
             {pkg.sub_items.map((item, i) => (
               <div key={i} className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">{item.label}</span>
@@ -101,24 +101,30 @@ export function PackageCard({ pkg, platformLogos }: { pkg: RateCardPackage; plat
               </div>
             ))}
           </div>
-        ) : pkg.price != null ? (
-          <div className="mt-auto pt-2 border-t border-border">
-            {pkg.original_price && (
-              <div className="text-[10px] sm:text-xs text-ink-dim line-through mb-0.5">
-                {formatCurrency(pkg.original_price)}
-              </div>
+        </div>
+      ) : (
+        <div className="p-3 flex items-center gap-3 flex-1">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-black text-foreground text-sm leading-snug">{pkg.name}</h3>
+            {pkg.description && (
+              <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{pkg.description}</p>
             )}
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-xl font-black text-brand-tx">{formatCurrency(pkg.price)}</span>
-              {pkg.unit && <span className="text-[9px] sm:text-[10px] text-muted-foreground">{pkg.unit}</span>}
-            </div>
           </div>
-        ) : (
-          <div className="mt-auto pt-2 border-t border-border text-sm font-bold text-foreground">
-            ติดต่อสอบถาม →
+          <div className="shrink-0 text-right pl-3 border-l border-border">
+            {pkg.price != null ? (
+              <>
+                {pkg.original_price && (
+                  <div className="text-[9px] text-ink-dim line-through leading-tight">{formatCurrency(pkg.original_price)}</div>
+                )}
+                <div className="text-lg font-black text-brand-tx leading-tight">{formatCurrency(pkg.price)}</div>
+                {pkg.unit && <div className="text-[9px] text-muted-foreground leading-tight">{pkg.unit}</div>}
+              </>
+            ) : (
+              <div className="text-xs font-bold text-foreground whitespace-nowrap">ติดต่อสอบถาม →</div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {pkg.terms && (
         <div className="border-t border-border px-3 flex items-center justify-center min-h-[44px]">
           <PackageTermsBadge name={pkg.name} terms={pkg.terms} />
