@@ -49,7 +49,7 @@ export default async function PartnersPage() {
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
           {partners.map((p, i) => (
             <ScrollReveal key={p.id} delay={Math.min(i, 11) * 40}>
-              <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col items-center gap-2 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <div className="flex flex-col items-center gap-2 p-3 hover:scale-105 transition-transform duration-200">
                 <Image
                   src={p.logo_url}
                   alt={p.name ?? "Partner"}
@@ -75,9 +75,9 @@ export default async function PartnersPage() {
                 className="text-3xl sm:text-4xl text-white mb-2"
                 style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
               >
-                ต้องการร่วมงานด้วย?
+                Let's work together.
               </p>
-              <p className="text-sm text-white/50 mb-6">พูดคุยเรื่องคอนเทนต์และราคาได้เลย</p>
+              <p className="text-sm text-white/50 mb-6">Talk content, ideas & pricing — let's connect.</p>
               <a
                 href={`https://line.me/ti/p/~${settings.contact_line}`}
                 target="_blank"
