@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { getPublicAlbumsWithItems } from "@/lib/public-data"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
 type Album = Awaited<ReturnType<typeof getPublicAlbumsWithItems>>[number]
 
@@ -95,7 +96,9 @@ export default async function GalleryPage() {
       </div>
 
       {/* ── Featured album (full-bleed hero) ────────────── */}
-      <AlbumCard album={featured} featured />
+      <ScrollReveal>
+        <AlbumCard album={featured} featured />
+      </ScrollReveal>
 
       {/* ── Rest (2-col tight grid) ──────────────────────── */}
       {rest.length > 0 && (
@@ -104,8 +107,10 @@ export default async function GalleryPage() {
             rest.length === 1 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >
-          {rest.map(album => (
-            <AlbumCard key={album.id} album={album} />
+          {rest.map((album, i) => (
+            <ScrollReveal key={album.id} delay={i * 80}>
+              <AlbumCard album={album} />
+            </ScrollReveal>
           ))}
         </div>
       )}
