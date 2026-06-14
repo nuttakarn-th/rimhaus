@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getPublicSettings, getPublicPortfolioItems, getPublicPartners, getPublicGalleryItems } from "@/lib/public-data"
 import { RateCardNav } from "@/components/ratecard/RateCardNav"
+import { ScrollToTop } from "@/components/ui/ScrollToTop"
 
 const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -68,6 +69,7 @@ export default async function PublicLayout({ children }: { children: React.React
         contactLine={settings?.contact_line ?? null}
       />
       <main id="main-content" className="page-enter">{children}</main>
+      <ScrollToTop />
     </div>
   )
 }
