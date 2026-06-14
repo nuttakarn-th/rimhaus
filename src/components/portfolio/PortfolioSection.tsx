@@ -2,10 +2,19 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { PlatformBubble } from "@/components/ui/PlatformIcon"
 import type { PortfolioItem } from "@/lib/types"
 
 const INIT = 9
 const PAGE = 9
+
+function detectPlatform(url: string): string | null {
+  if (url.includes("facebook.com") || url.includes("fb.com")) return "facebook"
+  if (url.includes("tiktok.com")) return "tiktok"
+  if (url.includes("instagram.com")) return "instagram"
+  if (url.includes("lemon8")) return "lemon8"
+  return null
+}
 
 const ARROW = (
   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -80,19 +89,30 @@ export function PortfolioSection({
   const visible = items.slice(0, limit)
   const remaining = items.length - limit
 
+  const platforms = Array.from(new Set(
+    items.map(i => detectPlatform(i.url ?? "")).filter(Boolean) as string[]
+  ))
+
   return (
     <section className={dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}>
 
       {/* Label */}
-      <div className="px-4 pt-5 pb-3 flex items-baseline gap-2">
-        <p className={`text-[10px] font-bold tracking-[0.4em] uppercase ${
-          dark ? "text-white/30" : "text-brand-tx/50"
+      <div className="px-4 pt-5 pb-3 flex items-center gap-3">
+        <p className={`text-sm font-bold tracking-[0.3em] uppercase ${
+          dark ? "text-white/50" : "text-brand-tx/70"
         }`}>
           {label}
         </p>
-        <sup className={`text-[9px] ${dark ? "text-white/20" : "text-muted-foreground"}`}>
+        <span className={`text-xs font-bold ${dark ? "text-white/25" : "text-muted-foreground"}`}>
           {items.length}
-        </sup>
+        </span>
+        {platforms.length > 0 && (
+          <div className="flex items-center gap-1 ml-1">
+            {platforms.map(p => (
+              <PlatformBubble key={p} platform={p} size={18} noHover />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Grid */}
