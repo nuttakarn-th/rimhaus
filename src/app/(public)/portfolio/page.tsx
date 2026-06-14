@@ -2,6 +2,7 @@ import { getPublicPortfolioItems } from "@/lib/public-data"
 import { PortfolioSection } from "@/components/portfolio/PortfolioSection"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { HeadingReveal } from "@/components/ui/HeadingReveal"
+import { Typewriter } from "@/components/ui/Typewriter"
 
 export default async function PortfolioPage() {
   const items = await getPublicPortfolioItems()
@@ -55,12 +56,13 @@ export default async function PortfolioPage() {
       {/* ── Editorial separator ─────────────────────────── */}
       {videos.length > 0 && photos.length > 0 && (
         <div className="py-10 sm:py-14 px-6 text-center bg-background">
-          <p
+          <Typewriter
+            lines={["Content that moves.", "Content that stays."]}
+            speed={45}
+            pauseBetween={400}
             className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 mx-auto"
             style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
-          >
-            Content that moves.<br />Content that stays.
-          </p>
+          />
         </div>
       )}
 
