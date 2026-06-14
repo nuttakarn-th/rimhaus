@@ -1,0 +1,108 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import type { PortfolioItem } from "@/lib/types"
+
+const INIT = 9
+const PAGE = 9
+
+const ARROW = (
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 17L17 7M7 7h10v10" />
+  </svg>
+)
+
+function PortfolioCard({ item, dark }: { item: PortfolioItem; dark: boolean }) {
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group relative block aspect-square overflow-hidden ${
+        dark ? "bg-[hsl(25,20%,18%)]" : "bg-[hsl(35,20%,88%)]"
+      }`}
+    >
+      {item.image_url && (
+        <Image
+          src={item.image_url}
+          alt={item.title ?? ""}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          sizes="(max-width: 640px) 33vw, 25vw"
+        />
+      )}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300" />
+
+      {/* ↗ arrow */}
+      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black opacity-0 group-hover:opacity-100 -translate-y-0.5 group-hover:translate-y-0 transition-all duration-200">
+        {ARROW}
+      </div>
+
+      {/* VDO badge */}
+      {item.type === "video" && (
+        <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+          <svg width="6" height="7" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+          <span className="text-[8px] text-white font-bold tracking-widest">VDO</span>
+        </div>
+      )}
+    </a>
+  )
+}
+
+export function PortfolioSection({
+  items,
+  dark,
+  label,
+}: {
+  items: PortfolioItem[]
+  dark: boolean
+  label: string
+}) {
+  const [limit, setLimit] = useState(INIT)
+  const visible = items.slice(0, limit)
+  const remaining = items.length - limit
+
+  return (
+    <section className={dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}>
+
+      {/* Label */}
+      <div className="px-4 pt-5 pb-3 flex items-baseline gap-2">
+        <p className={`text-[10px] font-bold tracking-[0.4em] uppercase ${
+          dark ? "text-white/30" : "text-brand-tx/50"
+        }`}>
+          {label}
+        </p>
+        <sup className={`text-[9px] ${dark ? "text-white/20" : "text-muted-foreground"}`}>
+          {items.length}
+        </sup>
+      </div>
+
+      {/* Grid */}
+      <div className={`grid grid-cols-3 sm:grid-cols-4 gap-px ${
+        dark ? "bg-[hsl(25,20%,22%)]" : "bg-border"
+      }`}>
+        {visible.map(item => (
+          <PortfolioCard key={item.id} item={item} dark={dark} />
+        ))}
+      </div>
+
+      {/* Load More */}
+      {remaining > 0 && (
+        <div className={`flex justify-center py-5 ${dark ? "bg-[hsl(25,20%,12%)]" : "bg-background"}`}>
+          <button
+            onClick={() => setLimit(l => l + PAGE)}
+            className={`px-5 py-2 rounded-full text-xs font-bold border transition-colors ${
+              dark
+                ? "border-white/20 text-white/50 hover:border-white/40 hover:text-white/80"
+                : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+            }`}
+          >
+            ดูเพิ่ม {Math.min(remaining, PAGE)} รายการ
+          </button>
+        </div>
+      )}
+
+    </section>
+  )
+}

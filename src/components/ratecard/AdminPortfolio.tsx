@@ -23,7 +23,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus, Video, Image as ImageIcon, Upload, Pencil, X, Check, GripVertical } from "lucide-react"
+import { Trash2, Plus, Video, Image as ImageIcon, Upload, Pencil, X, Check, GripVertical, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import type { PortfolioItem } from "@/lib/types"
 
@@ -149,11 +149,12 @@ interface SortableItemProps {
   onSaveEdit: () => void
   onCancelEdit: () => void
   onDelete: (id: string) => void
+  onToggleActive: (item: PortfolioItem) => void
 }
 
 function SortableItem({
   item, editId, editForm, setEditForm, editSaving, deletingId,
-  onEdit, onSaveEdit, onCancelEdit, onDelete,
+  onEdit, onSaveEdit, onCancelEdit, onDelete, onToggleActive,
 }: SortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
@@ -174,7 +175,7 @@ function SortableItem({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm group">
+    <div ref={setNodeRef} style={style} className={`flex items-center gap-2 bg-[hsl(35,30%,97%)] rounded-lg px-3 py-2 text-sm group transition-opacity ${!item.is_active ? "opacity-50" : ""}`}>
       {/* Drag handle */}
       <button
         {...attributes}
@@ -205,6 +206,13 @@ function SortableItem({
       <button onClick={() => onEdit(item)} className="text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,15%)] transition-colors shrink-0">
         <Pencil className="w-3.5 h-3.5" />
       </button>
+      <button
+        onClick={() => onToggleActive(item)}
+        title={item.is_active ? "ซ่อนจาก Portfolio" : "แสดงใน Portfolio"}
+        className={`transition-colors shrink-0 ${item.is_active ? "text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,15%)]" : "text-amber-500 hover:text-amber-700"}`}
+      >
+        {item.is_active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+      </button>
       <button onClick={() => onDelete(item.id)} disabled={deletingId === item.id} className="text-red-400 hover:text-red-600 transition-colors disabled:opacity-40 shrink-0">
         <Trash2 className="w-3.5 h-3.5" />
       </button>
@@ -226,6 +234,7 @@ interface SortableGroupProps {
   onSaveEdit: () => void
   onCancelEdit: () => void
   onDelete: (id: string) => void
+  onToggleActive: (item: PortfolioItem) => void
 }
 
 function SortableGroup({ items, onReorder, ...rowProps }: SortableGroupProps) {
@@ -293,6 +302,7 @@ export function AdminPortfolio({ items }: Props) {
       url: editForm.url.trim(),
       image_url: editForm.image_url || null,
       sort_order: target?.sort_order ?? 99,
+      is_active: target?.is_active ?? true,
     })
     setEditSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -333,6 +343,7 @@ export function AdminPortfolio({ items }: Props) {
       url: form.url.trim(),
       image_url: form.image_url || null,
       sort_order: (form.type === "video" ? videos : photos).length,
+      is_active: true,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -353,7 +364,23 @@ export function AdminPortfolio({ items }: Props) {
     router.refresh()
   }
 
-  const rowProps = { editId, editForm, setEditForm, editSaving, deletingId, onEdit: startEdit, onSaveEdit: handleSaveEdit, onCancelEdit: () => setEditId(null), onDelete: handleDelete }
+  async function handleToggleActive(item: PortfolioItem) {
+    const result = await upsertPortfolioItem({
+      id: item.id,
+      type: item.type,
+      title: item.title,
+      url: item.url,
+      image_url: item.image_url,
+      sort_order: item.sort_order,
+      is_active: !item.is_active,
+    })
+    if (!result.success) { toast.error(result.error); return }
+    const setter = item.type === "video" ? setVideos : setPhotos
+    setter(prev => prev.map(i => i.id === item.id ? { ...i, is_active: !i.is_active } : i))
+    toast.success(item.is_active ? "ซ่อนจาก Portfolio แล้ว" : "แสดงใน Portfolio แล้ว")
+  }
+
+  const rowProps = { editId, editForm, setEditForm, editSaving, deletingId, onEdit: startEdit, onSaveEdit: handleSaveEdit, onCancelEdit: () => setEditId(null), onDelete: handleDelete, onToggleActive: handleToggleActive }
 
   return (
     <div className="space-y-5">

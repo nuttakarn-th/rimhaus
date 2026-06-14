@@ -24,7 +24,7 @@ export const getPublicPackages = unstable_cache(
 
 export const getPublicPortfolioItems = unstable_cache(
   async (): Promise<PortfolioItem[]> => {
-    const { data } = await db().from("portfolio_items").select("*").order("type").order("sort_order")
+    const { data } = await db().from("portfolio_items").select("*").eq("is_active", true).order("type").order("sort_order")
     return (data as PortfolioItem[]) ?? []
   },
   ["public-portfolio"],
