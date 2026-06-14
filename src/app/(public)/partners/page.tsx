@@ -53,9 +53,9 @@ export default async function PartnersPage() {
                 <Image
                   src={p.logo_url}
                   alt={p.name ?? "Partner"}
-                  width={112}
-                  height={56}
-                  className="h-14 w-full object-contain"
+                  width={80}
+                  height={36}
+                  className="h-9 w-full object-contain"
                 />
                 {p.name && (
                   <p className="text-[10px] text-foreground/55 text-center font-bold leading-tight">{p.name}</p>
