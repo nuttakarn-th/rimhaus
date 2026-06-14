@@ -79,10 +79,10 @@ export default async function GalleryPage() {
   const [featured, ...rest] = albums
 
   return (
-    <div className="pb-16">
+    <div className="pb-6">
 
       {/* ── Header ─────────────────────────────────────── */}
-      <div className="px-4 pt-10 pb-7 text-center">
+      <div className="px-4 pt-10 pb-2 text-center">
         <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-tx/60 mb-2">PORTFOLIO</p>
         <h1
           className="text-5xl sm:text-7xl text-foreground leading-tight"
@@ -97,7 +97,7 @@ export default async function GalleryPage() {
 
       {/* ── Editorial statement ──────────────────────────── */}
       <ScrollReveal>
-        <div className="py-10 sm:py-14 px-6 text-center">
+        <div className="py-5 sm:py-6 px-6 text-center">
           <p
             className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 max-w-lg mx-auto"
             style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
@@ -119,11 +119,14 @@ export default async function GalleryPage() {
             rest.length === 1 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >
-          {rest.map((album, i) => (
-            <ScrollReveal key={album.id} delay={i * 80}>
-              <AlbumCard album={album} />
-            </ScrollReveal>
-          ))}
+          {rest.map((album, i) => {
+            const isLastOdd = rest.length % 2 === 1 && i === rest.length - 1
+            return (
+              <ScrollReveal key={album.id} delay={i * 80} className={isLastOdd ? "col-span-2" : ""}>
+                <AlbumCard album={album} />
+              </ScrollReveal>
+            )
+          })}
         </div>
       )}
     </div>

@@ -15,7 +15,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ albumId:
     <div className="pb-16">
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <div className="px-4 pt-8 pb-6">
+      <div className="px-4 pt-8 pb-2">
         <Link
           href="/gallery"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-5 transition-colors"
@@ -41,7 +41,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ albumId:
       {/* ── Editorial statement ────────────────────────────── */}
       {album.items.length > 0 && (
         <ScrollReveal>
-          <div className="py-8 sm:py-12 px-6 text-center">
+          <div className="py-4 sm:py-5 px-6 text-center">
             <p
               className="text-2xl sm:text-[2rem] leading-snug text-foreground/50 max-w-sm mx-auto"
               style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
