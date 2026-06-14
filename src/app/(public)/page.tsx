@@ -176,6 +176,19 @@ function SectionHeader({ title, tag, sub, num }: { title: string; tag?: string; 
   )
 }
 
+function EditorialStatement({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="py-10 sm:py-14 px-6 text-center">
+      <p
+        className="text-3xl sm:text-[2.5rem] leading-snug text-foreground/50 max-w-lg mx-auto"
+        style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
+      >
+        {children}
+      </p>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────
 export default async function HomePage() {
   const [packages, settings, portfolioItems, partners, albums] = await Promise.all([
@@ -435,6 +448,14 @@ export default async function HomePage() {
 
       </div>{/* end first container */}
 
+      {(videos.length > 0 || photos.length > 0) && (
+        <ScrollReveal>
+          <EditorialStatement>
+            Real homes. Real opinions. Real reach.
+          </EditorialStatement>
+        </ScrollReveal>
+      )}
+
       {albums.length > 0 && (
         <section className="bg-[hsl(25,20%,12%)] w-full pt-8 pb-0 overflow-hidden">
 
@@ -524,6 +545,14 @@ export default async function HomePage() {
       )}
 
       <div className="max-w-3xl mx-auto px-4 pt-5 pb-4 sm:pb-6 space-y-6 sm:space-y-8">
+
+      {albums.length > 0 && (
+        <ScrollReveal>
+          <EditorialStatement>
+            A home is never truly finished — and that's what keeps the content coming.
+          </EditorialStatement>
+        </ScrollReveal>
+      )}
 
       {settings?.contact_line && (
         <ScrollReveal>
@@ -661,7 +690,15 @@ export default async function HomePage() {
 
       {settings && (settings.contact_line || settings.contact_email || settings.contact_phone) && (
         <ScrollReveal>
-        <section className="px-4 py-12 sm:py-16 text-center">
+          <EditorialStatement>
+            Every corner tells a story. Let yours be next.
+          </EditorialStatement>
+        </ScrollReveal>
+      )}
+
+      {settings && (settings.contact_line || settings.contact_email || settings.contact_phone) && (
+        <ScrollReveal>
+        <section className="px-4 pt-0 pb-12 sm:pb-16 text-center">
           <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.25em] mb-4">ติดต่อ</p>
           <h3 className="text-4xl sm:text-6xl text-[hsl(25,20%,12%)] mb-3 leading-tight">
             <TextScramble
