@@ -162,11 +162,11 @@ function SectionHeader({ title, tag, sub, num }: { title: string; tag?: string; 
   return (
     <div className="flex flex-col items-center gap-1 mb-2 text-center">
       {num && (
-        <span className="text-[10px] font-black tracking-[0.35em] uppercase text-brand-tx/60 mb-0.5">{num}</span>
+        <span className="text-[11px] font-bold tracking-[0.4em] uppercase text-brand-tx/50 mb-0.5">{num}</span>
       )}
       <h2
-        className="text-3xl sm:text-4xl tracking-tight leading-tight text-foreground"
-        style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 900 }}
+        className="text-3xl sm:text-4xl leading-tight text-foreground"
+        style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
       >
         {title}
       </h2>
@@ -555,8 +555,8 @@ export default async function HomePage() {
           <div className="flex flex-col items-center mb-4 text-center gap-2">
             <p className="text-[10px] font-black text-brand-tx uppercase tracking-[0.3em]">{settings?.copy_ratecard_eyebrow ?? "แพ็กเกจ & ราคา"}</p>
             <h2
-              className="text-5xl sm:text-6xl tracking-tight leading-tight text-foreground"
-              style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
+              className="text-5xl sm:text-6xl leading-tight text-foreground"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
             >
               Rate Card
             </h2>
