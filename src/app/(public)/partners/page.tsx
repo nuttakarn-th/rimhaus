@@ -59,9 +59,6 @@ export default async function PartnersPage() {
                     sizes="(max-width: 640px) 33vw, 25vw"
                   />
                 </div>
-                {p.name && (
-                  <p className="text-[10px] text-foreground/55 text-center font-bold leading-tight">{p.name}</p>
-                )}
               </div>
             </ScrollReveal>
           ))}

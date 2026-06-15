@@ -92,6 +92,18 @@ export async function upsertPartner(
   return { success: true, data: partner as Partner }
 }
 
+export async function togglePartnerVisibility(id: string, isVisible: boolean): Promise<ActionResult<void>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+  const { error } = await supabase.from("partners").update({ is_visible: isVisible }).eq("id", id).eq("user_id", user.id)
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/partners")
+  revalidatePath("/settings/ratecard")
+  revalidateTag("public-partners", "default")
+  return { success: true, data: undefined }
+}
+
 export async function deletePartner(id: string): Promise<ActionResult<void>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

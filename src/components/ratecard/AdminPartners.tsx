@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { upsertPartner, deletePartner, reorderPartners } from "@/actions/portfolio.actions"
+import { upsertPartner, deletePartner, reorderPartners, togglePartnerVisibility } from "@/actions/portfolio.actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Plus, Upload, GripVertical } from "lucide-react"
+import { Trash2, Plus, Upload, GripVertical, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import type { Partner } from "@/lib/types"
 
@@ -59,6 +59,7 @@ export function AdminPartners({ partners }: Props) {
   const [uploadLabel, setUploadLabel] = useState("")
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
 
   useEffect(() => { setItems(partners) }, [partners])
@@ -195,6 +196,7 @@ export function AdminPartners({ partners }: Props) {
       name: form.name.trim() || null,
       logo_url: form.logo_url.trim(),
       sort_order: items.length,
+      is_visible: true,
     })
     setSaving(false)
     if (!result.success) { toast.error(result.error); return }
@@ -202,6 +204,14 @@ export function AdminPartners({ partners }: Props) {
     setForm({ name: "", logo_url: "" })
     if (fileRef.current) fileRef.current.value = ""
     router.refresh()
+  }
+
+  async function handleToggleVisibility(id: string, current: boolean) {
+    setTogglingId(id)
+    const result = await togglePartnerVisibility(id, !current)
+    setTogglingId(null)
+    if (!result.success) { toast.error(result.error); return }
+    setItems(prev => prev.map(p => p.id === id ? { ...p, is_visible: !current } : p))
   }
 
   async function handleDelete(id: string) {
@@ -229,7 +239,8 @@ export function AdminPartners({ partners }: Props) {
               key={p.id}
               data-partner-id={p.id}
               className={[
-                "relative rounded-xl border bg-[hsl(35,30%,97%)] p-2.5 flex flex-col items-center gap-1.5 select-none transition-all duration-150",
+                "relative rounded-xl border p-2.5 flex flex-col items-center gap-1.5 select-none transition-all duration-150",
+                !p.is_visible ? "bg-[hsl(35,20%,93%)] opacity-50" : "bg-[hsl(35,30%,97%)]",
                 dragIdRef.current === p.id ? "opacity-30 scale-95" : "",
                 dragOverId === p.id
                   ? "border-[hsl(24,85%,50%)] bg-orange-50 ring-2 ring-[hsl(24,85%,50%)] ring-offset-1 scale-[1.03]"
@@ -258,14 +269,28 @@ export function AdminPartners({ partners }: Props) {
                 </p>
               )}
 
-              <button
-                onClick={() => handleDelete(p.id)}
-                disabled={deletingId === p.id}
-                className="flex items-center gap-1 text-[10px] text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
-              >
-                <Trash2 className="w-3 h-3" />
-                {deletingId === p.id ? "..." : "ลบ"}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleToggleVisibility(p.id, p.is_visible)}
+                  disabled={togglingId === p.id}
+                  title={p.is_visible ? "ซ่อนจากหน้า public" : "แสดงในหน้า public"}
+                  className={`flex items-center gap-1 text-[10px] disabled:opacity-40 transition-colors ${
+                    p.is_visible
+                      ? "text-[hsl(25,10%,55%)] hover:text-[hsl(25,10%,25%)]"
+                      : "text-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,40%)]"
+                  }`}
+                >
+                  {p.is_visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  disabled={deletingId === p.id}
+                  className="flex items-center gap-1 text-[10px] text-red-400 hover:text-red-600 disabled:opacity-40 transition-colors"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  {deletingId === p.id ? "..." : "ลบ"}
+                </button>
+              </div>
             </div>
           ))}
         </div>

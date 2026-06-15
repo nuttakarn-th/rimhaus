@@ -33,7 +33,7 @@ export const getPublicPortfolioItems = unstable_cache(
 
 export const getPublicPartners = unstable_cache(
   async (): Promise<Partner[]> => {
-    const { data } = await db().from("partners").select("*").order("sort_order")
+    const { data } = await db().from("partners").select("*").eq("is_visible", true).order("sort_order")
     return (data as Partner[]) ?? []
   },
   ["public-partners"],

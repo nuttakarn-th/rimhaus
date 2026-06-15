@@ -349,6 +349,7 @@ export interface Partner {
   name: string | null
   logo_url: string
   sort_order: number
+  is_visible: boolean
   created_at: string
 }
 
