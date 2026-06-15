@@ -39,24 +39,21 @@ export default async function PartnersPage() {
             All Partner
           </h1>
         </HeadingReveal>
-        <ScrollReveal delay={150}>
-          <p className="text-xs text-muted-foreground mt-2">ร่วมงานกับ {partners.length} แบรนด์</p>
-        </ScrollReveal>
       </div>
 
       {/* ── Grid ────────────────────────────────────────── */}
-      <div className="max-w-3xl mx-auto px-4 pb-10">
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+      <div className="max-w-5xl mx-auto px-4 pb-10">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
           {partners.map((p, i) => (
-            <ScrollReveal key={p.id} delay={Math.min(i, 11) * 40} variant="scale">
-              <div className="flex flex-col items-center gap-2 p-3 hover:scale-105 transition-transform duration-200">
-                <div className="relative h-10 w-full">
+            <ScrollReveal key={p.id} delay={Math.min(i, 17) * 30} variant="scale">
+              <div className="flex items-center justify-center p-2 sm:p-3 hover:scale-105 transition-transform duration-200">
+                <div className="relative h-8 w-full">
                   <Image
                     src={p.logo_url}
                     alt={p.name ?? "Partner"}
                     fill
-                    className="object-contain px-2 py-1"
-                    sizes="(max-width: 640px) 33vw, 25vw"
+                    className="object-contain px-1.5 py-0.5"
+                    sizes="(max-width: 640px) 33vw, 17vw"
                   />
                 </div>
               </div>
