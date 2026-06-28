@@ -20,7 +20,7 @@ const LINE_ICON = (
 
 export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, contactLine }: Props) {
   const pathname = usePathname()
-  const isHome = pathname === "/"
+  const isHome = pathname === "/" || pathname === "/ratecard"
 
   const [scrolled, setScrolled] = useState(!isHome)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -58,12 +58,12 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
   const ghost = isHome && !scrolled
 
   const navItems = [
-    { label: "Rate Card",        href: "/",            always: true },
-    { label: "ตัวอย่าง Content", href: "/portfolio",  show: hasPortfolio },
-    { label: "Gallery",          href: "/gallery",    show: hasGallery },
-    { label: "All Partner",      href: "/partners",   show: hasPartners },
-    { label: "Blog",             href: "/blog",       always: true },
     { label: "AI Room",          href: "/redesign",   always: true },
+    { label: "Blog",             href: "/blog",       always: true },
+    { label: "Gallery",          href: "/gallery",    show: hasGallery },
+    { label: "ตัวอย่าง Content", href: "/portfolio",  show: hasPortfolio },
+    { label: "All Partner",      href: "/partners",   show: hasPartners },
+    { label: "Rate Card",        href: "/ratecard",   always: true },
   ]
   const visibleItems = navItems.filter(item => item.always || item.show)
 
@@ -78,12 +78,13 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
           <div className="h-14 flex items-center justify-between gap-2">
 
             {/* Brand */}
-            <span
-              className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white" : "text-foreground"}`}
+            <Link
+              href="/"
+              className={`shrink-0 transition-colors duration-300 tracking-tight text-[15px] ${ghost ? "text-white hover:text-white/80" : "text-foreground hover:text-foreground/70"}`}
               style={{ fontFamily: "var(--font-inter, 'Inter', system-ui, sans-serif)", fontWeight: 700 }}
             >
               {pageName}
-            </span>
+            </Link>
 
             {/* Desktop nav (center) */}
             <nav className="hidden sm:flex items-center gap-1 flex-1 justify-center">

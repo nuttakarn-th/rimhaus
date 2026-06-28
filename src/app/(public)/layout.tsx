@@ -11,35 +11,22 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSettings()
-
-  const title = settings?.og_title || settings?.page_name || "Rate Card"
-  const description = settings?.og_description || `Rate Card ของ ${settings?.page_name ?? "Content Creator"}`
+  const siteName = settings?.page_name ?? "Rimhaus"
   const image = settings?.og_image_url || settings?.hero_bg_image_url || settings?.image_url
-
-  const imageList = image
-    ? [{ url: image, width: 1200, height: 630, alt: title }]
-    : []
+  const imageList = image ? [{ url: image, width: 1200, height: 630, alt: siteName }] : []
 
   return {
     metadataBase: new URL(siteUrl),
-    title,
-    description,
-    alternates: {
-      canonical: siteUrl,
-    },
+    title: { default: siteName, template: `%s · ${siteName}` },
+    description: `${siteName} — แรงบันดาลใจตกแต่งบ้าน ออกแบบด้วย AI บทความ และ Gallery`,
     openGraph: {
-      title,
-      description,
-      url: siteUrl,
-      siteName: settings?.page_name ?? title,
+      siteName,
       locale: "th_TH",
       type: "website",
       images: imageList,
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
-      title,
-      description,
       images: image ? [image] : [],
     },
   }
