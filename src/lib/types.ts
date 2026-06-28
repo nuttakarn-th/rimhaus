@@ -357,6 +357,34 @@ export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
 
+export interface AiProduct {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  image_url: string | null
+  price: number | null
+  affiliate_url: string
+  affiliate_platform: string | null
+  category: string
+  room_types: string[]
+  style_tags: string[]
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface AiGeneration {
+  id: string
+  session_id: string
+  style: string
+  room_type: string
+  vibe: string | null
+  generated_image_url: string | null
+  products_shown: string[]
+  created_at: string
+}
+
 export interface Article {
   id: string
   user_id: string
