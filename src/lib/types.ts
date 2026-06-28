@@ -356,3 +356,19 @@ export interface Partner {
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
+
+export interface Article {
+  id: string
+  user_id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string | null
+  cover_image_url: string | null
+  category: string | null
+  tags: string[]
+  status: 'draft' | 'published'
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}

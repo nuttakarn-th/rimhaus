@@ -62,6 +62,7 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
     { label: "ตัวอย่าง Content", href: "/portfolio",  show: hasPortfolio },
     { label: "Gallery",          href: "/gallery",    show: hasGallery },
     { label: "All Partner",      href: "/partners",   show: hasPartners },
+    { label: "Blog",             href: "/blog",       always: true },
   ]
   const visibleItems = navItems.filter(item => item.always || item.show)
 

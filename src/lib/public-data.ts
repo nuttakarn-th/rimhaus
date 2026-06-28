@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache"
 import { createPublicClient } from "@/lib/supabase/public"
-import type { RateCardPackage, RateCardSettings, PortfolioItem, Partner, GalleryAlbum, GalleryItem } from "@/lib/types"
+import type { RateCardPackage, RateCardSettings, PortfolioItem, Partner, GalleryAlbum, GalleryItem, Article } from "@/lib/types"
 
 const db = () => createPublicClient()
 
@@ -73,4 +73,22 @@ export const getPublicAlbumsWithItems = unstable_cache(
   },
   ["public-albums-with-items"],
   { revalidate: 60, tags: ["public-gallery"] }
+)
+
+export const getPublicArticles = unstable_cache(
+  async (): Promise<Article[]> => {
+    const { data } = await db().from("articles").select("*").eq("status", "published").order("published_at", { ascending: false })
+    return (data as Article[]) ?? []
+  },
+  ["public-articles"],
+  { revalidate: 60, tags: ["public-articles"] }
+)
+
+export const getPublicArticleBySlug = unstable_cache(
+  async (slug: string): Promise<Article | null> => {
+    const { data } = await db().from("articles").select("*").eq("status", "published").eq("slug", slug).single()
+    return data as Article | null
+  },
+  ["public-article"],
+  { revalidate: 60, tags: ["public-articles"] }
 )
