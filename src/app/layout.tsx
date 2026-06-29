@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Noto_Sans_Thai, Inter, DM_Serif_Display } from "next/font/google"
+import { Noto_Sans_Thai, Noto_Serif_Thai, Inter, DM_Serif_Display } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 
@@ -7,6 +7,12 @@ const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-noto-thai",
+})
+
+const notoSerifThai = Noto_Serif_Thai({
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-serif",
 })
 
 const inter = Inter({
@@ -36,7 +42,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`h-full ${notoSansThai.variable} ${inter.variable} ${dmSerifDisplay.variable}`}>
+    <html lang="th" className={`h-full ${notoSansThai.variable} ${notoSerifThai.variable} ${inter.variable} ${dmSerifDisplay.variable}`}>
       <body className="h-full antialiased font-sans">
         {children}
         <Toaster richColors position="top-right" />

@@ -78,7 +78,7 @@
   --color-ink-dim: hsl(var(--ink-dim));
   --radius: var(--radius);
   --font-sans: var(--font-noto-thai), sans-serif;
-  --font-display: var(--font-dm-serif), 'DM Serif Display', Georgia, serif;
+  --font-display: var(--font-noto-serif), var(--font-dm-serif), 'Noto Serif Thai', Georgia, serif;
 }
 
 * {
@@ -298,7 +298,7 @@ body {
 
 /* Article HTML content (Tiptap output rendered on public blog) */
 .article-html { line-height: 1.8; color: hsl(var(--foreground)); }
-.article-html h1 { font-size: 1.5rem; font-weight: 400; font-style: italic; font-family: var(--font-display); margin: 2rem 0 1rem; color: hsl(var(--foreground)); }
+.article-html h1 { font-size: 1.5rem; font-weight: 600; font-family: var(--font-display); margin: 2rem 0 1rem; color: hsl(var(--foreground)); }
 .article-html h2 { font-size: 1.25rem; font-weight: 700; margin: 1.75rem 0 0.75rem; color: hsl(var(--foreground)); }
 .article-html h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: hsl(var(--foreground)); }
 .article-html p { font-size: 1rem; line-height: 1.8; margin-bottom: 1.25rem; color: hsl(var(--foreground) / 0.85); }

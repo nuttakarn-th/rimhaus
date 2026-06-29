@@ -88,7 +88,7 @@ export default async function ArticlePage({ params }: Props) {
 
           <h1
             className="text-3xl sm:text-5xl text-foreground leading-tight"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
+            style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
           >
             {article.title}
           </h1>
@@ -127,7 +127,7 @@ export default async function ArticlePage({ params }: Props) {
               <ReactMarkdown
                 components={{
                   h1: ({ children }) => (
-                    <h1 className="text-2xl font-bold text-foreground mt-8 mb-4 first:mt-0" style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400 }}>{children}</h1>
+                    <h1 className="text-2xl text-foreground mt-8 mb-4 first:mt-0" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>{children}</h1>
                   ),
                   h2: ({ children }) => (
                     <h2 className="text-xl font-bold text-foreground mt-7 mb-3">{children}</h2>
