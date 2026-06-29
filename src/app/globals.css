@@ -296,6 +296,31 @@ body {
   .page-enter { animation: none; }
 }
 
+/* Article HTML content (Tiptap output rendered on public blog) */
+.article-html { line-height: 1.8; color: hsl(var(--foreground)); }
+.article-html h1 { font-size: 1.5rem; font-weight: 400; font-style: italic; font-family: var(--font-display); margin: 2rem 0 1rem; color: hsl(var(--foreground)); }
+.article-html h2 { font-size: 1.25rem; font-weight: 700; margin: 1.75rem 0 0.75rem; color: hsl(var(--foreground)); }
+.article-html h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: hsl(var(--foreground)); }
+.article-html p { font-size: 1rem; line-height: 1.8; margin-bottom: 1.25rem; color: hsl(var(--foreground) / 0.85); }
+.article-html a { color: hsl(24 85% 50%); text-decoration: underline; text-underline-offset: 2px; }
+.article-html a:hover { color: hsl(24 85% 40%); }
+.article-html ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; color: hsl(var(--foreground) / 0.85); }
+.article-html ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; color: hsl(var(--foreground) / 0.85); }
+.article-html li { margin-bottom: 0.25rem; font-size: 1rem; line-height: 1.7; }
+.article-html blockquote { border-left: 4px solid hsl(24 85% 50%); padding-left: 1rem; font-style: italic; color: hsl(var(--muted-foreground)); margin: 1.25rem 0; }
+.article-html strong { font-weight: 700; color: hsl(var(--foreground)); }
+.article-html em { font-style: italic; }
+.article-html u { text-decoration: underline; }
+.article-html s { text-decoration: line-through; }
+.article-html hr { border: none; border-top: 1px solid hsl(var(--border)); margin: 2rem 0; }
+.article-html img { max-width: 100%; border-radius: 0.75rem; margin: 1.5rem 0; }
+.article-html table { border-collapse: collapse; width: 100%; margin: 1.25rem 0; font-size: 0.9rem; }
+.article-html td, .article-html th { border: 1px solid hsl(var(--border)); padding: 8px 12px; vertical-align: top; }
+.article-html th { background: hsl(35 25% 94%); font-weight: 600; }
+.article-html code { background: hsl(35 30% 94%); color: hsl(25 20% 20%); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.875rem; font-family: monospace; }
+.article-html pre { background: hsl(25 15% 12%); color: hsl(35 30% 85%); padding: 1rem; border-radius: 0.75rem; overflow-x: auto; margin-bottom: 1.25rem; }
+.article-html pre code { background: transparent; color: inherit; padding: 0; }
+
 /* Brief print styles */
 .brief-print h1 { font-size: 1.4rem; font-weight: 700; margin: 1rem 0 0.5rem; }
 .brief-print h2 { font-size: 1.15rem; font-weight: 700; margin: 1.2rem 0 0.4rem; color: hsl(24 85% 40%); border-bottom: 1px solid hsl(35 20% 80%); padding-bottom: 3px; }

@@ -12,12 +12,13 @@ import TableRow from "@tiptap/extension-table-row"
 import TableCell from "@tiptap/extension-table-cell"
 import TableHeader from "@tiptap/extension-table-header"
 import Placeholder from "@tiptap/extension-placeholder"
+import TiptapLink from "@tiptap/extension-link"
 import {
   Bold, Italic, UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3,
   List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
   TableIcon, Image as ImageIcon,
-  Undo2, Redo2, Minus, Type,
+  Undo2, Redo2, Minus, Type, Link2, Link2Off,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -118,6 +119,10 @@ function ContentBriefEditor({ value, onChange, placeholder, defaultContent }, re
   const [colorPickerOpen, setColorPickerOpen] = useState<"text" | "bg" | null>(null)
   const colorPickerRef = useRef<HTMLDivElement>(null)
 
+  const [linkPopover, setLinkPopover] = useState(false)
+  const [linkUrl, setLinkUrl] = useState("")
+  const linkPopoverRef = useRef<HTMLDivElement>(null)
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -129,6 +134,7 @@ function ContentBriefEditor({ value, onChange, placeholder, defaultContent }, re
       TableRow,
       StyledTableHeader,
       StyledTableCell,
+      TiptapLink.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" } }),
       Placeholder.configure({
         placeholder: placeholder ?? "เขียน Brief/Script ที่นี่...",
         emptyEditorClass: "is-editor-empty",
@@ -189,6 +195,36 @@ function ContentBriefEditor({ value, onChange, placeholder, defaultContent }, re
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
   }, [tablePopover])
+
+  // Close link popover on outside click
+  useEffect(() => {
+    if (!linkPopover) return
+    function handler(e: MouseEvent) {
+      if (linkPopoverRef.current && !linkPopoverRef.current.contains(e.target as Node)) {
+        setLinkPopover(false)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [linkPopover])
+
+  function openLinkPopover() {
+    const existing = editor?.getAttributes("link").href ?? ""
+    setLinkUrl(existing)
+    setLinkPopover(true)
+  }
+
+  function applyLink() {
+    if (!editor) return
+    if (!linkUrl.trim()) {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run()
+    } else {
+      const href = linkUrl.startsWith("http") ? linkUrl : `https://${linkUrl}`
+      editor.chain().focus().extendMarkRange("link").setLink({ href }).run()
+    }
+    setLinkPopover(false)
+    setLinkUrl("")
+  }
 
   function applyFontSize(size: number) {
     if (!editor) return
@@ -435,6 +471,43 @@ function ContentBriefEditor({ value, onChange, placeholder, defaultContent }, re
         <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="เส้นแบ่ง" active={false}>
           <Minus className="w-3.5 h-3.5" />
         </ToolBtn>
+
+        {/* Link */}
+        <div className="relative" ref={linkPopoverRef}>
+          <ToolBtn onClick={openLinkPopover} active={editor.isActive("link")} title="แทรกลิงก์">
+            <Link2 className="w-3.5 h-3.5" />
+          </ToolBtn>
+          {editor.isActive("link") && (
+            <ToolBtn onClick={() => editor.chain().focus().unsetLink().run()} active={false} title="ลบลิงก์">
+              <Link2Off className="w-3.5 h-3.5" />
+            </ToolBtn>
+          )}
+          {linkPopover && (
+            <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-[hsl(35,20%,85%)] rounded-xl shadow-xl p-3 w-64"
+              onMouseDown={e => e.stopPropagation()}>
+              <p className="text-[10px] font-semibold text-[hsl(25,10%,50%)] mb-2 uppercase tracking-wide">แทรกลิงก์</p>
+              <input
+                autoFocus
+                type="text"
+                value={linkUrl}
+                onChange={e => setLinkUrl(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") applyLink(); if (e.key === "Escape") setLinkPopover(false) }}
+                placeholder="https://..."
+                className="w-full px-2.5 py-1.5 text-xs border border-[hsl(35,20%,83%)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[hsl(24,85%,50%)]"
+              />
+              <div className="flex gap-1.5 mt-2">
+                <button type="button" onClick={applyLink}
+                  className="flex-1 rounded-lg bg-[hsl(24,85%,50%)] hover:bg-[hsl(24,85%,44%)] text-white text-xs font-semibold py-1.5 transition-colors">
+                  ใส่ลิงก์
+                </button>
+                <button type="button" onClick={() => setLinkPopover(false)}
+                  className="px-3 rounded-lg border border-[hsl(35,20%,83%)] text-xs text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)] transition-colors">
+                  ยกเลิก
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <span className="w-px h-4 bg-[hsl(35,20%,85%)] mx-1" />
 
