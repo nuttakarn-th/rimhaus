@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Pencil, Search, X, ImageIcon, Globe, Trash2, ArrowUpDown } from "lucide-react"
+import { Pencil, Search, X, ImageIcon, Globe, Trash2, ArrowUpDown, ExternalLink } from "lucide-react"
 import { DeleteArticleButton } from "@/components/articles/DeleteArticleButton"
 import { bulkDeleteArticles, bulkUpdateArticleStatus } from "@/actions/article.actions"
 import { toast } from "sonner"
@@ -293,6 +293,13 @@ export function ArticleList({ articles }: { articles: Article[] }) {
 
                 {/* Actions */}
                 <div className="flex items-center gap-0.5 shrink-0">
+                  {article.status === "published" && article.slug && (
+                    <a href={`/blog/${article.slug}`} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-[hsl(25,10%,55%)] hover:text-[hsl(24,85%,50%)]" title="ดูบทความ">
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Button>
+                    </a>
+                  )}
                   <Link href={`/articles/${article.id}/edit`}>
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="แก้ไข">
                       <Pencil className="w-3.5 h-3.5" />
