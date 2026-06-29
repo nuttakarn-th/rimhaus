@@ -35,7 +35,7 @@ export function DeleteArticleButton({ id, title }: { id: string; title: string }
   }
 
   return (
-    <Button size="sm" variant="ghost" onClick={() => setConfirming(true)}>
+    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setConfirming(true)} title="ลบ">
       <Trash2 className="w-3.5 h-3.5 text-red-400" />
     </Button>
   )
