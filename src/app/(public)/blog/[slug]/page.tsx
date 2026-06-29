@@ -1,11 +1,20 @@
 import Image from "next/image"
+import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ArrowLeft, Clock } from "lucide-react"
 import ReactMarkdown from "react-markdown"
-import { getPublicArticleBySlug, getPublicArticles } from "@/lib/public-data"
+import { getPublicArticleBySlug, getRelatedArticles } from "@/lib/public-data"
+import { ShareButtons } from "@/components/blog/ShareButtons"
 import type { Metadata } from "next"
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+function readingTime(content: string | null): number {
+  if (!content) return 1
+  const text = content.replace(/<[^>]*>/g, " ").replace(/[#*_`>\[\]!]/g, "").replace(/\s+/g, " ").trim()
+  return Math.max(1, Math.ceil(text.length / 350))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -26,12 +35,28 @@ export default async function ArticlePage({ params }: Props) {
   const article = await getPublicArticleBySlug(slug)
   if (!article) notFound()
 
+  const [relatedFiltered] = await Promise.all([
+    getRelatedArticles(slug, article.category, 3),
+  ])
+  const minutes = readingTime(article.content)
+
   return (
     <div className="bg-background min-h-screen">
 
+      {/* Back link */}
+      <div className="max-w-3xl mx-auto px-4 pt-6">
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-1.5 text-xs text-[hsl(25,10%,55%)] hover:text-[hsl(24,85%,50%)] transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          กลับไปบล็อก
+        </Link>
+      </div>
+
       {/* Cover image */}
       {article.cover_image_url && (
-        <div className="w-full aspect-[21/9] relative max-h-[480px] overflow-hidden bg-[hsl(35,30%,94%)]">
+        <div className="w-full aspect-[21/9] relative max-h-[480px] overflow-hidden bg-[hsl(35,30%,94%)] mt-4">
           <Image
             src={article.cover_image_url}
             alt={article.title}
@@ -49,25 +74,37 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* Meta */}
         <div className="mb-6 space-y-3">
-          {article.category && (
-            <span className="inline-block text-[10px] font-bold tracking-widest uppercase text-[hsl(24,85%,50%)]">
-              {article.category}
+          <div className="flex items-center gap-3 flex-wrap">
+            {article.category && (
+              <span className="text-[10px] font-bold tracking-widest uppercase text-[hsl(24,85%,50%)]">
+                {article.category}
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-xs text-[hsl(25,10%,60%)]">
+              <Clock className="w-3 h-3" />
+              อ่านประมาณ {minutes} นาที
             </span>
-          )}
+          </div>
+
           <h1
             className="text-3xl sm:text-5xl text-foreground leading-tight"
             style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
           >
             {article.title}
           </h1>
+
           {article.excerpt && (
             <p className="text-base text-muted-foreground leading-relaxed">{article.excerpt}</p>
           )}
-          <p className="text-sm text-muted-foreground">
-            {article.published_at
-              ? new Date(article.published_at).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })
-              : ""}
-          </p>
+
+          <div className="flex items-center gap-3 flex-wrap text-sm text-muted-foreground">
+            <span>
+              {article.published_at
+                ? new Date(article.published_at).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })
+                : ""}
+            </span>
+          </div>
+
           {article.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {article.tags.map(tag => (
@@ -84,10 +121,7 @@ export default async function ArticlePage({ params }: Props) {
         {/* Content — HTML (Tiptap) or Markdown */}
         {article.content && (
           article.content.trimStart().startsWith("<") ? (
-            <div
-              className="article-html"
-              dangerouslySetInnerHTML={{ __html: article.content }}
-            />
+            <div className="article-html" dangerouslySetInnerHTML={{ __html: article.content }} />
           ) : (
             <div className="prose-article">
               <ReactMarkdown
@@ -143,6 +177,69 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )
         )}
+
+        {/* Share */}
+        <div className="mt-10 pt-8 border-t border-border">
+          <ShareButtons />
+        </div>
+
+        {/* Related articles */}
+        {relatedFiltered.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-sm font-bold text-[hsl(25,20%,20%)] uppercase tracking-widest mb-5">
+              บทความที่เกี่ยวข้อง
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {relatedFiltered.map(rel => (
+                <Link
+                  key={rel.id}
+                  href={`/blog/${rel.slug}`}
+                  className="group block bg-[hsl(35,30%,97%)] hover:bg-white rounded-xl border border-[hsl(35,20%,88%)] hover:border-[hsl(35,20%,78%)] hover:shadow-sm transition-all overflow-hidden"
+                >
+                  {rel.cover_image_url ? (
+                    <div className="aspect-video overflow-hidden bg-[hsl(35,25%,92%)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={rel.cover_image_url}
+                        alt={rel.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-[hsl(35,25%,92%)]" />
+                  )}
+                  <div className="p-3">
+                    {rel.category && (
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[hsl(24,85%,50%)] mb-1">
+                        {rel.category}
+                      </p>
+                    )}
+                    <p className="text-sm font-semibold text-[hsl(25,20%,15%)] group-hover:text-[hsl(24,85%,45%)] leading-snug transition-colors line-clamp-2">
+                      {rel.title}
+                    </p>
+                    <p className="text-[11px] text-[hsl(25,10%,60%)] mt-1">
+                      {rel.published_at
+                        ? new Date(rel.published_at).toLocaleDateString("th-TH", { month: "short", day: "numeric" })
+                        : ""}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Back to blog — bottom */}
+        <div className="mt-12 pt-8 border-t border-border flex justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[hsl(35,20%,83%)] text-sm text-[hsl(25,20%,30%)] hover:border-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,45%)] transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            กลับไปดูบทความทั้งหมด
+          </Link>
+        </div>
+
       </div>
     </div>
   )

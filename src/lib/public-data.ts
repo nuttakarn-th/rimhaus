@@ -92,3 +92,14 @@ export const getPublicArticleBySlug = unstable_cache(
   ["public-article"],
   { revalidate: 60, tags: ["public-articles"] }
 )
+
+export async function getRelatedArticles(currentSlug: string, category: string | null, limit = 3): Promise<Article[]> {
+  const all = await getPublicArticles()
+  const others = all.filter(a => a.slug !== currentSlug)
+  if (category) {
+    const sameCat = others.filter(a => a.category === category)
+    const rest = others.filter(a => a.category !== category)
+    return [...sameCat, ...rest].slice(0, limit)
+  }
+  return others.slice(0, limit)
+}
