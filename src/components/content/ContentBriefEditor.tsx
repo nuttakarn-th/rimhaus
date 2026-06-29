@@ -32,27 +32,23 @@ const FontSizeMark = Mark.create({
       fontSize: {
         default: null,
         parseHTML: el => (el as HTMLElement).style.fontSize || null,
-        renderHTML: () => ({}),
+        renderHTML: attrs => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}` } : {},
       },
       color: {
         default: null,
         parseHTML: el => (el as HTMLElement).style.color || null,
-        renderHTML: () => ({}),
+        renderHTML: attrs => attrs.color ? { style: `color: ${attrs.color}` } : {},
       },
       backgroundColor: {
         default: null,
         parseHTML: el => (el as HTMLElement).style.backgroundColor || null,
-        renderHTML: () => ({}),
+        renderHTML: attrs => attrs.backgroundColor ? { style: `background-color: ${attrs.backgroundColor}` } : {},
       },
     }
   },
   parseHTML() { return [{ tag: "span[style]" }] },
   renderHTML({ HTMLAttributes }) {
-    const styles: string[] = []
-    if (HTMLAttributes.fontSize) styles.push(`font-size: ${HTMLAttributes.fontSize}`)
-    if (HTMLAttributes.color) styles.push(`color: ${HTMLAttributes.color}`)
-    if (HTMLAttributes.backgroundColor) styles.push(`background-color: ${HTMLAttributes.backgroundColor}`)
-    return ["span", styles.length ? { style: styles.join("; ") } : {}, 0]
+    return ["span", mergeAttributes(HTMLAttributes), 0]
   },
 })
 
