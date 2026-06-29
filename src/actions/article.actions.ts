@@ -66,3 +66,32 @@ export async function deleteArticle(id: string): Promise<ActionResult<void>> {
   revalidateTag("public-articles", "default")
   return { success: true, data: undefined }
 }
+
+export async function bulkDeleteArticles(ids: string[]): Promise<ActionResult<void>> {
+  if (!ids.length) return { success: true, data: undefined }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+  const { error } = await supabase.from("articles").delete().in("id", ids).eq("user_id", user.id)
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/articles")
+  revalidateTag("public-articles", "default")
+  return { success: true, data: undefined }
+}
+
+export async function bulkUpdateArticleStatus(ids: string[], status: 'draft' | 'published'): Promise<ActionResult<void>> {
+  if (!ids.length) return { success: true, data: undefined }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+  const payload = {
+    status,
+    updated_at: new Date().toISOString(),
+    published_at: status === 'published' ? new Date().toISOString() : null,
+  }
+  const { error } = await supabase.from("articles").update(payload).in("id", ids).eq("user_id", user.id)
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/articles")
+  revalidateTag("public-articles", "default")
+  return { success: true, data: undefined }
+}
