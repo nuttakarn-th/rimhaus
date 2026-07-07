@@ -1,0 +1,19 @@
+{
+  "buildCommand": "npm run setup && npm run build",
+  "outputDirectory": "client/dist",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/weekly",
+      "schedule": "0 1 * * 0"
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
