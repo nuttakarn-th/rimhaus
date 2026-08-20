@@ -402,22 +402,6 @@ export function DocumentView({ document: doc }: { document: Document }) {
             </div>
           </div>
 
-          {/* Footer for quotation */}
-          {isQuotation && (doc.issuer_contact_line || doc.issuer_email) && (
-            <div className="mt-4 text-xs text-[hsl(25,10%,40%)]">
-              {doc.issuer_contact_line ? (
-                <>ยืนยันใบเสนอราคา : โอนเงินและส่ง Line ยืนยันที่{" "}
-                  <span className="font-semibold text-[hsl(25,20%,15%)]">{doc.issuer_contact_line}</span>
-                </>
-              ) : (
-                <>ยืนยันใบเสนอราคา : โอนเงินและส่งเมลยืนยันที่{" "}
-                  <a href={`mailto:${doc.issuer_email}`} className="underline text-[hsl(24,85%,50%)]">
-                    {doc.issuer_email}
-                  </a>
-                </>
-              )}
-            </div>
-          )}
 
         </div>
       </div>

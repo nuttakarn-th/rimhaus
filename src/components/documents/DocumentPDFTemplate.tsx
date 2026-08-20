@@ -347,13 +347,6 @@ export function DocumentPDFTemplate({ doc }: { doc: Doc }) {
           </View>
         </View>
 
-        {isQuotation && (doc.issuer_contact_line || doc.issuer_email) && (
-          <Text style={S.footerNote}>
-            {doc.issuer_contact_line
-              ? `ยืนยันใบเสนอราคา : โอนเงินและส่ง Line ยืนยันที่ ${doc.issuer_contact_line}`
-              : `ยืนยันใบเสนอราคา : โอนเงินและส่งเมลยืนยันที่ ${doc.issuer_email ?? ""}`}
-          </Text>
-        )}
 
       </Page>
     </Document>
