@@ -79,10 +79,10 @@ export function ContentPlannerClient({ contentItems, jobs }: Props) {
       {/* Tabs */}
       <div className="flex gap-1 bg-[hsl(35,25%,94%)] dark:bg-[hsl(25,12%,18%)] rounded-xl p-1">
         {([
-          { key: "weekly",    label: "สัปดาห์นี้", icon: LayoutGrid },
-          { key: "calendar",  label: "ปฏิทิน",    icon: CalendarDays },
-          { key: "repurpose", label: "Repurpose",  icon: RefreshCw },
-        ] as const).map(({ key, label, icon: Icon }) => (
+          { key: "weekly",    label: "สัปดาห์นี้", labelShort: "สัปดาห์", icon: LayoutGrid },
+          { key: "calendar",  label: "ปฏิทิน",    labelShort: "ปฏิทิน",   icon: CalendarDays },
+          { key: "repurpose", label: "Repurpose",  labelShort: "Reuse",    icon: RefreshCw },
+        ] as const).map(({ key, label, labelShort, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -92,8 +92,9 @@ export function ContentPlannerClient({ contentItems, jobs }: Props) {
                 : "text-[hsl(25,10%,50%)] hover:text-[hsl(25,20%,25%)] dark:hover:text-[hsl(35,15%,70%)]"
             }`}
           >
-            <Icon className="w-3.5 h-3.5" />
-            {label}
+            <Icon className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden sm:inline">{label}</span>
+            <span className="sm:hidden">{labelShort}</span>
           </button>
         ))}
       </div>

@@ -92,7 +92,7 @@ export function MonthlyCalendar({ contentItems, year, month, onMonthChange, onDa
             <div
               key={dateStr}
               onClick={() => onDayClick(dateStr)}
-              className="bg-white dark:bg-[hsl(25,12%,14%)] min-h-[80px] p-1.5 cursor-pointer hover:bg-[hsl(35,40%,96%)] dark:hover:bg-[hsl(25,12%,18%)] transition-colors group relative"
+              className="bg-white dark:bg-[hsl(25,12%,14%)] min-h-[60px] sm:min-h-[80px] p-1 sm:p-1.5 cursor-pointer hover:bg-[hsl(35,40%,96%)] dark:hover:bg-[hsl(25,12%,18%)] transition-colors group relative overflow-hidden"
             >
               {/* Day number */}
               <div className={`text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full mb-1 ${
@@ -105,8 +105,9 @@ export function MonthlyCalendar({ contentItems, year, month, onMonthChange, onDa
 
               {/* Seasonal event badges */}
               {events.slice(0, 1).map(ev => (
-                <div key={ev.id} className={`text-[9px] rounded px-1 py-0.5 mb-0.5 truncate border ${ev.colorClass}`}>
-                  {ev.emoji} {ev.name}
+                <div key={ev.id} className={`text-[9px] rounded px-1 py-0.5 mb-0.5 border ${ev.colorClass}`}>
+                  <span className="sm:hidden">{ev.emoji}</span>
+                  <span className="hidden sm:inline truncate block">{ev.emoji} {ev.name}</span>
                 </div>
               ))}
 
@@ -137,10 +138,11 @@ export function MonthlyCalendar({ contentItems, year, month, onMonthChange, onDa
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {Object.entries(CONTENT_CATEGORIES).slice(0, 6).map(([k, v]) => (
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {Object.entries(CONTENT_CATEGORIES).map(([k, v]) => (
           <span key={k} className={`text-[10px] px-2 py-0.5 rounded-full ${v.color}`}>
-            {v.emoji} {v.label}
+            <span className="sm:hidden">{v.emoji}</span>
+            <span className="hidden sm:inline">{v.emoji} {v.label}</span>
           </span>
         ))}
       </div>
