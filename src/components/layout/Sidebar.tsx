@@ -24,14 +24,24 @@ import {
   Megaphone,
   BookOpen,
   Wand2,
+  Sparkles,
 } from "lucide-react"
+import { getUpcomingEvents } from "@/lib/seasonal-events"
 
-const navItems = [
+interface NavItem {
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  badge?: boolean
+}
+
+const navItems: NavItem[] = [
   { href: "/admin", icon: LayoutDashboard, label: "หน้าหลัก" },
   { href: "/jobs", icon: ClipboardList, label: "งานรีวิว" },
   { href: "/finances", icon: Wallet, label: "การเงิน" },
   { href: "/commission", icon: PieChart, label: "จัดสรรรายได้" },
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
+  { href: "/planner", icon: Sparkles, label: "ปฏิทิน Content" },
   { href: "/customers", icon: Building2, label: "ลูกค้า" },
   { href: "/pitch-scripts", icon: Megaphone, label: "คีย์โน้ต" },
   { href: "/articles", icon: BookOpen, label: "บทความ" },
@@ -46,6 +56,10 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const hasUpcomingEvent = getUpcomingEvents(7).length > 0
+  const itemsWithBadge = navItems.map(item =>
+    item.href === "/planner" ? { ...item, badge: hasUpcomingEvent } : item
+  )
 
   return (
     <>
@@ -99,7 +113,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map(item => {
+          {itemsWithBadge.map(item => {
             const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
             return (
               <Link
@@ -114,7 +128,10 @@ export function Sidebar() {
                 )}
               >
                 <item.icon className="w-4 h-4 shrink-0" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <span className="w-2 h-2 rounded-full bg-[hsl(24,85%,50%)] shrink-0" />
+                )}
               </Link>
             )
           })}

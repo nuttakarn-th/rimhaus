@@ -19,6 +19,7 @@ export interface ContentFormValues {
   hashtags?: string
   status: ContentStatus
   content_pillar?: ContentPillar | null
+  content_category?: string | null
   is_sponsored: boolean
   link?: string | null
   review_job_id?: string | null
@@ -37,6 +38,7 @@ export async function createContentItem(data: ContentFormValues): Promise<Action
 
   if (error) return { success: false, error: error.message }
   revalidatePath("/content")
+  revalidatePath("/planner")
   revalidatePath("/dashboard")
   return { success: true, data: item }
 }

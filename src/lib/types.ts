@@ -114,6 +114,7 @@ export interface ContentItem {
   hashtags: string | null
   status: ContentStatus
   content_pillar: ContentPillar | null
+  content_category: string | null
   is_sponsored: boolean
   link: string | null
   created_at: string
