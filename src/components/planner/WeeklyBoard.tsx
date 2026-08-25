@@ -104,7 +104,7 @@ export function WeeklyBoard({ contentItems, weekOffset, onWeekChange, onDayClick
           const postedCount = items.filter(i => i.status === "posted").length
 
           return (
-            <div key={dateStr} className="flex flex-col shrink-0 w-[calc(33vw-12px)] min-w-[100px] max-w-[140px] md:w-auto md:max-w-none md:shrink snap-start">
+            <div key={dateStr} className="flex flex-col shrink-0 w-24 md:w-auto md:shrink snap-start">
               {/* Day header */}
               <div className={`rounded-xl p-2 text-center mb-2 ${isToday ? "bg-[hsl(24,85%,50%)]" : "bg-[hsl(35,25%,94%)] dark:bg-[hsl(25,12%,18%)]"}`}>
                 <div className={`text-[10px] font-bold ${isToday ? "text-white/80" : "text-[hsl(25,10%,50%)]"}`}>
