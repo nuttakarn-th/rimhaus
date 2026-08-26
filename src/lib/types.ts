@@ -144,6 +144,22 @@ export interface SocialPost {
   updated_at: string
 }
 
+export type AffiliateZone = "living_room" | "kitchen" | "bathroom" | "miscellaneous" | "appliances" | "garden" | "workspace" | "wall_shelf"
+
+export interface AffiliateProduct {
+  id: string
+  user_id: string
+  zone: AffiliateZone
+  zone_label: string
+  name: string
+  shopee_url: string | null
+  lazada_url: string | null
+  last_scheduled_at: string | null
+  scheduled_count: number
+  is_active: boolean
+  created_at: string
+}
+
 export type RateCardCategory = "per_platform" | "bundle" | "addon" | "barter"
 
 export interface RateCardPackage {
