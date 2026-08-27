@@ -70,19 +70,16 @@ export default async function HomePage() {
 
           <div className="hero-anim hero-anim-3 flex flex-wrap gap-3 justify-center mt-8">
             <Link
-              href="/redesign"
+              href="/blog"
               className="inline-flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white font-bold px-6 py-3 rounded-2xl text-sm shadow-lg hover:bg-[hsl(24,85%,45%)] transition-all active:scale-[0.98]"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-              </svg>
-              ลอง AI Room Redesign
+              อ่าน Blog →
             </Link>
             <Link
-              href="/blog"
+              href="/gallery"
               className="inline-flex items-center gap-2 border border-white/25 text-white/75 font-bold px-6 py-3 rounded-2xl text-sm hover:border-white/50 hover:text-white transition-all"
             >
-              อ่าน Blog →
+              ดู Gallery →
             </Link>
           </div>
 
@@ -187,7 +184,7 @@ export default async function HomePage() {
               </div>
             ) : (
               <div
-                className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory scroll-smooth"
+                className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory scroll-smooth justify-center"
                 style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
               >
                 {albums.map((album, i) => {

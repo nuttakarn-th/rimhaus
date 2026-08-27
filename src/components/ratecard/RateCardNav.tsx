@@ -58,7 +58,6 @@ export function RateCardNav({ pageName, hasPortfolio, hasPartners, hasGallery, c
   const ghost = isHome && !scrolled
 
   const navItems = [
-    { label: "AI Room",          href: "/redesign",   always: true },
     { label: "Blog",             href: "/blog",       always: true },
     { label: "Gallery",          href: "/gallery",    show: hasGallery },
     { label: "ตัวอย่าง Content", href: "/portfolio",  show: hasPortfolio },
