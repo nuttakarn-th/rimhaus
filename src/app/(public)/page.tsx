@@ -96,39 +96,6 @@ export default async function HomePage() {
 
       <div className="bg-background">
 
-        {/* ── AI Room Redesign Feature ──────────────────────── */}
-        <ScrollReveal>
-          <div className="px-4 sm:px-6 pt-6 pb-2">
-            <div className="bg-[hsl(25,20%,12%)] rounded-3xl overflow-hidden">
-              <div className="px-6 py-10 sm:py-14 text-center">
-                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-[hsl(24,85%,50%)]">✦ New Feature</span>
-                <h2
-                  className="text-4xl sm:text-6xl text-white mt-2 mb-3 leading-tight"
-                  style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontStyle: "italic" }}
-                >
-                  AI Room Redesign
-                </h2>
-                <p className="text-sm text-white/50 max-w-sm mx-auto mb-8 leading-relaxed">
-                  อัพโหลดรูปมุมบ้านของคุณ เลือกสไตล์ แล้วให้ AI แต่งใหม่ในแบบที่คุณฝัน
-                  พร้อมสินค้าแนะนำที่เหมาะกับสไตล์นั้น
-                </p>
-                <Link
-                  href="/redesign"
-                  className="inline-flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white font-bold px-7 py-3.5 rounded-2xl text-sm shadow-lg hover:bg-[hsl(24,85%,45%)] transition-all active:scale-[0.98]"
-                >
-                  ลองเลย — ฟรี
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </Link>
-                <div className="flex gap-2 justify-center mt-7 flex-wrap">
-                  {["Mid-Century Modern", "Japandi", "Minimal", "Cozy / Hygge", "Vintage", "Biophilic"].map(s => (
-                    <span key={s} className="text-[11px] font-medium text-white/30 border border-white/10 px-3 py-1 rounded-full">{s}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-
         {/* ── Blog Preview ──────────────────────────────────── */}
         {recentArticles.length > 0 && (
           <section className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
@@ -195,7 +162,7 @@ export default async function HomePage() {
         {albums.length > 0 && (
           <section className="bg-[hsl(25,20%,12%)] w-full pt-8 pb-0 overflow-hidden">
             {albums.length <= 2 ? (
-              <div className="flex gap-3 px-4">
+              <div className="flex gap-3 px-4 justify-center">
                 {albums.map((album, i) => {
                   const cover = album.items[0]?.image_url ?? album.cover_image_url
                   return (
@@ -249,7 +216,7 @@ export default async function HomePage() {
               </div>
             )}
             <HeadingReveal>
-              <div className="flex items-end justify-between px-4 pt-2 pb-4">
+              <div className="max-w-3xl mx-auto flex items-end justify-between px-4 pt-2 pb-4">
                 <div className="leading-none">
                   <h2
                     className="text-[4.5rem] sm:text-[7rem] font-black text-primary tracking-tighter leading-none"
