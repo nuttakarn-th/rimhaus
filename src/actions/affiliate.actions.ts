@@ -17,6 +17,23 @@ export async function getAffiliateProducts(): Promise<AffiliateProduct[]> {
   return data ?? []
 }
 
+export async function addAffiliateProduct(product: {
+  zone: AffiliateZone; name: string; shopee_url?: string | null; lazada_url?: string | null
+}): Promise<ActionResult<AffiliateProduct>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "กรุณาเข้าสู่ระบบ" }
+  const zone_label = (await import("@/lib/affiliate-zones")).ZONE_CONFIG[product.zone].label
+  const { data, error } = await supabase
+    .from("affiliate_products")
+    .insert({ ...product, zone_label, user_id: user.id })
+    .select()
+    .single()
+  if (error) return { success: false, error: error.message }
+  revalidatePath("/affiliate-products")
+  return { success: true, data }
+}
+
 export async function importAffiliateProducts(
   products: Array<{ zone: AffiliateZone; zone_label: string; name: string; shopee_url?: string | null; lazada_url?: string | null }>
 ): Promise<ActionResult<{ count: number }>> {
