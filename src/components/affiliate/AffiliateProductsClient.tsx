@@ -1,15 +1,26 @@
 "use client"
 
-import { useState, useTransition, useMemo } from "react"
+import { useState, useTransition, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ShoppingBag, ExternalLink, Trash2, EyeOff, Eye, Sparkles, CalendarDays } from "lucide-react"
+import * as XLSX from "xlsx"
+import {
+  ShoppingBag, ExternalLink, Trash2, EyeOff, Eye,
+  Sparkles, CalendarDays, Download, Upload, FileSpreadsheet,
+} from "lucide-react"
 import type { AffiliateProduct, AffiliateZone } from "@/lib/types"
 import { ZONE_CONFIG, ZONE_ORDER } from "@/lib/affiliate-zones"
 import { AFFILIATE_SEED_DATA } from "@/lib/affiliate-seed"
-import { importAffiliateProducts, toggleAffiliateProduct, deleteAffiliateProduct, distributeAffiliateToCalendar } from "@/actions/affiliate.actions"
+import {
+  importAffiliateProducts,
+  toggleAffiliateProduct,
+  deleteAffiliateProduct,
+  distributeAffiliateToCalendar,
+} from "@/actions/affiliate.actions"
 import { DistributeModal } from "./DistributeModal"
 
 interface Props { products: AffiliateProduct[] }
+
+const HEADERS = ["รายการ", "Link Shopee", "Link Lazada"]
 
 export function AffiliateProductsClient({ products }: Props) {
   const router = useRouter()
@@ -17,6 +28,7 @@ export function AffiliateProductsClient({ products }: Props) {
   const [activeZone, setActiveZone] = useState<AffiliateZone | "all">("all")
   const [showDistribute, setShowDistribute] = useState(false)
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+  const importRef = useRef<HTMLInputElement>(null)
 
   function showToast(msg: string, ok = true) {
     setToast({ msg, ok })
@@ -35,7 +47,101 @@ export function AffiliateProductsClient({ products }: Props) {
   const filtered = activeZone === "all" ? products : (productsByZone[activeZone] ?? [])
   const activeCount = products.filter(p => p.is_active).length
 
-  async function handleImport() {
+  // ─── Download Template ────────────────────────────────────────────────────
+  function downloadTemplate() {
+    const wb = XLSX.utils.book_new()
+    for (const zone of ZONE_ORDER) {
+      const cfg = ZONE_CONFIG[zone]
+      const rows: string[][] = [
+        HEADERS,
+        [`ตัวอย่าง: ${cfg.label} item 1`, "https://s.shopee.co.th/...", ""],
+        [`ตัวอย่าง: ${cfg.label} item 2`, "", "https://c.lazada.co.th/..."],
+      ]
+      const ws = XLSX.utils.aoa_to_sheet(rows)
+      ws["!cols"] = [{ wch: 50 }, { wch: 40 }, { wch: 40 }]
+      XLSX.utils.book_append_sheet(wb, ws, cfg.label)
+    }
+    XLSX.writeFile(wb, "template_affiliate_products.xlsx")
+  }
+
+  // ─── Export Current Data ──────────────────────────────────────────────────
+  function exportToExcel() {
+    if (products.length === 0) { showToast("ไม่มีข้อมูลให้ Export", false); return }
+    const wb = XLSX.utils.book_new()
+    for (const zone of ZONE_ORDER) {
+      const items = productsByZone[zone] ?? []
+      if (items.length === 0) continue
+      const rows: string[][] = [
+        HEADERS,
+        ...items.map(p => [p.name, p.shopee_url ?? "", p.lazada_url ?? ""]),
+      ]
+      const ws = XLSX.utils.aoa_to_sheet(rows)
+      ws["!cols"] = [{ wch: 55 }, { wch: 40 }, { wch: 40 }]
+      XLSX.utils.book_append_sheet(wb, ws, ZONE_CONFIG[zone].label)
+    }
+    const date = new Date().toISOString().slice(0, 10)
+    XLSX.writeFile(wb, `affiliate_products_${date}.xlsx`)
+    showToast("Export เรียบร้อยแล้ว")
+  }
+
+  // ─── Import from Excel ────────────────────────────────────────────────────
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const buffer = await file.arrayBuffer()
+      const wb = XLSX.read(buffer)
+
+      // Zone label → zone key mapping
+      const labelToZone: Record<string, AffiliateZone> = {}
+      for (const [zone, cfg] of Object.entries(ZONE_CONFIG)) {
+        labelToZone[cfg.label] = zone as AffiliateZone
+      }
+
+      const parsed: Array<{ zone: AffiliateZone; zone_label: string; name: string; shopee_url: string | null; lazada_url: string | null }> = []
+
+      for (const sheetName of wb.SheetNames) {
+        const zone = labelToZone[sheetName.trim()]
+        if (!zone) continue
+        const ws = wb.Sheets[sheetName]
+        const rows = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1, defval: "" })
+        for (const row of rows.slice(1)) {
+          const name = String(row[0] ?? "").trim()
+          if (!name || name.startsWith("ตัวอย่าง:")) continue
+          parsed.push({
+            zone,
+            zone_label: sheetName.trim(),
+            name,
+            shopee_url: String(row[1] ?? "").trim() || null,
+            lazada_url: String(row[2] ?? "").trim() || null,
+          })
+        }
+      }
+
+      if (parsed.length === 0) {
+        showToast("ไม่พบข้อมูลในไฟล์ — ตรวจสอบชื่อ Sheet และ Template", false)
+        return
+      }
+
+      startTransition(async () => {
+        const result = await importAffiliateProducts(parsed)
+        if (result.success) {
+          showToast(`นำเข้า ${result.data?.count ?? 0} สินค้าเรียบร้อยแล้ว`)
+          router.refresh()
+        } else {
+          showToast(result.error ?? "เกิดข้อผิดพลาด", false)
+        }
+      })
+    } catch {
+      showToast("อ่านไฟล์ไม่ได้ — ลองใหม่อีกครั้ง", false)
+    } finally {
+      if (importRef.current) importRef.current.value = ""
+    }
+  }
+
+  // ─── Seed import (first time) ─────────────────────────────────────────────
+  async function handleSeedImport() {
     startTransition(async () => {
       const result = await importAffiliateProducts(AFFILIATE_SEED_DATA as Parameters<typeof importAffiliateProducts>[0])
       if (result.success) {
@@ -64,27 +170,39 @@ export function AffiliateProductsClient({ products }: Props) {
     })
   }
 
+  // ─── Empty state ────────────────────────────────────────────────────────���─
   if (products.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[hsl(35,20%,80%)] dark:border-[hsl(25,15%,25%)] p-10 text-center space-y-4">
-        <div className="text-5xl">📦</div>
-        <div>
-          <p className="font-semibold text-[hsl(25,20%,25%)] dark:text-[hsl(35,15%,75%)]">ยังไม่มีสินค้าในคลัง</p>
-          <p className="text-sm text-[hsl(25,10%,50%)] mt-1">นำเข้าจากไฟล์ Excel ที่เตรียมไว้</p>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-dashed border-[hsl(35,20%,80%)] dark:border-[hsl(25,15%,25%)] p-10 text-center space-y-4">
+          <div className="text-5xl">📦</div>
+          <div>
+            <p className="font-semibold text-[hsl(25,20%,25%)] dark:text-[hsl(35,15%,75%)]">ยังไม่มีสินค้าในคลัง</p>
+            <p className="text-sm text-[hsl(25,10%,50%)] mt-1">นำเข้าจากข้อมูล Excel ที่เตรียมไว้ หรืออัปโหลดไฟล์ใหม่</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={handleSeedImport}
+              disabled={isPending}
+              className="inline-flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[hsl(24,85%,45%)] disabled:opacity-60 transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {isPending ? "กำลังนำเข้า…" : "นำเข้าสินค้าจาก Excel (115 รายการ)"}
+            </button>
+            <button
+              onClick={downloadTemplate}
+              className="inline-flex items-center gap-2 border border-[hsl(35,20%,80%)] dark:border-[hsl(25,15%,25%)] text-[hsl(25,10%,45%)] px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[hsl(35,25%,94%)] dark:hover:bg-[hsl(25,12%,20%)] transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Download Template
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleImport}
-          disabled={isPending}
-          className="inline-flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[hsl(24,85%,45%)] disabled:opacity-60 transition-colors"
-        >
-          <ShoppingBag className="w-4 h-4" />
-          {isPending ? "กำลังนำเข้า…" : "นำเข้าสินค้าจาก Excel"}
-        </button>
-        <p className="text-[10px] text-[hsl(25,10%,55%)]">115 สินค้า จาก 8 โซนห้อง</p>
       </div>
     )
   }
 
+  // ─── Main view ────────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
       {/* Toast */}
@@ -94,22 +212,59 @@ export function AffiliateProductsClient({ products }: Props) {
         </div>
       )}
 
+      {/* Hidden file input */}
+      <input
+        ref={importRef}
+        type="file"
+        accept=".xlsx,.xls"
+        className="hidden"
+        onChange={handleImportFile}
+      />
+
       {/* Actions bar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <p className="text-xs text-[hsl(25,10%,50%)]">
           เปิดใช้งาน <span className="font-semibold text-[hsl(24,85%,50%)]">{activeCount}</span> / {products.length} สินค้า
         </p>
-        <button
-          onClick={() => setShowDistribute(true)}
-          className="flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[hsl(24,85%,45%)] transition-colors"
-        >
-          <CalendarDays className="w-3.5 h-3.5" />
-          กระจายลงปฏิทิน
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={downloadTemplate}
+            title="Download Template Excel"
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl border border-[hsl(35,20%,82%)] dark:border-[hsl(25,15%,25%)] text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)] dark:hover:bg-[hsl(25,12%,20%)] transition-colors"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Template</span>
+          </button>
+          <button
+            onClick={exportToExcel}
+            title="Export ข้อมูลปัจจุบันเป็น Excel"
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl border border-[hsl(35,20%,82%)] dark:border-[hsl(25,15%,25%)] text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)] dark:hover:bg-[hsl(25,12%,20%)] transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button
+            onClick={() => importRef.current?.click()}
+            disabled={isPending}
+            title="Import จาก Excel"
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl border border-[hsl(35,20%,82%)] dark:border-[hsl(25,15%,25%)] text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,94%)] dark:hover:bg-[hsl(25,12%,20%)] disabled:opacity-50 transition-colors"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Import</span>
+          </button>
+          <button
+            onClick={() => setShowDistribute(true)}
+            className="flex items-center gap-2 bg-[hsl(24,85%,50%)] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[hsl(24,85%,45%)] transition-colors"
+          >
+            <CalendarDays className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">กระจายลงปฏิทิน</span>
+            <span className="sm:hidden">กระจาย</span>
+          </button>
+        </div>
       </div>
 
       {/* Zone tabs */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 flex-wrap">
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
         <button
           onClick={() => setActiveZone("all")}
           className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeZone === "all" ? "bg-[hsl(25,20%,20%)] text-white dark:bg-[hsl(35,15%,80%)] dark:text-[hsl(25,20%,15%)]" : "bg-[hsl(35,25%,94%)] dark:bg-[hsl(25,12%,18%)] text-[hsl(25,10%,45%)] hover:bg-[hsl(35,25%,88%)]"}`}
@@ -143,7 +298,6 @@ export function AffiliateProductsClient({ products }: Props) {
               key={p.id}
               className={`rounded-xl border p-3 space-y-2 transition-opacity ${p.is_active ? "bg-white dark:bg-[hsl(25,12%,14%)] border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)]" : "bg-[hsl(35,25%,96%)] dark:bg-[hsl(25,12%,12%)] border-[hsl(35,20%,82%)] dark:border-[hsl(25,15%,18%)] opacity-60"}`}
             >
-              {/* Zone badge + name */}
               <div className="flex items-start gap-2">
                 <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-md font-medium ${cfg.color}`}>
                   {cfg.emoji} {cfg.label}
@@ -153,7 +307,6 @@ export function AffiliateProductsClient({ products }: Props) {
                 {p.name}
               </p>
 
-              {/* Links */}
               <div className="flex items-center gap-2 flex-wrap">
                 {p.shopee_url && (
                   <a href={p.shopee_url} target="_blank" rel="noopener noreferrer"
@@ -172,7 +325,6 @@ export function AffiliateProductsClient({ products }: Props) {
                 )}
               </div>
 
-              {/* Last scheduled */}
               {p.last_scheduled_at && (
                 <p className="text-[10px] text-[hsl(25,10%,55%)] flex items-center gap-1">
                   <Sparkles className="w-2.5 h-2.5" />
@@ -180,7 +332,6 @@ export function AffiliateProductsClient({ products }: Props) {
                 </p>
               )}
 
-              {/* Actions */}
               <div className="flex items-center justify-end gap-1 pt-1 border-t border-[hsl(35,20%,92%)] dark:border-[hsl(25,15%,18%)]">
                 <button
                   onClick={() => handleToggle(p.id, p.is_active)}
