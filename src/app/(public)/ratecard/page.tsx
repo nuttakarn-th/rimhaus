@@ -342,7 +342,7 @@ export default async function RatecardPage() {
       {albums.length > 0 && (
         <section className="bg-[hsl(25,20%,12%)] w-full pt-8 pb-0 overflow-hidden">
           {albums.length <= 2 ? (
-            <div className="flex gap-3 px-4">
+            <div className="flex gap-3 px-4 justify-center">
               {albums.map((album, i) => {
                 const cover = album.items[0]?.image_url ?? album.cover_image_url
                 return (
@@ -369,7 +369,7 @@ export default async function RatecardPage() {
             </div>
           ) : (
             <div
-              className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory scroll-smooth"
+              className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory scroll-smooth justify-center"
               style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
             >
               {albums.map((album, i) => {
@@ -401,7 +401,7 @@ export default async function RatecardPage() {
           )}
 
           <HeadingReveal>
-            <div className="flex items-end justify-between px-4 pt-2 pb-4">
+            <div className="max-w-3xl mx-auto flex items-end justify-between px-4 pt-2 pb-4">
               <div className="leading-none">
                 <h2
                   className="text-[4.5rem] sm:text-[7rem] font-black text-primary tracking-tighter leading-none"
