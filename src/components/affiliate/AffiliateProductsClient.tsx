@@ -11,6 +11,7 @@ import {
 import type { AffiliateProduct, AffiliateZone } from "@/lib/types"
 import { ZONE_CONFIG, ZONE_ORDER } from "@/lib/affiliate-zones"
 import { AFFILIATE_SEED_DATA } from "@/lib/affiliate-seed"
+import { ProductThumbnail } from "./ProductThumbnail"
 import {
   importAffiliateProducts,
   toggleAffiliateProduct,
@@ -295,8 +296,10 @@ export function AffiliateProductsClient({ products }: Props) {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)] bg-[hsl(35,25%,98%)] dark:bg-[hsl(25,12%,15%)]">
-                        <th className="text-left px-4 py-2 text-[10px] font-semibold text-[hsl(25,10%,50%)] uppercase tracking-wide w-full">ชื่อสินค้า</th>
-                        <th className="text-center px-3 py-2 text-[10px] font-semibold text-[hsl(25,10%,50%)] uppercase tracking-wide whitespace-nowrap">Links</th>
+                        <th className="px-3 py-2 w-12" />
+                        <th className="text-left px-3 py-2 text-[10px] font-semibold text-[hsl(25,10%,50%)] uppercase tracking-wide">ชื่อสินค้า</th>
+                        <th className="text-center px-3 py-2 text-[10px] font-semibold text-orange-500 uppercase tracking-wide whitespace-nowrap w-20">Shopee</th>
+                        <th className="text-center px-3 py-2 text-[10px] font-semibold text-blue-500 uppercase tracking-wide whitespace-nowrap w-20">Lazada</th>
                         <th className="text-center px-3 py-2 text-[10px] font-semibold text-[hsl(25,10%,50%)] uppercase tracking-wide whitespace-nowrap w-20">จัดการ</th>
                       </tr>
                     </thead>
@@ -304,7 +307,16 @@ export function AffiliateProductsClient({ products }: Props) {
                       {items.map(p => (
                         <tr key={p.id}
                           className={`hover:bg-[hsl(35,30%,98%)] dark:hover:bg-[hsl(25,12%,16%)] transition-colors ${!p.is_active ? "opacity-45" : ""}`}>
-                          <td className="px-4 py-2.5">
+                          {/* Thumbnail */}
+                          <td className="px-3 py-2">
+                            <ProductThumbnail
+                              productId={p.id}
+                              url={p.shopee_url ?? p.lazada_url}
+                              name={p.name}
+                            />
+                          </td>
+                          {/* Name */}
+                          <td className="px-3 py-2.5">
                             <span className="text-[hsl(25,20%,15%)] dark:text-[hsl(35,15%,80%)] leading-snug">{p.name}</span>
                             {p.last_scheduled_at && (
                               <span className="ml-2 text-[10px] text-[hsl(25,10%,55%)]">
@@ -312,24 +324,27 @@ export function AffiliateProductsClient({ products }: Props) {
                               </span>
                             )}
                           </td>
-                          <td className="px-3 py-2.5">
-                            <div className="flex items-center justify-center gap-1.5">
-                              {p.shopee_url
-                                ? <a href={p.shopee_url} target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 transition-colors whitespace-nowrap">
-                                    <ExternalLink className="w-2.5 h-2.5" /> Shopee
-                                  </a>
-                                : <span className="text-[10px] text-[hsl(25,10%,70%)]">–</span>
-                              }
-                              {p.lazada_url
-                                ? <a href={p.lazada_url} target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 transition-colors whitespace-nowrap">
-                                    <ExternalLink className="w-2.5 h-2.5" /> Lazada
-                                  </a>
-                                : null
-                              }
-                            </div>
+                          {/* Shopee */}
+                          <td className="px-3 py-2.5 text-center">
+                            {p.shopee_url
+                              ? <a href={p.shopee_url} target="_blank" rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 transition-colors">
+                                  <ExternalLink className="w-2.5 h-2.5" /> ลิงก์
+                                </a>
+                              : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>
+                            }
                           </td>
+                          {/* Lazada */}
+                          <td className="px-3 py-2.5 text-center">
+                            {p.lazada_url
+                              ? <a href={p.lazada_url} target="_blank" rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 transition-colors">
+                                  <ExternalLink className="w-2.5 h-2.5" /> ลิงก์
+                                </a>
+                              : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>
+                            }
+                          </td>
+                          {/* Actions */}
                           <td className="px-3 py-2.5">
                             <div className="flex items-center justify-center gap-0.5">
                               <button onClick={() => handleToggle(p.id, p.is_active)} disabled={isPending}
