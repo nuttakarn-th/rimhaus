@@ -6,7 +6,7 @@ import * as XLSX from "xlsx"
 import {
   ShoppingBag, ExternalLink, Trash2, EyeOff, Eye,
   CalendarDays, Download, Upload, FileSpreadsheet, Plus,
-  ChevronDown, ChevronRight,
+  ChevronDown, ChevronRight, Copy, Check, Search, X,
 } from "lucide-react"
 import type { AffiliateProduct, AffiliateZone } from "@/lib/types"
 import { ZONE_CONFIG, ZONE_ORDER } from "@/lib/affiliate-zones"
@@ -34,7 +34,16 @@ export function AffiliateProductsClient({ products }: Props) {
   const [addDefaultZone, setAddDefaultZone] = useState<AffiliateZone | undefined>()
   const [collapsedZones, setCollapsedZones] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   const importRef = useRef<HTMLInputElement>(null)
+
+  function copyUrl(id: string, url: string) {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
+    })
+  }
 
   function showToast(msg: string, ok = true) {
     setToast({ msg, ok })
@@ -52,9 +61,23 @@ export function AffiliateProductsClient({ products }: Props) {
 
   const activeCount = products.filter(p => p.is_active).length
 
+  const q = searchQuery.trim().toLowerCase()
+  const filteredBySearch = useMemo(() =>
+    q ? products.filter(p => p.name.toLowerCase().includes(q)) : products
+  , [products, q])
+
+  const filteredByZone = useMemo(() => {
+    const map: Record<string, AffiliateProduct[]> = {}
+    for (const p of filteredBySearch) {
+      if (!map[p.zone]) map[p.zone] = []
+      map[p.zone].push(p)
+    }
+    return map
+  }, [filteredBySearch])
+
   // Zones to render: single zone or all ordered
   const zonesToShow = activeZone === "all"
-    ? ZONE_ORDER.filter(z => productsByZone[z]?.length)
+    ? ZONE_ORDER.filter(z => filteredByZone[z]?.length)
     : [activeZone]
 
   function toggleCollapse(zone: string) {
@@ -207,8 +230,26 @@ export function AffiliateProductsClient({ products }: Props) {
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <p className="text-xs text-[hsl(25,10%,50%)]">
-          เปิดใช้งาน <span className="font-semibold text-[hsl(24,85%,50%)]">{activeCount}</span> / {products.length} สินค้า
+        {/* Search */}
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[hsl(25,10%,55%)] pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="ค้นหาชื่อสินค้า…"
+            className="w-full pl-8 pr-8 py-2 text-sm border border-[hsl(35,20%,82%)] dark:border-[hsl(25,15%,25%)] rounded-xl bg-white dark:bg-[hsl(25,12%,18%)] text-[hsl(25,20%,15%)] dark:text-[hsl(35,15%,80%)] placeholder-[hsl(25,10%,60%)] focus:outline-none focus:ring-2 focus:ring-[hsl(24,85%,50%)]"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded text-[hsl(25,10%,55%)] hover:text-[hsl(25,20%,30%)]">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-[hsl(25,10%,50%)] whitespace-nowrap">
+          {q ? <><span className="font-semibold text-[hsl(24,85%,50%)]">{filteredBySearch.length}</span> ผล · </> : null}
+          เปิดใช้งาน <span className="font-semibold text-[hsl(24,85%,50%)]">{activeCount}</span> / {products.length}
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={downloadTemplate} title="Download Template"
@@ -265,8 +306,8 @@ export function AffiliateProductsClient({ products }: Props) {
       <div className="space-y-3">
         {zonesToShow.map(zone => {
           const cfg = ZONE_CONFIG[zone]
-          const items = productsByZone[zone] ?? []
           const isCollapsed = collapsedZones.has(zone)
+          const items = filteredByZone[zone] ?? []
 
           return (
             <div key={zone} className="rounded-xl border border-[hsl(35,20%,88%)] dark:border-[hsl(25,15%,20%)] overflow-hidden">
@@ -326,23 +367,45 @@ export function AffiliateProductsClient({ products }: Props) {
                           </td>
                           {/* Shopee */}
                           <td className="px-3 py-2.5 text-center">
-                            {p.shopee_url
-                              ? <a href={p.shopee_url} target="_blank" rel="noopener noreferrer"
+                            {p.shopee_url ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <a href={p.shopee_url} target="_blank" rel="noopener noreferrer"
                                   className="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 transition-colors">
                                   <ExternalLink className="w-2.5 h-2.5" /> ลิงก์
                                 </a>
-                              : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>
-                            }
+                                <button
+                                  onClick={() => copyUrl(`shopee-${p.id}`, p.shopee_url!)}
+                                  title="Copy Shopee URL"
+                                  className="p-1 rounded text-[hsl(25,10%,55%)] hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                                >
+                                  {copiedId === `shopee-${p.id}`
+                                    ? <Check className="w-3 h-3 text-green-600" />
+                                    : <Copy className="w-3 h-3" />
+                                  }
+                                </button>
+                              </div>
+                            ) : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>}
                           </td>
                           {/* Lazada */}
                           <td className="px-3 py-2.5 text-center">
-                            {p.lazada_url
-                              ? <a href={p.lazada_url} target="_blank" rel="noopener noreferrer"
+                            {p.lazada_url ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <a href={p.lazada_url} target="_blank" rel="noopener noreferrer"
                                   className="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 transition-colors">
                                   <ExternalLink className="w-2.5 h-2.5" /> ลิงก์
                                 </a>
-                              : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>
-                            }
+                                <button
+                                  onClick={() => copyUrl(`lazada-${p.id}`, p.lazada_url!)}
+                                  title="Copy Lazada URL"
+                                  className="p-1 rounded text-[hsl(25,10%,55%)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                >
+                                  {copiedId === `lazada-${p.id}`
+                                    ? <Check className="w-3 h-3 text-green-600" />
+                                    : <Copy className="w-3 h-3" />
+                                  }
+                                </button>
+                              </div>
+                            ) : <span className="text-[11px] text-[hsl(25,10%,70%)]">–</span>}
                           </td>
                           {/* Actions */}
                           <td className="px-3 py-2.5">
