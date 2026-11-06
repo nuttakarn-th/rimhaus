@@ -5,8 +5,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   LineChart, Line, ResponsiveContainer,
 } from "recharts"
-import { Plus, Trash2, Download, ChevronDown, ChevronUp, Trophy, TrendingDown, Info, Save, CheckCircle } from "lucide-react"
+import { Plus, Trash2, Download, ChevronDown, ChevronUp, Trophy, TrendingDown, Info, Save, CheckCircle, Cloud, FolderOpen, X } from "lucide-react"
 import * as XLSX from "xlsx"
+import { saveRefinanceSession, deleteRefinanceSession, type RefinanceSession } from "@/actions/refinance.actions"
+import { useRouter } from "next/navigation"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -68,14 +70,14 @@ function computeSchedule(
   monthlyInstallment: number,
   extraPayment: number,
   bank: BankOffer,
+  loanTermMonths: number,
 ): BankResult {
   const totalMonthlyPay = monthlyInstallment + extraPayment
   const rows: MonthRow[] = []
   let principal = currentPrincipal
   let month = 1
-  const MAX_MONTHS = 480 // 40 years safety cap
 
-  while (principal > 0.01 && month <= MAX_MONTHS) {
+  while (principal > 0.01 && month <= loanTermMonths) {
     const annualRate = getRateForMonth(bank, month)
     const monthlyRate = annualRate / 12 / 100
     const interestPaid = principal * monthlyRate
@@ -265,8 +267,9 @@ const STORAGE_KEY = "rimhaus_refinance_v1"
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export function RefinanceCalculator() {
+export function RefinanceCalculator({ initialSessions = [] }: { initialSessions?: RefinanceSession[] }) {
   const uid = useId()
+  const router = useRouter()
 
   const defaultBanks: BankOffer[] = [
     { id: uid + "a", bankName: "ธนาคารปัจจุบัน", rateType: "average", avgRate: 6.5, year1Rate: 6.5, year2Rate: 6.5, year3Rate: 6.5, extraFees: 0 },
@@ -276,11 +279,18 @@ export function RefinanceCalculator() {
   const [principal, setPrincipal] = useState(2_500_000)
   const [installment, setInstallment] = useState(14_000)
   const [extra, setExtra] = useState(0)
+  const [loanTermYears, setLoanTermYears] = useState(30)
   const [banks, setBanks] = useState<BankOffer[]>(defaultBanks)
 
   const [tab, setTab] = useState<"setup" | "compare" | "schedule">("setup")
   const [selectedBankId, setSelectedBankId] = useState<string>("")
   const [saved, setSaved] = useState(false)
+  const [dbSaving, setDbSaving] = useState(false)
+  const [dbSaved, setDbSaved] = useState(false)
+  const [sessionName, setSessionName] = useState("แผนรีไฟแนนซ์ของฉัน")
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined)
+  const [sessions, setSessions] = useState<RefinanceSession[]>(initialSessions)
+  const [showSessions, setShowSessions] = useState(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Load from localStorage on mount
@@ -292,6 +302,7 @@ export function RefinanceCalculator() {
       if (data.principal) setPrincipal(data.principal)
       if (data.installment) setInstallment(data.installment)
       if (typeof data.extra === "number") setExtra(data.extra)
+      if (typeof data.loanTermYears === "number") setLoanTermYears(data.loanTermYears)
       if (Array.isArray(data.banks) && data.banks.length) setBanks(data.banks)
     } catch { /* ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -302,17 +313,18 @@ export function RefinanceCalculator() {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ principal, installment, extra, banks }))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ principal, installment, extra, loanTermYears, banks }))
         setSaved(true)
         setTimeout(() => setSaved(false), 2000)
       } catch { /* ignore */ }
     }, 800)
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
-  }, [principal, installment, extra, banks])
+  }, [principal, installment, extra, loanTermYears, banks])
 
   const results = useMemo<BankResult[]>(() => {
     if (!principal || !installment) return []
-    const raw = banks.map(b => computeSchedule(principal, installment, extra, b))
+    const termMonths = Math.max(1, loanTermYears) * 12
+    const raw = banks.map(b => computeSchedule(principal, installment, extra, b, termMonths))
     const maxPaid = Math.max(...raw.map(r => r.totalPaid36))
     return raw.map(r => ({ ...r, netSaving: maxPaid - r.totalPaid36 }))
   }, [principal, installment, extra, banks])
@@ -338,6 +350,39 @@ export function RefinanceCalculator() {
   const updateBank = useCallback((updated: BankOffer) => {
     setBanks(prev => prev.map(b => b.id === updated.id ? updated : b))
   }, [])
+
+  // ── Load session ────────────────────────────────────────────────────────
+
+  const loadSession = useCallback((s: RefinanceSession) => {
+    const d = s.data
+    if (d.principal) setPrincipal(d.principal)
+    if (d.installment) setInstallment(d.installment)
+    if (typeof d.extra === "number") setExtra(d.extra)
+    if (typeof d.loanTermYears === "number") setLoanTermYears(d.loanTermYears)
+    if (Array.isArray(d.banks) && d.banks.length) setBanks(d.banks as BankOffer[])
+    setSessionName(s.name)
+    setCurrentSessionId(s.id)
+    setShowSessions(false)
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)) } catch { /* ignore */ }
+  }, [])
+
+  // ── DB Save ──────────────────────────────────────────────────────────────
+
+  const saveToDb = useCallback(async () => {
+    setDbSaving(true)
+    const result = await saveRefinanceSession(
+      sessionName || "ไม่มีชื่อ",
+      { principal, installment, extra, loanTermYears, banks },
+      currentSessionId,
+    )
+    setDbSaving(false)
+    if (result.success) {
+      setCurrentSessionId(result.id)
+      setDbSaved(true)
+      setTimeout(() => setDbSaved(false), 2500)
+      router.refresh()
+    }
+  }, [sessionName, principal, installment, extra, loanTermYears, banks, currentSessionId, router])
 
   // ── Export ──────────────────────────────────────────────────────────────
 
@@ -416,40 +461,110 @@ export function RefinanceCalculator() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">คำนวณรีไฟแนนซ์บ้าน</h1>
-          <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">เปรียบเทียบข้อเสนอธนาคาร · คำนวณลดต้นลดดอก · ตารางผ่อนครบ</p>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">คำนวณรีไฟแนนซ์บ้าน</h1>
+            <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">เปรียบเทียบข้อเสนอธนาคาร · คำนวณลดต้นลดดอก · ตารางผ่อนครบ</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {(saved || dbSaved) && (
+              <span className="inline-flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                <CheckCircle className="w-3.5 h-3.5" />
+                {dbSaved ? "บันทึกลงระบบแล้ว" : "บันทึกแล้ว"}
+              </span>
+            )}
+            <button
+              onClick={() => setShowSessions(s => !s)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[hsl(35,20%,80%)] bg-white text-[hsl(25,20%,25%)] text-sm font-semibold hover:border-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors"
+            >
+              <FolderOpen className="w-4 h-4" />
+              โหลด
+              {sessions.length > 0 && (
+                <span className="bg-[hsl(24,85%,50%)] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {sessions.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={saveToDb}
+              disabled={dbSaving}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[hsl(35,20%,80%)] bg-white text-[hsl(25,20%,25%)] text-sm font-semibold hover:border-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,50%)] disabled:opacity-50 transition-colors"
+            >
+              <Cloud className="w-4 h-4" />
+              {dbSaving ? "กำลังบันทึก…" : "บันทึกลงระบบ"}
+            </button>
+            <button
+              onClick={exportExcel}
+              disabled={!results.length}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[hsl(24,85%,50%)] text-white text-sm font-semibold hover:bg-[hsl(24,85%,45%)] disabled:opacity-40 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export Excel
+            </button>
+          </div>
         </div>
+
+        {/* Session name */}
         <div className="flex items-center gap-2">
-          {saved && (
-            <span className="inline-flex items-center gap-1.5 text-xs text-green-600 font-medium">
-              <CheckCircle className="w-3.5 h-3.5" />
-              บันทึกแล้ว
-            </span>
+          <Save className="w-3.5 h-3.5 text-[hsl(25,10%,55%)] shrink-0" />
+          <input
+            type="text"
+            value={sessionName}
+            onChange={e => setSessionName(e.target.value)}
+            placeholder="ชื่อแผนการคำนวณ เช่น รีไฟแนนซ์ปี 2026"
+            className="text-sm font-medium text-[hsl(25,20%,25%)] bg-transparent border-b border-dashed border-[hsl(35,20%,75%)] focus:outline-none focus:border-[hsl(24,85%,50%)] pb-0.5 w-72 placeholder-[hsl(25,10%,65%)]"
+          />
+          {currentSessionId && (
+            <span className="text-[10px] text-[hsl(25,10%,55%)] bg-[hsl(35,25%,94%)] px-2 py-0.5 rounded-full">บันทึกในระบบแล้ว</span>
           )}
-          <button
-            onClick={() => {
-              try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ principal, installment, extra, banks }))
-                setSaved(true)
-                setTimeout(() => setSaved(false), 2000)
-              } catch { /* ignore */ }
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[hsl(35,20%,80%)] bg-white text-[hsl(25,20%,25%)] text-sm font-semibold hover:border-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors"
-          >
-            <Save className="w-4 h-4" />
-            บันทึก
-          </button>
-          <button
-            onClick={exportExcel}
-            disabled={!results.length}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[hsl(24,85%,50%)] text-white text-sm font-semibold hover:bg-[hsl(24,85%,45%)] disabled:opacity-40 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Export Excel
-          </button>
         </div>
+
+        {/* Load sessions panel */}
+        {showSessions && (
+          <div className="bg-white rounded-2xl border border-[hsl(35,20%,88%)] shadow-lg overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(35,20%,90%)]">
+              <span className="font-semibold text-sm text-[hsl(25,20%,15%)]">แผนที่บันทึกไว้ ({sessions.length})</span>
+              <button onClick={() => setShowSessions(false)} className="p-1 rounded hover:bg-[hsl(35,25%,94%)]">
+                <X className="w-4 h-4 text-[hsl(25,10%,55%)]" />
+              </button>
+            </div>
+            {sessions.length === 0 ? (
+              <p className="text-sm text-[hsl(25,10%,55%)] text-center py-6">ยังไม่มีแผนที่บันทึกไว้</p>
+            ) : (
+              <div className="divide-y divide-[hsl(35,20%,92%)] max-h-64 overflow-y-auto">
+                {sessions.map(s => (
+                  <div key={s.id} className="flex items-center justify-between px-4 py-3 hover:bg-[hsl(35,25%,98%)]">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-[hsl(25,20%,15%)] truncate">{s.name}</p>
+                      <p className="text-[11px] text-[hsl(25,10%,55%)]">
+                        อัปเดต {new Date(s.updated_at).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-3 shrink-0">
+                      <button
+                        onClick={() => loadSession(s)}
+                        className="text-xs font-semibold text-[hsl(24,85%,50%)] hover:underline"
+                      >
+                        โหลด
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await deleteRefinanceSession(s.id)
+                          setSessions(prev => prev.filter(x => x.id !== s.id))
+                          if (currentSessionId === s.id) setCurrentSessionId(undefined)
+                        }}
+                        className="p-1 rounded hover:bg-red-50 text-[hsl(25,10%,60%)] hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -497,6 +612,38 @@ export function RefinanceCalculator() {
               onChange={setExtra}
               hint="เงินที่ต้องการจ่ายเพิ่มเกินค่างวดปกติ (ถ้ามี)"
             />
+            <div>
+              <label className="text-xs font-medium text-[hsl(25,10%,45%)] block mb-1">
+                ระยะเวลาผ่อนที่เหลือ <span className="text-[hsl(25,10%,60%)]">(ปี)</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={40}
+                  step={1}
+                  value={loanTermYears || ""}
+                  onChange={e => setLoanTermYears(Math.max(1, Math.min(40, parseInt(e.target.value) || 1)))}
+                  className="w-full border border-[hsl(35,20%,82%)] rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[hsl(24,85%,50%)] text-[hsl(25,20%,15%)]"
+                />
+                <div className="flex gap-1 shrink-0">
+                  {[10, 20, 25, 30].map(y => (
+                    <button
+                      key={y}
+                      onClick={() => setLoanTermYears(y)}
+                      className={`px-2 py-1 rounded text-xs font-semibold border transition-colors ${
+                        loanTermYears === y
+                          ? "bg-[hsl(24,85%,50%)] text-white border-[hsl(24,85%,50%)]"
+                          : "bg-white text-[hsl(25,10%,45%)] border-[hsl(35,20%,82%)] hover:border-[hsl(24,85%,50%)]"
+                      }`}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] text-[hsl(25,10%,55%)] mt-0.5">จำนวนปีที่เหลือต้องผ่อน ใช้กำหนดตารางผ่อน</p>
+            </div>
 
             {results[0] && (
               <div className="mt-2 p-3 rounded-xl bg-[hsl(35,25%,96%)] border border-[hsl(35,20%,88%)]">
