@@ -26,6 +26,7 @@ import {
   Wand2,
   Sparkles,
   ShoppingBag,
+  Calculator,
 } from "lucide-react"
 import { getUpcomingEvents } from "@/lib/seasonal-events"
 
@@ -44,6 +45,7 @@ const navItems: NavItem[] = [
   { href: "/content", icon: CalendarDays, label: "วางแผนคอนเทนต์" },
   { href: "/planner", icon: Sparkles, label: "ปฏิทิน Content" },
   { href: "/affiliate-products", icon: ShoppingBag, label: "สินค้า Affiliate" },
+  { href: "/refinance", icon: Calculator, label: "คำนวณรีไฟแนนซ์" },
   { href: "/customers", icon: Building2, label: "ลูกค้า" },
   { href: "/pitch-scripts", icon: Megaphone, label: "คีย์โน้ต" },
   { href: "/articles", icon: BookOpen, label: "บทความ" },
