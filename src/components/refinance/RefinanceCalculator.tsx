@@ -44,6 +44,7 @@ interface BankResult {
   monthsToPayoff: number
   totalInterestFull: number
   netSaving: number         // filled after all banks computed
+  breakEvenMonths: number   // months to recoup refi fees vs bank[0]; -1 = never/N/A
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -115,6 +116,7 @@ function computeSchedule(
     monthsToPayoff: rows.length,
     totalInterestFull,
     netSaving: 0,
+    breakEvenMonths: -1,
   }
 }
 
@@ -326,8 +328,19 @@ export function RefinanceCalculator({ initialSessions = [] }: { initialSessions?
     const termMonths = Math.max(1, loanTermYears) * 12
     const raw = banks.map(b => computeSchedule(principal, installment, extra, b, termMonths))
     const maxPaid = Math.max(...raw.map(r => r.totalPaid36))
-    return raw.map(r => ({ ...r, netSaving: maxPaid - r.totalPaid36 }))
-  }, [principal, installment, extra, banks])
+    const baseline = raw[0]
+    return raw.map((r, i) => {
+      const netSaving = maxPaid - r.totalPaid36
+      let breakEvenMonths = -1
+      if (i > 0 && r.bank.extraFees > 0 && baseline) {
+        const monthlyInterestSaving = (baseline.totalInterest36 - r.totalInterest36) / 36
+        breakEvenMonths = monthlyInterestSaving > 0
+          ? Math.ceil(r.bank.extraFees / monthlyInterestSaving)
+          : -1
+      }
+      return { ...r, netSaving, breakEvenMonths }
+    })
+  }, [principal, installment, extra, loanTermYears, banks])
 
   const bestIdx = useMemo(() => {
     if (!results.length) return -1
@@ -750,10 +763,37 @@ export function RefinanceCalculator({ initialSessions = [] }: { initialSessions?
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs text-[hsl(25,10%,50%)] border-t border-[hsl(35,20%,90%)] pt-2">
-                    <TrendingDown className="w-3.5 h-3.5" />
-                    ปลดหนี้ใน <strong className="text-[hsl(25,20%,15%)]">{years > 0 ? `${years} ปี ` : ""}{months > 0 ? `${months} เดือน` : ""}</strong>
-                    &nbsp;· ดอกเบี้ยรวมทั้งหมด: {fmt(r.totalInterestFull)}
+                  <div className="border-t border-[hsl(35,20%,90%)] pt-2 space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs text-[hsl(25,10%,50%)]">
+                      <TrendingDown className="w-3.5 h-3.5 shrink-0" />
+                      ปลดหนี้ใน <strong className="text-[hsl(25,20%,15%)]">{years > 0 ? `${years} ปี ` : ""}{months > 0 ? `${months} เดือน` : ""}</strong>
+                      &nbsp;· ดอกเบี้ยรวม: {fmt(r.totalInterestFull)}
+                    </div>
+                    {r.breakEvenMonths > 0 && (
+                      <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg ${
+                        r.breakEvenMonths <= 24
+                          ? "bg-green-50 text-green-700"
+                          : r.breakEvenMonths <= 48
+                          ? "bg-yellow-50 text-yellow-700"
+                          : "bg-orange-50 text-orange-700"
+                      }`}>
+                        <Info className="w-3.5 h-3.5 shrink-0" />
+                        คุ้มค่าหลัง <strong>{r.breakEvenMonths} เดือน</strong>
+                        &nbsp;({Math.ceil(r.breakEvenMonths / 12)} ปี) จากค่าธรรมเนียม {fmt(r.bank.extraFees)} บาท
+                      </div>
+                    )}
+                    {r.breakEvenMonths === -1 && i > 0 && r.bank.extraFees > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs text-red-600 bg-red-50 px-2.5 py-1.5 rounded-lg">
+                        <Info className="w-3.5 h-3.5 shrink-0" />
+                        ดอกเบี้ยไม่ถูกกว่าธนาคารปัจจุบัน ไม่คุ้มค่ารีไฟแนนซ์
+                      </div>
+                    )}
+                    {i > 0 && r.bank.extraFees === 0 && (
+                      <div className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg">
+                        <Info className="w-3.5 h-3.5 shrink-0" />
+                        ไม่มีค่าธรรมเนียม — คุ้มค่าทันที
+                      </div>
+                    )}
                   </div>
 
                   <button
