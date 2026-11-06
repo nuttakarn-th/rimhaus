@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useMemo, useCallback, useId } from "react"
+import { useState, useMemo, useCallback, useId, useEffect, useRef } from "react"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   LineChart, Line, ResponsiveContainer,
 } from "recharts"
-import { Plus, Trash2, Download, ChevronDown, ChevronUp, Trophy, TrendingDown, Info } from "lucide-react"
+import { Plus, Trash2, Download, ChevronDown, ChevronUp, Trophy, TrendingDown, Info, Save, CheckCircle } from "lucide-react"
 import * as XLSX from "xlsx"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -261,21 +261,54 @@ function BankCard({
   )
 }
 
+const STORAGE_KEY = "rimhaus_refinance_v1"
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export function RefinanceCalculator() {
   const uid = useId()
 
+  const defaultBanks: BankOffer[] = [
+    { id: uid + "a", bankName: "ธนาคารปัจจุบัน", rateType: "average", avgRate: 6.5, year1Rate: 6.5, year2Rate: 6.5, year3Rate: 6.5, extraFees: 0 },
+    { id: uid + "b", bankName: "", rateType: "stepped", avgRate: 3.5, year1Rate: 2.0, year2Rate: 3.0, year3Rate: 4.5, extraFees: 15000 },
+  ]
+
   const [principal, setPrincipal] = useState(2_500_000)
   const [installment, setInstallment] = useState(14_000)
   const [extra, setExtra] = useState(0)
-  const [banks, setBanks] = useState<BankOffer[]>([
-    { id: uid + "a", bankName: "ธนาคารปัจจุบัน", rateType: "average", avgRate: 6.5, year1Rate: 6.5, year2Rate: 6.5, year3Rate: 6.5, extraFees: 0 },
-    { id: uid + "b", bankName: "", rateType: "stepped", avgRate: 3.5, year1Rate: 2.0, year2Rate: 3.0, year3Rate: 4.5, extraFees: 15000 },
-  ])
+  const [banks, setBanks] = useState<BankOffer[]>(defaultBanks)
 
   const [tab, setTab] = useState<"setup" | "compare" | "schedule">("setup")
   const [selectedBankId, setSelectedBankId] = useState<string>("")
+  const [saved, setSaved] = useState(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const data = JSON.parse(raw)
+      if (data.principal) setPrincipal(data.principal)
+      if (data.installment) setInstallment(data.installment)
+      if (typeof data.extra === "number") setExtra(data.extra)
+      if (Array.isArray(data.banks) && data.banks.length) setBanks(data.banks)
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Auto-save to localStorage whenever data changes (debounced 800ms)
+  useEffect(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ principal, installment, extra, banks }))
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      } catch { /* ignore */ }
+    }, 800)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [principal, installment, extra, banks])
 
   const results = useMemo<BankResult[]>(() => {
     if (!principal || !installment) return []
@@ -388,14 +421,35 @@ export function RefinanceCalculator() {
           <h1 className="text-2xl font-bold text-[hsl(25,20%,15%)]">คำนวณรีไฟแนนซ์บ้าน</h1>
           <p className="text-sm text-[hsl(25,10%,50%)] mt-0.5">เปรียบเทียบข้อเสนอธนาคาร · คำนวณลดต้นลดดอก · ตารางผ่อนครบ</p>
         </div>
-        <button
-          onClick={exportExcel}
-          disabled={!results.length}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[hsl(24,85%,50%)] text-white text-sm font-semibold hover:bg-[hsl(24,85%,45%)] disabled:opacity-40 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export Excel
-        </button>
+        <div className="flex items-center gap-2">
+          {saved && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-green-600 font-medium">
+              <CheckCircle className="w-3.5 h-3.5" />
+              บันทึกแล้ว
+            </span>
+          )}
+          <button
+            onClick={() => {
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ principal, installment, extra, banks }))
+                setSaved(true)
+                setTimeout(() => setSaved(false), 2000)
+              } catch { /* ignore */ }
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[hsl(35,20%,80%)] bg-white text-[hsl(25,20%,25%)] text-sm font-semibold hover:border-[hsl(24,85%,50%)] hover:text-[hsl(24,85%,50%)] transition-colors"
+          >
+            <Save className="w-4 h-4" />
+            บันทึก
+          </button>
+          <button
+            onClick={exportExcel}
+            disabled={!results.length}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[hsl(24,85%,50%)] text-white text-sm font-semibold hover:bg-[hsl(24,85%,45%)] disabled:opacity-40 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export Excel
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
